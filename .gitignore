@@ -1,0 +1,39 @@
+### Python ###
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+*.pyd
+*.so
+*.dylib
+
+# Byte-compiled / optimized / DLL files
+*.egg
+*.egg-info/
+.eggs/
+*.manifest
+*.spec
+
+### uv ###
+.uv/
+.venv/
+uv.lock
+
+### FastAPI / Uvicorn ###
+*.log
+*.sqlite3
+
+### Node / frontend ###
+node_modules/
+dist/
+build/
+*.map
+
+### OS files ###
+.DS_Store
+Thumbs.db
+
+### Editors ###
+.vscode/
+.idea/
+*.swp
