@@ -9,8 +9,8 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-ARTICLES_DIR = Path("articles")
-ARTICLES_DIR.mkdir(exist_ok=True)
+ARTICLES_DIR = Path("backend/articles")
+ARTICLES_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class Article(BaseModel):
@@ -35,4 +35,20 @@ def write_article(article: Article):
     return {
         "status": "ok",
         "saved_to": filepath
+    }
+
+
+@app.get("api/list")
+def list_all_article():
+    """List all articles"""
+    assert ARTICLES_DIR.exists(), "Articles dir is None."
+    assert ARTICLES_DIR.is_dir(), "Articles dir is not a dir."
+
+    articles = []
+    for article in ARTICLES_DIR.iterdir():
+        articles.append(article)
+    
+    return {
+        "status": "ok",
+        "articles": articles
     }
