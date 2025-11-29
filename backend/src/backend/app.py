@@ -78,7 +78,7 @@ def read_article(filename: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/delete/{filename}")
+@app.delete("/api/delete/{filename}")
 def delete_article(filename: str):
     """Delete article by filename"""
 
