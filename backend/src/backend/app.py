@@ -24,7 +24,7 @@ def is_safe_filename(filename: str) -> bool:
 
 
 def is_safe_filepath(filepath: Path) -> bool:
-    return ARTICLES_DIR in filepath.parents()
+    return ARTICLES_DIR in filepath.parents
     
 
 @app.get("/")
