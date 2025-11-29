@@ -1,3 +1,6 @@
+### specific ###
+articles/
+
 ### Python ###
 __pycache__/
 *.py[cod]

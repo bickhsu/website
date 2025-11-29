@@ -38,15 +38,10 @@ def write_article(article: Article):
     }
 
 
-@app.get("api/list")
+@app.get("/api/list")
 def list_all_article():
     """List all articles"""
-    assert ARTICLES_DIR.exists(), "Articles dir is None."
-    assert ARTICLES_DIR.is_dir(), "Articles dir is not a dir."
-
-    articles = []
-    for article in ARTICLES_DIR.iterdir():
-        articles.append(article)
+    articles = [p.name for p in ARTICLES_DIR.iterdir() if p.is_file()]
     
     return {
         "status": "ok",
