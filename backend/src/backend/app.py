@@ -27,7 +27,7 @@ def home():
 @app.post("/api/write")
 def write_article(article: Article):
     """Recive title and content then save it into txt file"""
-    filename = f"{article.title}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.md"
+    filename = f"{article.title}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
     filepath = ARTICLES_DIR / filename
 
     with open(filepath, "w", encoding="utf-8") as f:
