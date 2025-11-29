@@ -19,6 +19,14 @@ class Article(BaseModel):
     content: str
 
 
+def is_safe_filename(filename: str) -> bool:
+    return bool(re.fullmatch(r"^[A-Za-z0-9][A-Za-z0-9._-]*$", filename))
+
+
+def is_safe_filepath(filepath: Path) -> bool:
+    return ARTICLES_DIR in filepath.parents()
+    
+
 @app.get("/")
 def home():
     return {"message": "Hello, Bick! FastAPI is running."}
@@ -103,11 +111,3 @@ def delete_article(filename: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-def is_safe_filename(filename: str) -> bool:
-    return bool(re.fullmatch(r"^[A-Za-z0-9][A-Za-z0-9._-]*$", filename))
-
-
-def is_safe_filepath(filepath: Path) -> bool:
-    return ARTICLES_DIR in filepath.parents()
-    
