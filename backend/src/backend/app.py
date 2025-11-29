@@ -109,8 +109,5 @@ def is_safe_filename(filename: str) -> bool:
 
 
 def is_safe_filepath(filepath: Path) -> bool:
-    if ARTICLES_DIR in filepath.parents():
-        return True
-    else:
-        return False
+    return ARTICLES_DIR in filepath.parents()
     
