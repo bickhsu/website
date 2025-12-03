@@ -24,6 +24,9 @@ class Article(BaseModel):
 
 
 def is_safe_filename(filename: str) -> bool:
+    if "/" in filename or "\\" in filename:
+        return False
+    
     return bool(re.fullmatch(
         r"^[A-Za-z0-9\u4e00-\u9fff][A-Za-z0-9\u4e00-\u9fff._-]*$",
         filename
