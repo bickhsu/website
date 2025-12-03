@@ -5,10 +5,14 @@ from datetime import datetime
 
 # IMPORT THIRD-PARTY
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 from pydantic import BaseModel
 
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="../frontend"), name="static")
 
 ARTICLES_DIR = Path("backend/articles").resolve()
 ARTICLES_DIR.mkdir(parents=True, exist_ok=True)
@@ -28,10 +32,8 @@ def is_safe_filepath(filepath: Path) -> bool:
     
 
 @app.get("/")
-def home():
-    return {
-        "message": "Hello, Bick! FastAPI is running."
-    }
+def serve_frontend():
+    return FileResponse("../frontend/index.html")
 
 
 @app.post("/api/write")
