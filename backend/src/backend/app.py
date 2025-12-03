@@ -24,7 +24,10 @@ class Article(BaseModel):
 
 
 def is_safe_filename(filename: str) -> bool:
-    return bool(re.fullmatch(r"^[A-Za-z0-9][A-Za-z0-9._-]*$", filename))
+    return bool(re.fullmatch(
+        r"^[A-Za-z0-9\u4e00-\u9fff][A-Za-z0-9\u4e00-\u9fff._-]*$",
+        filename
+    ))
 
 
 def is_safe_filepath(filepath: Path) -> bool:
@@ -61,9 +64,10 @@ def list_all_article():
     }
 
 
-@app.get("/api/read/{filename}")
+@app.get("/api/read/{filename:path}")
 def read_article(filename: str):
     """Read article by filename (full name, including .md)"""
+    print(filename)
     if not is_safe_filename(filename):
         raise HTTPException(status_code=400, detail="Invalid filename")
 
