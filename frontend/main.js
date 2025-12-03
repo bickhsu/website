@@ -38,7 +38,7 @@ async function readArticle(filename) {
     const res = await fetch(`/api/read/${filename}`);
     const data = await res.json();
 
-    alert("Content:\n\n" + data.content);
+    alert(data.filename + "\n\n" + data.content);
 }
 
 
