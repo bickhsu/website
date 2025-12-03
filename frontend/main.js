@@ -1,10 +1,8 @@
-const API_BASE = "http://127.0.0.1:8000"
-
 async function submitArticle() {
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
 
-    await fetch(`${API_BASE}/api/write`, {
+    await fetch("/api/write", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, content })
@@ -16,7 +14,7 @@ async function submitArticle() {
 
 
 async function loadArticles() {
-    const res = await fetch(`${API_BASE}/api/list`);
+    const res = await fetch("/api/list");
     const data = await res.json();
 
     const list = document.getElementById("articleList");
@@ -37,7 +35,7 @@ async function loadArticles() {
 
 
 async function readArticle(filename) {
-    const res = await fetch(`${API_BASE}/api/read/${filename}`);
+    const res = await fetch(`/api/read/${filename}`);
     const data = await res.json();
 
     alert("Content:\n\n + data.content");
@@ -45,7 +43,7 @@ async function readArticle(filename) {
 
 
 async function deleteArticle(filename) {
-    await fetch(`${API_BASE}/api/delete/${filename}`, {
+    await fetch(`/api/delete/${filename}`, {
         method: "DELETE"
     });
     
