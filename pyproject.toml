@@ -1,5 +1,5 @@
 [project]
-name = "backend"
+name = "server"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -13,9 +13,6 @@ dependencies = [
     "sqlalchemy>=2.0.44",
     "uvicorn>=0.38.0",
 ]
-
-[project.scripts]
-backend = "backend:main"
 
 [build-system]
 requires = ["uv_build>=0.9.10,<0.10.0"]

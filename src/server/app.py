@@ -11,11 +11,14 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 
-app = FastAPI()
-app.mount("/static", StaticFiles(directory="../frontend"), name="static")
-
-ARTICLES_DIR = Path("backend/articles").resolve()
+BASE_DIR = Path(__file__).resolve().parents[2]
+STATIC_DIR = BASE_DIR / "data" / "static"
+ARTICLES_DIR = BASE_DIR / "data" / "articles"
 ARTICLES_DIR.mkdir(parents=True, exist_ok=True)
+
+app = FastAPI()
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
 
 
 class Article(BaseModel):
@@ -39,7 +42,7 @@ def is_safe_filepath(filepath: Path) -> bool:
 
 @app.get("/")
 def serve_frontend():
-    return FileResponse("../frontend/index.html")
+    return FileResponse(STATIC_DIR / "index.html")
 
 
 @app.post("/api/write")
