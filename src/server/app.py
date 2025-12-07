@@ -28,9 +28,14 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
-class Article(BaseModel):
+class ArticleSchema(BaseModel):
     title: str
     content: str
+
+    model_config = {
+        "from_attributes": True
+    }
+        
 
 
 def is_safe_filename(filename: str) -> bool:
@@ -52,18 +57,15 @@ def serve_frontend():
     return FileResponse(STATIC_DIR / "index.html")
 
 
-@app.post("/api/write")
-def write_article(article: Article):
+@app.post("/api/write", response_model=ArticleSchema)
+def write_article(data: ArticleSchema, db: Session = Depends(get_db)):
     """Receive title and content then save it into .md file"""
-    filename = f"{article.title}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
-    filepath = ARTICLES_DIR / filename
+    article = Article(title=data.title, content=data.content)
+    db.add(article)
+    db.commit()
+    db.refresh(article)
 
-    filepath.write_text(article.content, encoding="utf-8")
-
-    return {
-        "status": "ok",
-        "saved_to": filepath
-    }
+    return article
 
 
 @app.get("/api/list")
