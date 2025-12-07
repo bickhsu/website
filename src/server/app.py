@@ -1,17 +1,19 @@
 # IMPORT BUILT-IN
 import re
+import asyncio
 from pathlib import Path
 from datetime import datetime
 
+
 # IMPORT THIRD-PARTY
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from pydantic import BaseModel
 
 # IMPORT LOCAL-MODULES
-from server.database import Base, engine
+from server.database import Base, engine, DBSession
 from server.models import article
 
 
@@ -30,6 +32,14 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 class Article(BaseModel):
     title: str
     content: str
+
+
+async def get_db():
+    db = DBSession()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 def is_safe_filename(filename: str) -> bool:
