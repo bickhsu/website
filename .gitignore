@@ -1,5 +1,7 @@
-### specific ###
+### data ###
 articles/
+db/
+*.db
 
 ### Python ###
 __pycache__/

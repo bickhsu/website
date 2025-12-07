@@ -10,11 +10,17 @@ from fastapi.responses import FileResponse
 
 from pydantic import BaseModel
 
+# IMPORT LOCAL-MODULES
+from server.database import Base, engine
+from server.models import article
+
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 STATIC_DIR = BASE_DIR / "data" / "static"
 ARTICLES_DIR = BASE_DIR / "data" / "articles"
 ARTICLES_DIR.mkdir(parents=True, exist_ok=True)
+
+Base.metadata.create_all(bind=engine) # init database
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
