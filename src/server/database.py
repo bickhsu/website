@@ -27,3 +27,11 @@ DBSession = sessionmaker(
 )
 
 Base = declarative_base()
+
+
+def get_db():
+    db = DBSession()
+    try:
+        yield db
+    finally:
+        db.close()
