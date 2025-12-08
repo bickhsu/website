@@ -35,7 +35,7 @@ class ArticleSchema(BaseModel):
     model_config = {
         "from_attributes": True
     }
-        
+
 
 
 def is_safe_filename(filename: str) -> bool:
