@@ -1,4 +1,4 @@
-async function submitArticle() {
+async function createArticle() {
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
 
@@ -34,10 +34,28 @@ async function loadArticles() {
 }
 
 
+async function updateArticle(article_id) {
+    const title = document.getElementById("title").value;
+    const content = document.getElementById("content").value;
+
+    await fetch(`/articles/${article_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, content })
+    });
+
+    alert("Article Update!!")
+    loadArticles();
+}
+
+
 async function readArticle(article_id) {
     const res = await fetch(`/articles/${article_id}`);
     const data = await res.json();
-    alert(data.title + "\n\n" + data.content);
+
+    document.getElementById("title").value = data.title;
+    document.getElementById("content").value = data.content;
+    document.getElementById("updateBtn").onclick = () => updateArticle(article_id);
 }
 
 
@@ -48,5 +66,5 @@ async function deleteArticle(article_id) {
 }
 
 
-document.getElementById("submitBtn").onclick = submitArticle;
+document.getElementById("createBtn").onclick = createArticle;
 loadArticles();
