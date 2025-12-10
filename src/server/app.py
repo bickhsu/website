@@ -1,5 +1,4 @@
 # IMPORT BUILT-IN
-import re
 from pathlib import Path
 from datetime import datetime
 
@@ -9,14 +8,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from sqlalchemy.orm import Session
-
 from pydantic import BaseModel
 
 # IMPORT LOCAL-MODULES
-from server.database import Base, engine, DBSession, get_db
+from server.database import Base, engine, get_db
 from server.models import Article
 
-
+# CONSTANT
 BASE_DIR = Path(__file__).resolve().parents[2]
 STATIC_DIR = BASE_DIR / "data" / "static"
 
@@ -37,8 +35,8 @@ class ArticleOut(BaseModel):
     id: int
     title: str
     content: str
-    created_at: str
-    updated_at: str
+    created_at: datetime
+    updated_at: datetime
 
     model_config = {
         "from_attributes": True
@@ -63,8 +61,8 @@ def write_article(data: ArticleCreate, db: Session = Depends(get_db)):
 @app.get("/articles", response_model=list[ArticleOut])
 def list_articles(db: Session = Depends(get_db)):
     """List all articles"""
-    row = db.query(Article).order_by(Article.created_at.desc()).all()
-    return row
+    rows = db.query(Article).order_by(Article.created_at.desc()).all()
+    return rows
 
 
 @app.get("/articles/{article_id}", response_model=ArticleOut)
@@ -78,7 +76,7 @@ def read_article(article_id: int, db: Session = Depends(get_db)):
 
 @app.put("/articles/{article_id}", response_model=ArticleOut)
 def update_article(article_id: int, data: ArticleUpdate, db: Session = Depends(get_db)):
-    """Update article by id"""
+    """Delete an article by its id"""
     article = db.get(Article, article_id)
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
@@ -102,5 +100,5 @@ def delete_article(article_id: int, db: Session = Depends(get_db)):
     
     db.delete(article)
     db.commit()
-    return {"status": "delete"}
+    return {"status": "deleted"}
 
