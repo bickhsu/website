@@ -22,7 +22,8 @@ async function loadArticles() {
 
     data.forEach(article => {
         const li = document.createElement("li")
-        console.log(article)
+        li.dataset.id = article.id
+
         li.innerHTML = `
             <strong>${article.title}</strong>
             <button onclick="readArticle('${article.id}')">Read</button>
@@ -31,6 +32,7 @@ async function loadArticles() {
 
         list.appendChild(li);
     })
+    highlightCurrentArticle();
 }
 
 
@@ -55,7 +57,24 @@ async function readArticle(article_id) {
 
     document.getElementById("title").value = data.title;
     document.getElementById("content").value = data.content;
+    currentArticleId = article_id
+
+    highlightCurrentArticle();
     document.getElementById("updateBtn").onclick = () => updateArticle(article_id);
+}
+
+
+function highlightCurrentArticle() {
+    const list = document.getElementById("articleList")
+    const items = list.querySelectorAll("li");
+
+    items.forEach(li => {
+        if (li.dataset.id === String(currentArticleId)) {
+            li.classList.add("active-article");
+        } else {
+            li.classList.remove("active-article");
+        }
+    })
 }
 
 
@@ -65,6 +84,6 @@ async function deleteArticle(article_id) {
     loadArticles();
 }
 
-
+let currentArticleId = null;
 document.getElementById("createBtn").onclick = createArticle;
 loadArticles();
