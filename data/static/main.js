@@ -7,8 +7,6 @@ async function createArticle() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, content })
     });
-
-    alert("Article Saved!!")
     loadArticles();
 }
 
@@ -26,8 +24,11 @@ async function loadArticles() {
 
         li.innerHTML = `
             <strong>${article.title}</strong>
-            <button onclick="readArticle('${article.id}')">Read</button>
-            <button onclick="deleteArticle('${article.id}')">Delete</button>
+
+            <div class="btn-group">
+                <button onclick="readArticle('${article.id}')">Read</button>
+                <button onclick="deleteArticle('${article.id}')">Delete</button>
+            </div>
         `;
 
         list.appendChild(li);

@@ -1,37 +1,45 @@
 /* ===== Global Dark Mode ===== */
 body {
-    background-color: #1e1e1e;
+    background-color: #19191a;
     color: #e0e0e0;
     font-family: Arial, sans-serif;
     padding: 20px;
 }
 
 /* ===== Input & Textarea ===== */
+textarea {
+    resize: vertical;
+}
+
 input#title,
 textarea#content {
     background-color: #2c2c2c;
     color: #f5f5f5;
-    border: 1px solid #555;
+    border: 0px solid #555;
     padding: 10px;
     width: 400px;
     border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 input#title:focus,
 textarea#content:focus {
     outline: none;
+    border: 1px;
     border-color: #4f8dfd;
 }
 
 /* ===== Buttons ===== */
 button {
     background-color: #3a3a3a;
-    color: #ddd;
-    border: 1px solid #555;
-    padding: 8px 14px;
+    color: #b6b0b0;
+    border: 0px solid #555;
+    padding: 4px 8px;
     border-radius: 4px;
     cursor: pointer;
     margin-right: 6px;
+    font-size: 12px;
 }
 
 button:hover {
@@ -41,7 +49,7 @@ button:hover {
 
 #updateBtn {
     background-color: #5e5594;
-    color: white;
+    color: rgb(218, 210, 210);
 }
 
 #updateBtn:hover {
@@ -55,7 +63,7 @@ ul#articleList {
 }
 
 ul#articleList li {
-    padding: 8px;
+    padding: 4px 0px 4px 8px;
     margin-bottom: 6px;
     background-color: #2a2a2a;
     border-radius: 4px;
@@ -65,12 +73,36 @@ ul#articleList li {
     align-items: center;
 }
 
-ul#articleList li strong {
-    font-size: 16px;
+li strong {
+    font-size: 14px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 0px;
+    margin-left: auto;
+}
+
+li button {
+    background-color: #414040;
+    color: #c4c1c1;
+    border: 0px solid #555;
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 /* Highlight selected article */
 .active-article {
-    background-color: #3a4b6b !important;
-    border-left: 4px solid #4f8dfd;
+    background-color: #3a4b6b;
+    border-left: 4px solid #86fd4f;
+}
+
+/* hr */
+hr {
+    border: none;
+    height: 1px;
+    background-color: #2f2f2f;
+    margin: 20px 0;
 }
