@@ -2,7 +2,7 @@ async function submitArticle() {
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
 
-    await fetch("/api/write", {
+    await fetch("/articles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, content })
@@ -14,19 +14,19 @@ async function submitArticle() {
 
 
 async function loadArticles() {
-    const res = await fetch("/api/list");
+    const res = await fetch("/articles");
     const data = await res.json();
 
     const list = document.getElementById("articleList");
     list.innerHTML = "";
 
-    data.articles.forEach(name => {
+    data.forEach(article => {
         const li = document.createElement("li")
-
+        console.log(article)
         li.innerHTML = `
-            <strong>${name}</strong>
-            <button onclick="readArticle('${name}')">Read</button>
-            <button onclick="deleteArticle('${name}')">Delete</button>
+            <strong>${article.title}</strong>
+            <button onclick="readArticle('${article.id}')">Read</button>
+            <button onclick="deleteArticle('${article.id}')">Delete</button>
         `;
 
         list.appendChild(li);
@@ -34,22 +34,19 @@ async function loadArticles() {
 }
 
 
-async function readArticle(filename) {
-    const res = await fetch(`/api/read/${filename}`);
+async function readArticle(article_id) {
+    const res = await fetch(`/articles/${article_id}`);
     const data = await res.json();
-
-    alert(data.filename + "\n\n" + data.content);
+    alert(data.title + "\n\n" + data.content);
 }
 
 
-async function deleteArticle(filename) {
-    await fetch(`/api/delete/${filename}`, {
-        method: "DELETE"
-    });
-    
-    alert("Delete: " + filename);
+async function deleteArticle(article_id) {
+    await fetch(`/articles/${article_id}`, { method: "DELETE" });
+    alert("Kill it!");
     loadArticles();
 }
+
 
 document.getElementById("submitBtn").onclick = submitArticle;
 loadArticles();
