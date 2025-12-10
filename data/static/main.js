@@ -47,7 +47,6 @@ async function updateArticle(article_id) {
         body: JSON.stringify({ title, content })
     });
 
-    alert("Article Update!!")
     loadArticles();
 }
 
@@ -81,7 +80,6 @@ function highlightCurrentArticle() {
 
 async function deleteArticle(article_id) {
     await fetch(`/articles/${article_id}`, { method: "DELETE" });
-    alert("Kill it!");
     loadArticles();
 }
 
