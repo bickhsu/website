@@ -19,37 +19,30 @@ from server.models import Article
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 STATIC_DIR = BASE_DIR / "data" / "static"
-ARTICLES_DIR = BASE_DIR / "data" / "articles"
-ARTICLES_DIR.mkdir(parents=True, exist_ok=True)
 
 Base.metadata.create_all(bind=engine) # init database
-
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
-class ArticleSchema(BaseModel):
+class ArticleCreate(BaseModel):
     title: str
     content: str
+
+class ArticleUpdate(BaseModel):
+    title: str | None = None
+    content: str | None = None
+
+class ArticleOut(BaseModel):
+    id: int
+    title: str
+    content: str
+    created_at: str
+    updated_at: str
 
     model_config = {
         "from_attributes": True
     }
-
-
-
-def is_safe_filename(filename: str) -> bool:
-    if "/" in filename or "\\" in filename:
-        return False
-    
-    return bool(re.fullmatch(
-        r"^[A-Za-z0-9\u4e00-\u9fff][A-Za-z0-9\u4e00-\u9fff._ -]*$",
-        filename
-    ))
-
-
-def is_safe_filepath(filepath: Path) -> bool:
-    return ARTICLES_DIR in filepath.parents
     
 
 @app.get("/")
@@ -57,75 +50,57 @@ def serve_frontend():
     return FileResponse(STATIC_DIR / "index.html")
 
 
-@app.post("/api/write", response_model=ArticleSchema)
-def write_article(data: ArticleSchema, db: Session = Depends(get_db)):
-    """Receive title and content then save it into .md file"""
+@app.post("/articles", response_model=ArticleOut)
+def write_article(data: ArticleCreate, db: Session = Depends(get_db)):
+    """Receive title and content then save it into database"""
     article = Article(title=data.title, content=data.content)
     db.add(article)
     db.commit()
     db.refresh(article)
-
     return article
 
 
-@app.get("/api/list")
-def list_all_article():
+@app.get("/articles", response_model=list[ArticleOut])
+def list_articles(db: Session = Depends(get_db)):
     """List all articles"""
-    articles = [p.name for p in ARTICLES_DIR.iterdir() if p.is_file()]
-
-    return {
-        "status": "ok",
-        "articles": articles
-    }
+    row = db.query(Article).order_by(Article.created_at.desc()).all()
+    return row
 
 
-@app.get("/api/read/{filename:path}")
-def read_article(filename: str):
-    """Read article by filename (full name, including .md)"""
-    print(filename)
-    if not is_safe_filename(filename):
-        raise HTTPException(status_code=400, detail="Invalid filename")
+@app.get("/articles/{article_id}", response_model=ArticleOut)
+def read_article(article_id: int, db: Session = Depends(get_db)):
+    """Read article by id"""
+    article = db.get(Article, article_id)
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    return article
 
-    filepath = (ARTICLES_DIR / filename).resolve()
 
-    if not is_safe_filepath(filepath):
-        raise HTTPException(status_code=400, detail="Invalid filename")
-
-    if not filepath.exists():
-        raise HTTPException(status_code=404, detail="File not found")
-
-    try:
-        content = filepath.read_text(encoding="utf-8")
-        return {
-            "status": "ok",
-            "filename": filename,
-            "content": content,
-        }
+@app.put("/articles/{article_id}", response_model=ArticleOut)
+def update_article(article_id: int, data: ArticleUpdate, db: Session = Depends(get_db)):
+    """Update article by id"""
+    article = db.get(Article, article_id)
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
     
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.delete("/api/delete/{filename}")
-def delete_article(filename: str):
-    """Delete article by filename"""
-    if not is_safe_filename(filename):
-        raise HTTPException(status_code=400, detail="Invalid filename")
-
-    filepath = (ARTICLES_DIR / filename).resolve()
+    if data.title is not None:
+        article.title = data.title
+    if data.content is not None:
+        article.content = data.content
     
-    if not is_safe_filepath(filepath):
-        raise HTTPException(status_code=400, detail="Invalid filename")
+    db.commit()
+    db.refresh(article)
+    return article
 
-    if not filepath.exists():
-        raise HTTPException(status_code=404, detail="File not found")
+
+@app.delete("/articles/{article_id}")
+def delete_article(article_id: int, db: Session = Depends(get_db)):
+    """Delete article by id"""
+    article = db.get(Article, article_id)
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
     
-    try:
-        filepath.unlink()
-        return {
-            "status": "ok",
-            "deleted": filename
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    db.delete(article)
+    db.commit()
+    return {"status": "delete"}
 
