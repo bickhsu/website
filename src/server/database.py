@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
@@ -14,8 +15,10 @@ HOST = os.getenv("host")
 PORT = os.getenv("port")
 DBNAME = os.getenv("dbname")
 
+SAFE_PASSWORD = urllib.parse.quote_plus(PASSWORD) if PASSWORD else ""
+
 # Construct the SQLAlchemy connection string
-DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
+DATABASE_URL = f"postgresql+psycopg2://{USER}:{SAFE_PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
 
 # Create the SQLAlchemy engine
 engine = create_engine(DATABASE_URL)
