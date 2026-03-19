@@ -1,8 +1,6 @@
-# IMPORT BUILT-IN
 from pathlib import Path
 from datetime import datetime
 
-# IMPORT THIRD-PARTY
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -10,13 +8,12 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
-# IMPORT LOCAL-MODULES
 from server.database import Base, engine, get_db
 from server.models import Article
 
-# CONSTANT
 BASE_DIR = Path(__file__).resolve().parents[2]
 STATIC_DIR = BASE_DIR / "data" / "static"
+
 
 Base.metadata.create_all(bind=engine) # init database
 app = FastAPI()
