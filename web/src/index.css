@@ -12,10 +12,11 @@ html {
 }
 
 body {
-  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-family: Arial, sans-serif;
+  padding: 20px;
   line-height: 1.5;
-  color: #1a1a1a;
-  background-color: #ffffff;
+  color: #e0e0e0;
+  background-color: #19191a;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -24,7 +25,8 @@ a {
   text-decoration: none;
 }
 
-img, svg {
+img,
+svg {
   display: block;
   max-width: 100%;
 }
