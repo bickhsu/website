@@ -7,7 +7,12 @@ const TiptapEditor = () => {
     content: '<p>Type something...</p>',
   })
 
-  return <EditorContent editor={editor} />
+  return (
+    <div className="prose prose-invert max-w-none">
+      <EditorContent editor={editor} />
+    </div>
+  )
 }
 
 export default TiptapEditor
+
