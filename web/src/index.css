@@ -1,8 +1,72 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+:root {
+  color-scheme: dark;
+}
+
 body {
-  background-color: #19191a;
+  background-color: #0d1117;
   color: #e0e0e0;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+
+/* Customizing prose for Tiptap */
+.prose {
+  max-width: none !important;
+}
+
+.prose :where(p):not(:where([class~="not-prose"] *)) {
+  @apply mb-4 leading-relaxed;
+}
+
+.prose :where(h1):not(:where([class~="not-prose"] *)) {
+  @apply text-3xl font-bold mb-6 mt-8;
+}
+
+.prose :where(h2):not(:where([class~="not-prose"] *)) {
+  @apply text-2xl font-semibold mb-4 mt-6;
+}
+
+.prose :where(code):not(:where([class~="not-prose"] *)) {
+  @apply bg-gray-800 text-pink-400 px-1.5 py-0.5 rounded text-sm font-mono font-medium;
+}
+
+.prose :where(code):not(:where([class~="not-prose"] *))::before {
+  content: "";
+}
+
+.prose :where(code):not(:where([class~="not-prose"] *))::after {
+  content: "";
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 15px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-800 rounded-full border-4 border-solid border-[#0d1117];
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-700;
 }
