@@ -1,7 +1,37 @@
+import { useState } from 'react'
 import { TiptapEditor } from '../features/editor'
 import { Plus, Search, Notebook, Trash2, Save, MoreVertical, Settings } from 'lucide-react'
-
 const Home = () => {
+  const [title, setTitle] = useState("Understanding FBA & Moat")
+  const [content, setContent] = useState("<p>Starting my knowledge graph here...</p>")
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true)
+      const res = await fetch('http://localhost:8000/api/v1/ingest/fragment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // 這裡將標題與內容合併送入 content 欄位，未來也可以擴充 Fragment 加上 title 欄位
+          content: `<h1>${title}</h1>\n${content}`,
+          domain: 'Uncategorized'
+        })
+      })
+
+      if (res.ok) {
+        console.log("Fragment ingested!")
+        // You could trigger a toast notification here
+      } else {
+        console.error("Failed to save", await res.text())
+      }
+    } catch (error) {
+      console.error("API Error:", error)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   return (
     <div className="flex h-[calc(100vh-40px)] w-full gap-6 max-w-7xl mx-auto rounded-xl overflow-hidden shadow-2xl bg-gray-900/40">
       {/* Sidebar - Features/Navigation */}
@@ -19,8 +49,8 @@ const Home = () => {
 
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={14} />
-          <input 
-            placeholder="Search notes..." 
+          <input
+            placeholder="Search notes..."
             className="w-full pl-9 pr-3 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-300"
           />
         </div>
@@ -56,13 +86,17 @@ const Home = () => {
             <span className="w-1 h-1 rounded-full bg-gray-700" />
             <span>431 words</span>
           </div>
-          
+
           <div className="flex items-center gap-2">
-             <button className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-all border border-transparent hover:border-red-900/30">
+            <button className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-all border border-transparent hover:border-red-900/30">
               <Trash2 size={18} />
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-white text-gray-900 rounded-lg transition-all font-bold text-sm shadow-sm active:scale-95">
-              <Save size={16} /> Save Changes
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className={`flex items-center gap-2 px-4 py-2 ${isSaving ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-100 hover:bg-white active:scale-95'} text-gray-900 rounded-lg transition-all font-bold text-sm shadow-sm`}
+            >
+              <Save size={16} /> {isSaving ? 'Saving...' : 'Save Changes'}
             </button>
             <button className="p-2 text-gray-400 hover:text-gray-100 hover:bg-gray-800 rounded-lg transition-colors">
               <MoreVertical size={18} />
@@ -71,16 +105,17 @@ const Home = () => {
         </header>
 
         {/* Note Title */}
-        <input 
-          type="text" 
-          defaultValue="Vite + React Setup"
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           className="text-4xl font-extrabold bg-transparent text-gray-100 placeholder:text-gray-700 focus:outline-none mb-6 caret-blue-500 w-full"
           placeholder="Note Title..."
         />
 
         {/* Tiptap Editor */}
         <div className="flex-1 overflow-auto rounded-xl">
-          <TiptapEditor />
+          <TiptapEditor content={content} onChange={setContent} />
         </div>
       </main>
     </div>

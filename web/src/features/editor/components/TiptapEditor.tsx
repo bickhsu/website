@@ -2,10 +2,18 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Toolbar from './Toolbar'
 
-const TiptapEditor = () => {
+interface TiptapEditorProps {
+  content: string;
+  onChange: (html: string) => void;
+}
+
+const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const editor = useEditor({
     extensions: [StarterKit],
-    content: '<p>Type something...</p>',
+    content: content,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML())
+    },
     editorProps: {
       attributes: {
         // Tailwind prose classes for the internal Tiptap area
@@ -15,13 +23,14 @@ const TiptapEditor = () => {
   })
 
   return (
-    <div className="flex flex-col border border-gray-700 rounded-lg overflow-hidden bg-gray-900/10 shadow-lg">
+    <div className="flex flex-col border border-gray-700 rounded-lg overflow-hidden bg-gray-900/10 shadow-lg h-full">
       <Toolbar editor={editor} />
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto bg-gray-900/30">
         <EditorContent editor={editor} />
       </div>
     </div>
   )
 }
+
 
 export default TiptapEditor
