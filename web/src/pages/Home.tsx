@@ -33,7 +33,7 @@ const Home = () => {
   }
 
   return (
-    <div className="flex h-[calc(100vh-40px)] w-full gap-6 max-w-7xl mx-auto rounded-xl overflow-hidden shadow-2xl bg-gray-900/40">
+    <div className="flex h-[calc(100vh-40px)] w-full gap-6 rounded-xl overflow-hidden shadow-2xl bg-gray-900/40">
       {/* Sidebar - Features/Navigation */}
       <aside className="w-64 border-r border-gray-800 bg-gray-900/60 p-4 flex flex-col gap-6">
 
