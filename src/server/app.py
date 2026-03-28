@@ -12,9 +12,20 @@ from server import schemas
 from server.routers import ingest_router, executions_router
 
 
+from fastapi.middleware.cors import CORSMiddleware
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # In production, lock this down to actual frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(ingest_router)
 app.include_router(executions_router)
 
