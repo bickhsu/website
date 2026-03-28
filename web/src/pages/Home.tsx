@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { TiptapEditor } from '../features/editor'
-import { Plus, Search, Notebook, Trash2, Save, MoreVertical, Settings } from 'lucide-react'
+import { Plus, Notebook, Trash2, Save, MoreVertical, Settings } from 'lucide-react'
 const Home = () => {
   const [title, setTitle] = useState("Understanding FBA & Moat")
   const [content, setContent] = useState("<p>Starting my knowledge graph here...</p>")
@@ -36,24 +36,13 @@ const Home = () => {
     <div className="flex h-[calc(100vh-40px)] w-full gap-6 max-w-7xl mx-auto rounded-xl overflow-hidden shadow-2xl bg-gray-900/40">
       {/* Sidebar - Features/Navigation */}
       <aside className="w-64 border-r border-gray-800 bg-gray-900/60 p-4 flex flex-col gap-6">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-            <Notebook size={18} className="text-white" />
-          </div>
-          <h1 className="text-xl font-bold tracking-tight text-gray-100">Bick Notes</h1>
-        </div>
+
 
         <button className="flex items-center gap-2 w-full p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all font-medium text-sm">
           <Plus size={16} /> New Note
         </button>
 
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={14} />
-          <input
-            placeholder="Search notes..."
-            className="w-full pl-9 pr-3 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-300"
-          />
-        </div>
+
 
         <nav className="flex-1 overflow-auto space-y-1">
           <h2 className="text-xs font-bold text-gray-500 uppercase px-2 mb-2 tracking-wider">Recents</h2>
