@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 import logging
+from uuid import UUID
 
 from server import models, schemas
 from server.database import get_db 
@@ -40,4 +41,25 @@ def ingest_fragment(payload: schemas.FragmentCreate, db: Session = Depends(get_d
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Ingestion pipeline failed. Transaction safely rolled back."
+        )
+
+@router.patch("/fragment/{fragment_id}", response_model=schemas.FragmentOut)
+def update_fragment(fragment_id: UUID, payload: schemas.FragmentBase, db: Session = Depends(get_db)):
+    try:
+        fragment = db.query(models.KnowledgeFragment).filter(models.KnowledgeFragment.id == fragment_id).first()
+        if not fragment:
+            raise HTTPException(status_code=404, detail="Fragment not found")
+        
+        fragment.content = payload.content
+        fragment.domain = payload.domain.value
+        
+        db.commit()
+        db.refresh(fragment)
+        return fragment
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error during fragment update: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update fragment."
         )
