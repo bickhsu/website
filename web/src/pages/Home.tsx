@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { TiptapEditor } from '../features/editor'
-import { Plus, Notebook, Trash2, Save, MoreVertical, Settings } from 'lucide-react'
+import { Save, CheckCircle2 } from 'lucide-react'
+
 const Home = () => {
-  const [title, setTitle] = useState("Understanding FBA & Moat")
-  const [content, setContent] = useState("<p>Starting my knowledge graph here...</p>")
+  const [title, setTitle] = useState("Exploring Knowledge Fragments")
+  const [content, setContent] = useState("<p>Start typing your fragment here...</p>")
+  const [domain, setDomain] = useState("Uncategorized")
   const [isSaving, setIsSaving] = useState(false)
+  const [lastSaved, setLastSaved] = useState<string | null>(null)
 
   const handleSave = async () => {
     try {
@@ -15,13 +18,13 @@ const Home = () => {
         body: JSON.stringify({
           // 這裡將標題與內容合併送入 content 欄位，未來也可以擴充 Fragment 加上 title 欄位
           content: `<h1>${title}</h1>\n${content}`,
-          domain: 'Uncategorized'
+          domain: domain
         })
       })
 
       if (res.ok) {
         console.log("Fragment ingested!")
-        // You could trigger a toast notification here
+        setLastSaved(new Date().toLocaleTimeString())
       } else {
         console.error("Failed to save", await res.text())
       }
@@ -33,77 +36,50 @@ const Home = () => {
   }
 
   return (
-    <div className="flex h-[calc(100vh-40px)] w-full gap-6 rounded-xl overflow-hidden shadow-2xl bg-gray-900/40">
-      {/* Sidebar - Features/Navigation */}
-      <aside className="w-64 border-r border-gray-800 bg-gray-900/60 p-4 flex flex-col gap-6">
-
-
-        <button className="flex items-center gap-2 w-full p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all font-medium text-sm">
-          <Plus size={16} /> New Note
-        </button>
-
-
-
-        <nav className="flex-1 overflow-auto space-y-1">
-          <h2 className="text-xs font-bold text-gray-500 uppercase px-2 mb-2 tracking-wider">Recents</h2>
-          {[
-            "Vite + React Setup",
-            "FastAPI Integration Plan",
-            "Tiptap Features List",
-            "Tailwind v4 Design System",
-          ].map((note, i) => (
-            <button key={i} className="flex items-center gap-2 w-full p-2 text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 rounded-lg transition-colors text-sm text-left truncate">
-              <Notebook size={14} className="flex-shrink-0" /> {note}
-            </button>
-          ))}
-        </nav>
-
-        <div className="pt-4 border-t border-gray-800 flex items-center justify-between px-1">
-          <button className="p-2 text-gray-500 hover:text-gray-300 hover:bg-gray-800 rounded-lg transition-colors">
-            <Settings size={18} />
-          </button>
-          <span className="text-xs text-gray-600 font-mono">v0.1.0</span>
+    <div className="max-w-4xl mx-auto w-full pt-12 animate-in fade-in duration-700">
+      {/* 操作區：固定在頂部 */}
+      <div className="flex items-center justify-between mb-12">
+        <div className="flex items-center gap-3">
+          <input
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+            className="text-xs font-mono uppercase tracking-widest bg-gray-900 text-gray-400 px-3 py-1.5 rounded-full border border-gray-800 focus:outline-none focus:border-blue-500 transition-colors"
+            placeholder="Domain..."
+          />
+          {lastSaved && (
+            <span className="flex items-center gap-1.5 text-xs text-green-500/80 font-medium">
+              <CheckCircle2 size={14} /> Saved at {lastSaved}
+            </span>
+          )}
         </div>
-      </aside>
 
-      {/* Main Content - Editor Area */}
-      <main className="flex-1 flex flex-col p-8 min-w-0 bg-transparent">
-        {/* Note Controls / Toolbar Header */}
-        <header className="flex items-center justify-between mb-8 pb-4 border-b border-gray-800/50">
-          <div className="flex items-center gap-4 text-xs text-gray-500 uppercase tracking-widest font-bold">
-            <span>Last Edited: Just now</span>
-            <span className="w-1 h-1 rounded-full bg-gray-700" />
-            <span>431 words</span>
-          </div>
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className={`
+            flex items-center gap-2.5 px-6 py-2 rounded-xl text-sm font-bold transition-all
+            ${isSaving 
+              ? 'bg-gray-800 text-gray-500 cursor-not-allowed' 
+              : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20 active:scale-95'
+            }
+          `}
+        >
+          <Save size={16} />
+          {isSaving ? 'Processing...' : 'Sync to Backend'}
+        </button>
+      </div>
 
-          <div className="flex items-center gap-2">
-            <button className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-all border border-transparent hover:border-red-900/30">
-              <Trash2 size={18} />
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className={`flex items-center gap-2 px-4 py-2 ${isSaving ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-100 hover:bg-white active:scale-95'} text-gray-900 rounded-lg transition-all font-bold text-sm shadow-sm`}
-            >
-              <Save size={16} /> {isSaving ? 'Saving...' : 'Save Changes'}
-            </button>
-            <button className="p-2 text-gray-400 hover:text-gray-100 hover:bg-gray-800 rounded-lg transition-colors">
-              <MoreVertical size={18} />
-            </button>
-          </div>
-        </header>
-
-        {/* Note Title */}
+      {/* 編輯區 */}
+      <main className="space-y-8 pb-32">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="text-4xl font-extrabold bg-transparent text-gray-100 placeholder:text-gray-700 focus:outline-none mb-6 caret-blue-500 w-full"
-          placeholder="Note Title..."
+          className="w-full text-5xl font-black bg-transparent text-gray-100 placeholder:text-gray-800 focus:outline-none caret-blue-500 border-none p-0"
+          placeholder="New Knowledge title..."
         />
 
-        {/* Tiptap Editor */}
-        <div className="flex-1 overflow-auto rounded-xl">
+        <div className="min-h-[500px] prose prose-invert">
           <TiptapEditor content={content} onChange={setContent} />
         </div>
       </main>
@@ -112,3 +88,4 @@ const Home = () => {
 }
 
 export default Home
+
