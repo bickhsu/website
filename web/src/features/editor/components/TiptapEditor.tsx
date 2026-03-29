@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Toolbar from './Toolbar'
@@ -21,6 +22,13 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       },
     },
   })
+
+  // 當外部 content 改變且與目前編輯器內容不符時，主動更新編輯器 (例如加載歷史記錄)
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content)
+    }
+  }, [content, editor])
 
   return (
     <div className="flex flex-col border border-gray-700 rounded-lg overflow-hidden bg-gray-900/10 shadow-lg h-full">
