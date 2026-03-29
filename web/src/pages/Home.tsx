@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { TiptapEditor } from '../features/editor'
-import { Save, CheckCircle2, History, Loader2 } from 'lucide-react'
+import { Save, CheckCircle2, History, Loader2, Plus } from 'lucide-react'
 
 // 定義簡單的 Fragment 介面
 interface Fragment {
@@ -11,6 +11,7 @@ interface Fragment {
 }
 
 const Home = () => {
+  const [activeId, setActiveId] = useState<string | null>(null) // 追蹤目前編輯的文章 ID
   const [title, setTitle] = useState("Exploring Knowledge Fragments")
   const [content, setContent] = useState("<p>Start typing your fragment here...</p>")
   const [domain, setDomain] = useState("Uncategorized")
@@ -40,11 +41,27 @@ const Home = () => {
     fetchFragments()
   }, [])
 
+  // 功能：建立新文章 (重置編輯器)
+  const handleNew = () => {
+    setActiveId(null)
+    setTitle("Exploring Knowledge Fragments")
+    setContent("<p>Start typing your fragment here...</p>")
+    setDomain("Uncategorized")
+    setLastSaved(null)
+  }
+
   const handleSave = async () => {
     try {
       setIsSaving(true)
-      const res = await fetch('http://localhost:8000/api/v1/ingest/fragment', {
-        method: 'POST',
+      
+      const url = activeId 
+        ? `http://localhost:8000/api/v1/ingest/fragment/${activeId}`
+        : 'http://localhost:8000/api/v1/ingest/fragment'
+      
+      const method = activeId ? 'PATCH' : 'POST'
+
+      const res = await fetch(url, {
+        method: method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           // 這裡將標題與內容合併送入 content 欄位
@@ -68,6 +85,7 @@ const Home = () => {
 
   // 載入特定的 Fragment
   const loadFragment = (f: Fragment) => {
+    setActiveId(f.id)
     // 試著解析 title (若 content 以 <h1> 開頭)
     const titleMatch = f.content.match(/<h1>(.*?)<\/h1>/)
     if (titleMatch) {
@@ -85,6 +103,14 @@ const Home = () => {
       {/* 操作區：固定在頂部 */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
+          {activeId && (
+            <button 
+              onClick={handleNew}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-800 text-gray-400 hover:text-white transition-all flex items-center gap-1.5 border border-transparent hover:border-gray-700"
+            >
+              <Plus size={14} /> New
+            </button>
+          )}
           <input
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
@@ -103,14 +129,17 @@ const Home = () => {
           disabled={isSaving}
           className={`
             flex items-center gap-2.5 px-6 py-2 rounded-xl text-sm font-bold transition-all
-            ${isSaving
-              ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20 active:scale-95'
+            ${isSaving 
+              ? 'bg-gray-800 text-gray-500 cursor-not-allowed' 
+              : activeId 
+                ? 'bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-500/10'
+                : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/10'
             }
+            active:scale-95
           `}
         >
           {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-          {isSaving ? 'Processing...' : 'Publish'}
+          {isSaving ? (activeId ? 'Updating...' : 'Publishing...') : (activeId ? 'Update Fragment' : 'Publish to Graph')}
         </button>
       </div>
 
@@ -144,7 +173,7 @@ const Home = () => {
               <button
                 key={f.id}
                 onClick={() => loadFragment(f)}
-                className="p-5 bg-gray-900/40 border border-gray-800/50 rounded-2xl text-left hover:border-gray-700 hover:bg-gray-800/40 transition-all group scale-100 active:scale-98"
+                className={`p-5 rounded-2xl text-left transition-all group scale-100 active:scale-98 border ${activeId === f.id ? 'bg-blue-900/10 border-blue-500/50 shadow-lg shadow-blue-500/10' : 'bg-gray-900/40 border-gray-800/50 hover:border-gray-700'}`}
               >
                 <div className="text-sky-400 text-[10px] font-mono mb-1.5 uppercase tracking-widest font-bold">{f.domain}</div>
                 <div className="text-sm text-gray-300 font-bold truncate group-hover:text-white transition-colors leading-relaxed">
@@ -154,7 +183,9 @@ const Home = () => {
                   <div className="text-[10px] text-gray-600 font-mono">
                     {new Date(f.created_at).toLocaleDateString()}
                   </div>
-                  <div className="text-[9px] text-gray-700 font-mono group-hover:text-gray-500">LOAD FRAGMENT</div>
+                  <div className={`text-[9px] font-mono ${activeId === f.id ? 'text-blue-400' : 'text-gray-700 group-hover:text-gray-500'}`}>
+                    {activeId === f.id ? 'CURRENTLY EDITING' : 'LOAD FRAGMENT'}
+                  </div>
                 </div>
               </button>
             ))
@@ -170,5 +201,3 @@ const Home = () => {
 }
 
 export default Home
-
-
