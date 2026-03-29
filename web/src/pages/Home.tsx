@@ -16,7 +16,7 @@ const Home = () => {
   const [domain, setDomain] = useState("Uncategorized")
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
-  
+
   // MVP: 最近的文章清單
   const [recents, setRecents] = useState<Fragment[]>([])
   const [isLoadingRecents, setIsLoadingRecents] = useState(false)
@@ -81,9 +81,9 @@ const Home = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto w-full pt-12 animate-in fade-in duration-700 font-sans">
+    <div className="max-w-4xl mx-auto w-full pt-8 animate-in fade-in duration-700 font-sans">
       {/* 操作區：固定在頂部 */}
-      <div className="flex items-center justify-between mb-12">
+      <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <input
             value={domain}
@@ -103,8 +103,8 @@ const Home = () => {
           disabled={isSaving}
           className={`
             flex items-center gap-2.5 px-6 py-2 rounded-xl text-sm font-bold transition-all
-            ${isSaving 
-              ? 'bg-gray-800 text-gray-500 cursor-not-allowed' 
+            ${isSaving
+              ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20 active:scale-95'
             }
           `}
@@ -115,12 +115,12 @@ const Home = () => {
       </div>
 
       {/* 編輯區 */}
-      <main className="space-y-8 min-h-[50vh]">
+      <main className="space-y-4">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full text-5xl font-black bg-transparent text-gray-100 placeholder:text-gray-800 focus:outline-none caret-blue-500 border-none p-0"
+          className="w-full text-3xl font-black bg-transparent text-gray-100 placeholder:text-gray-800 focus:outline-none caret-blue-500 border-none p-0"
           placeholder="New Knowledge title..."
         />
 
@@ -130,12 +130,12 @@ const Home = () => {
       </main>
 
       {/* MVP 歷史列表 */}
-      <footer className="mt-20 pt-12 border-t border-gray-800/50 pb-32">
+      <footer className="mt-0 pt-8 border-t border-gray-800/50 pb-32">
         <div className="flex items-center gap-2 mb-8 text-gray-500">
           <History size={16} />
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] opacity-80">Recently Ingested</h2>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {isLoadingRecents && recents.length === 0 ? (
             <div className="text-sm text-gray-600 font-mono italic">Fetching graph data...</div>
@@ -151,7 +151,7 @@ const Home = () => {
                   {f.content.replace(/<[^>]+>/g, '').slice(0, 60) || "(Empty content)"}
                 </div>
                 <div className="flex items-center justify-between mt-4">
-                   <div className="text-[10px] text-gray-600 font-mono">
+                  <div className="text-[10px] text-gray-600 font-mono">
                     {new Date(f.created_at).toLocaleDateString()}
                   </div>
                   <div className="text-[9px] text-gray-700 font-mono group-hover:text-gray-500">LOAD FRAGMENT</div>
