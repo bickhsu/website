@@ -121,7 +121,7 @@ const Home = () => {
   return (
     <div className="max-w-4xl mx-auto w-full pt-4 font-sans">
       {/* 操作區：固定在頂部 */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {activeId && (
             <button 
