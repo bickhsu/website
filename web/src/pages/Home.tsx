@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { TiptapEditor } from '../features/editor'
-import { Save, CheckCircle2, History, Loader2, Plus } from 'lucide-react'
+import { Save, CheckCircle2, History, Loader2, Plus, Trash2 } from 'lucide-react'
 
 // 定義簡單的 Fragment 介面
 interface Fragment {
@@ -48,6 +48,26 @@ const Home = () => {
     setContent("<p>Start typing your fragment here...</p>")
     setDomain("Uncategorized")
     setLastSaved(null)
+  }
+
+  const handleDelete = async () => {
+    if (!activeId || !confirm("確定要刪除這篇 fragment 嗎？")) return
+    
+    try {
+      setIsSaving(true)
+      const res = await fetch(`http://localhost:8000/api/v1/ingest/fragment/${activeId}`, {
+        method: 'DELETE'
+      })
+      
+      if (res.ok) {
+        handleNew() // 刪除後重置界面
+        fetchFragments() // 更新歷史清單
+      }
+    } catch (error) {
+      console.error("Delete error:", error)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleSave = async () => {
@@ -124,23 +144,35 @@ const Home = () => {
           )}
         </div>
 
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className={`
-            flex items-center gap-2.5 px-6 py-2 rounded-xl text-sm font-bold transition-all
-            ${isSaving 
-              ? 'bg-gray-800 text-gray-500 cursor-not-allowed' 
-              : activeId 
-                ? 'bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-500/10'
-                : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/10'
-            }
-            active:scale-95
-          `}
-        >
-          {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-          {isSaving ? (activeId ? 'Updating...' : 'Publishing...') : (activeId ? 'Update Fragment' : 'Publish to Graph')}
-        </button>
+        <div className="flex items-center gap-2">
+          {activeId && (
+             <button
+              onClick={handleDelete}
+              disabled={isSaving}
+              className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all active:scale-95 disabled:opacity-50"
+              title="Delete Fragment"
+            >
+              <Trash2 size={18} />
+            </button>
+          )}
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className={`
+              flex items-center gap-2.5 px-6 py-2 rounded-xl text-sm font-bold transition-all
+              ${isSaving 
+                ? 'bg-gray-800 text-gray-500 cursor-not-allowed' 
+                : activeId 
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/10'
+                  : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/10'
+              }
+              active:scale-95
+            `}
+          >
+            {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            {isSaving ? (activeId ? 'Updating...' : 'Publishing...') : (activeId ? 'Update Fragment' : 'Publish to Graph')}
+          </button>
+        </div>
       </div>
 
       {/* 編輯區 */}

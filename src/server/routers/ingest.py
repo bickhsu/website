@@ -63,3 +63,20 @@ def update_fragment(fragment_id: UUID, payload: schemas.FragmentBase, db: Sessio
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update fragment."
         )
+
+@router.delete("/fragment/{fragment_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_fragment(fragment_id: UUID, db: Session = Depends(get_db)):
+    try:
+        fragment = db.query(models.KnowledgeFragment).filter(models.KnowledgeFragment.id == fragment_id).first()
+        if not fragment:
+            raise HTTPException(status_code=404, detail="Fragment not found")
+        
+        db.delete(fragment)
+        db.commit()
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error during fragment deletion: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete fragment."
+        )
