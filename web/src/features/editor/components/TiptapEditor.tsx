@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import Toolbar from './Toolbar'
 
 interface TiptapEditorProps {
   content: string;
@@ -17,13 +16,12 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     },
     editorProps: {
       attributes: {
-        // Tailwind prose classes for the internal Tiptap area
-        class: 'prose prose-invert max-w-none focus:outline-none min-h-[300px] p-4',
+        class: 'prose prose-invert max-w-none focus:outline-none min-h-[150px] p-0',
       },
     },
   })
 
-  // 當外部 content 改變且與目前編輯器內容不符時，主動更新編輯器 (例如加載歷史記錄)
+  // 當外部 content 改變且與目前編輯器內容不符時，主動更新編輯器
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content)
@@ -31,14 +29,10 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   }, [content, editor])
 
   return (
-    <div className="flex flex-col border border-gray-700 rounded-lg overflow-hidden bg-gray-900/10 shadow-lg h-full">
-      <Toolbar editor={editor} />
-      <div className="flex-1 overflow-auto bg-gray-900/30">
-        <EditorContent editor={editor} />
-      </div>
+    <div className="w-full bg-gray-900/40 border border-gray-800/60 rounded-3xl p-6 shadow-inner transition-all hover:border-emerald-500/10 active:border-emerald-500/20">
+      <EditorContent editor={editor} />
     </div>
   )
 }
-
 
 export default TiptapEditor
