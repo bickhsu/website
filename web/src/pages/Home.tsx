@@ -22,6 +22,7 @@ interface Execution {
   problem_statement: string
   status: string
   value_delivered?: string
+  execution_log?: string
   created_at: string
 }
 
@@ -42,6 +43,7 @@ const Home = () => {
   
   const [taskTitle, setTaskTitle] = useState("")
   const [problemStatement, setProblemStatement] = useState("")
+  const [executionLog, setExecutionLog] = useState("")
   const [valueDelivered, setValueDelivered] = useState("")
   const [taskStatus, setTaskStatus] = useState("Inprocessing")
   
@@ -62,11 +64,13 @@ const Home = () => {
     if (activeTask) {
       setTaskTitle(activeTask.title || "Untitled Mission")
       setProblemStatement(activeTask.problem_statement || "")
+      setExecutionLog(activeTask.execution_log || "")
       setValueDelivered(activeTask.value_delivered || "")
       setTaskStatus(activeTask.status || "Inprocessing")
     } else {
       setTaskTitle("")
       setProblemStatement("")
+      setExecutionLog("")
       setValueDelivered("")
       setTaskStatus("Inprocessing")
     }
@@ -124,6 +128,7 @@ const Home = () => {
         body: JSON.stringify({
           title: taskTitle,
           problem_statement: problemStatement,
+          execution_log: executionLog,
           value_delivered: valueDelivered,
           status: taskStatus
         })
@@ -278,13 +283,23 @@ const Home = () => {
                   </div>
                </section>
 
-               <section className="mt-1">
+               <section>
                   <div className="flex items-center gap-2 mb-1 text-gray-500 border-b border-gray-800/40 pb-0.5">
                      <Activity size={14} className="text-emerald-500/80" />
                      <h3 className="text-[11px] font-black tracking-[0.15em] text-gray-400 uppercase">Value Delivered</h3>
                   </div>
                   <div className="prose prose-invert">
                     <TiptapEditor content={valueDelivered} onChange={setValueDelivered} />
+                  </div>
+               </section>
+
+               <section className="mt-1">
+                  <div className="flex items-center gap-2 mb-1 text-gray-500 border-b border-gray-800/40 pb-0.5">
+                     <History size={14} className="text-blue-500/80" />
+                     <h3 className="text-[11px] font-black tracking-[0.15em] text-gray-400 uppercase">executionLog</h3>
+                  </div>
+                  <div className="prose prose-invert">
+                    <TiptapEditor content={executionLog} onChange={setExecutionLog} />
                   </div>
                </section>
             </div>
