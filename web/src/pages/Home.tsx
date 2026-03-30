@@ -278,7 +278,7 @@ const Home = () => {
       <main className="flex-1 max-w-5xl mx-auto px-16 pt-8 pb-24 transition-all relative">
         {activeTask ? (
           <div className="animate-in fade-in slide-in-from-bottom duration-500">
-            <header className="flex items-center justify-between mb-12">
+            <header className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-2xl border border-emerald-500/20"><Zap size={20} fill="currentColor" /></div>
                 <div className="flex flex-col">
@@ -309,7 +309,7 @@ const Home = () => {
               <MissionField icon={Activity} label="Value Delivered" content={valueDelivered} onChange={setValueDelivered} />
               <MissionField icon={History} label="Execution Log" content={executionLog} onChange={setExecutionLog} />
 
-              <div className="pt-6">
+              <div className="pt-5">
                 <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
                   <History size={14} className="text-emerald-500/50" />
                   Linked Knowledge Graph
@@ -327,7 +327,7 @@ const Home = () => {
                         onClick={() => { setActiveFragment(f); setActiveTask(null); }}
                         className="p-4 bg-gray-900/20 border border-gray-800/40 rounded-2xl cursor-pointer hover:border-emerald-500/40 transition-all truncate text-xs text-gray-600 italic"
                       >
-                        <span className="font-black text-emerald-500 mr-2 not-italic uppercase tracking-tighter text-[9px]">{f.title || 'untitled'}</span>
+                        <span className="font-black text-emerald-500 mr-2 not-italic uppercase tracking-tighter text-[12px]">{f.title || 'untitled'}</span>
                         {f.content.replace(/<[^>]+>/g, '') || "No content summary"}
                       </div>
                     ))
@@ -358,7 +358,7 @@ const Home = () => {
                   <option value="Uncategorized">Uncategorized</option>
                 </select>
                 <button onClick={() => setActiveFragment(null)} className="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest px-4 transition-colors">Discard</button>
-                <button 
+                <button
                   onClick={() => handleDeleteFragment(activeFragment.id)}
                   className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-95 shadow-xl"
                 >
