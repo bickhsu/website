@@ -219,7 +219,7 @@ const Home = () => {
       </aside>
 
       {/* 主工作區: Task Detail */}
-      <main className="flex-1 max-w-5xl mx-auto px-16 pt-8 pb-40 transition-all duration-300">
+      <main className="flex-1 max-w-5xl mx-auto px-16 pt-4 pb-24 transition-all duration-300">
         {!activeTask ? (
            <div className="flex flex-col items-center justify-center h-[70vh] text-gray-600 gap-4 opacity-50">
              <Target size={64} className="animate-pulse" />
@@ -227,7 +227,7 @@ const Home = () => {
            </div>
         ) : (
           <div className="animate-in fade-in slide-in-from-bottom duration-500">
-            <header className="flex items-center justify-between mb-12">
+            <header className="flex items-center justify-between mb-8">
                <div className="flex items-center gap-4">
                   <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-2xl border border-emerald-500/20">
                      <Zap size={20} fill="currentColor" />
@@ -263,13 +263,13 @@ const Home = () => {
             <input 
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
-              className="w-full text-3xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-emerald-500 text-gray-100 placeholder:text-gray-800"
+              className="w-full text-xl font-black bg-transparent border-none p-0 focus:outline-none mb-4 caret-emerald-500 text-gray-100 placeholder:text-gray-800 tracking-tight"
               placeholder="Task Title..."
             />
 
-            <div className="space-y-16 mb-24">
+            <div className="space-y-8 mb-12">
                <section>
-                  <div className="flex items-center gap-2 mb-6 text-gray-500 border-b border-gray-800 pb-2">
+                  <div className="flex items-center gap-2 mb-3 text-gray-500 border-b border-gray-800 pb-2">
                      <Flag size={14} className="text-emerald-500" />
                      <h3 className="text-xs font-black uppercase tracking-[0.3em]">Problem Statement</h3>
                   </div>
@@ -279,7 +279,7 @@ const Home = () => {
                </section>
 
                <section>
-                  <div className="flex items-center gap-2 mb-6 text-gray-500 border-b border-gray-800 pb-2">
+                  <div className="flex items-center gap-2 mb-3 text-gray-500 border-b border-gray-800 pb-2">
                      <Activity size={14} className="text-emerald-500" />
                      <h3 className="text-xs font-black uppercase tracking-[0.3em]">Value Delivered</h3>
                   </div>
@@ -290,7 +290,7 @@ const Home = () => {
             </div>
 
             {/* Ingest Section */}
-            <div className="mt-40 p-8 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 space-y-6">
+            <div className="mt-12 p-8 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 space-y-6">
                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-emerald-400">
                     <FileText size={18} />
@@ -306,8 +306,8 @@ const Home = () => {
             </div>
 
             {/* History Section */}
-            <div className="mt-20 px-8">
-               <div className="flex items-center gap-2 text-gray-500 mb-8">
+            <div className="mt-8 px-8">
+               <div className="flex items-center gap-2 text-gray-500 mb-4">
                   <History size={16} />
                   <h3 className="text-[10px] font-black uppercase tracking-widest">Linked Fragments (Recent)</h3>
                </div>
