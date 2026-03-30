@@ -263,7 +263,7 @@ const Home = () => {
             <input 
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
-              className="w-full text-5xl font-black bg-transparent border-none p-0 focus:outline-none mb-16 caret-emerald-500 text-gray-100 placeholder:text-gray-800"
+              className="w-full text-3xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-emerald-500 text-gray-100 placeholder:text-gray-800"
               placeholder="Task Title..."
             />
 
