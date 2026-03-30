@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { TiptapEditor } from '../features/editor'
 import { 
   CheckCircle2, 
+  Trash2,
   Plus, 
   Target, 
   Zap, 
@@ -116,6 +117,18 @@ const Home = () => {
         setActiveTask(newTask)
       }
     } catch (err) { console.error(err) }
+  }
+
+  const handleDeleteTask = async (taskId: string) => {
+    if (!confirm("確定要刪除此任務嗎? 這將永久移除工作記錄。")) return
+    try {
+      const res = await fetch(`http://localhost:8000/api/v1/executions/${taskId}`, { method: 'DELETE' })
+      if (res.ok) {
+        if (activeTask?.id === taskId) setActiveTask(null)
+        fetchExecutions()
+        setLastSaved(`Mission Expunged @ ${new Date().toLocaleTimeString()}`)
+      }
+    } catch (err) { console.error("Deletion failed", err) }
   }
 
   const handleSaveTask = async () => {
@@ -244,12 +257,20 @@ const Home = () => {
                 <div className={`text-xs font-black truncate ${activeTask?.id === ex.id ? 'text-emerald-400' : 'text-gray-400 group-hover:text-gray-200'}`}>{ex.title}</div>
                 <div className="mt-2 text-[8px] uppercase tracking-tighter opacity-40">{ex.status}</div>
               </div>
-              <button 
-                onClick={(e) => { e.stopPropagation(); setQuickLinkTaskId(ex.id); }}
-                className="opacity-0 group-hover:opacity-100 p-1.5 bg-emerald-500/20 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all scale-90"
-              >
-                <Plus size={12} />
-              </button>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setQuickLinkTaskId(ex.id); }}
+                  className="opacity-0 group-hover:opacity-100 p-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all scale-90"
+                >
+                  <Plus size={12} />
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleDeleteTask(ex.id); }}
+                  className="opacity-0 group-hover:opacity-100 p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all scale-90"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -273,6 +294,12 @@ const Home = () => {
                       <option value="Inprocessing">Inprocessing</option>
                       <option value="Done">Done</option>
                    </select>
+                   <button 
+                     onClick={() => handleDeleteTask(activeTask.id)}
+                     className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-95 shadow-xl"
+                   >
+                     <Trash2 size={16} />
+                   </button>
                    <button onClick={handleSaveTask} disabled={isSaving} className="px-8 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-emerald-600/10 uppercase tracking-widest">SYNC</button>
                 </div>
              </header>
