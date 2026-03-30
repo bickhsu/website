@@ -10,7 +10,9 @@ import {
   Flag,
   FileText,
   Activity,
-  History
+  History,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react'
 
 // 定義介面
@@ -31,6 +33,9 @@ interface Fragment {
 }
 
 const Home = () => {
+  // --- 介面狀態 ---
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+
   // --- 狀態管理 (Tasks) ---
   const [executions, setExecutions] = useState<Execution[]>([])
   const [activeTask, setActiveTask] = useState<Execution | null>(null)
@@ -154,19 +159,40 @@ const Home = () => {
   }
 
   return (
-    <div className="flex w-full min-h-screen bg-transparent">
+    <div className="flex w-full min-h-screen bg-transparent relative">
+      {/* 展開側邊欄專用按鈕 (當側邊欄關閉時) */}
+      {!isSidebarOpen && (
+        <button 
+          onClick={() => setIsSidebarOpen(true)}
+          className="fixed top-8 left-6 p-2 bg-gray-900 border border-gray-800 rounded-xl text-emerald-500 hover:text-emerald-400 hover:bg-gray-800 shadow-2xl z-50 transition-all active:scale-95"
+        >
+          <PanelLeftOpen size={18} />
+        </button>
+      )}
+
       {/* 側邊欄: TASKS */}
-      <aside className="w-80 border-r border-gray-800/60 bg-gray-900/10 flex flex-col pt-8 pb-12 sticky top-0 h-screen">
-        <div className="px-6 mb-8 flex items-center justify-between font-black uppercase tracking-[0.2em] text-gray-500 text-[11px]">
+      <aside className={`
+        ${isSidebarOpen ? 'w-80 border-r border-gray-800/60 opacity-100' : 'w-0 border-none opacity-0'} 
+        bg-gray-900/10 flex flex-col pt-8 pb-12 sticky top-0 h-screen transition-all duration-300 ease-in-out overflow-hidden
+      `}>
+        <div className="px-6 mb-8 flex items-center justify-between font-black uppercase tracking-[0.2em] text-gray-500 text-[11px] whitespace-nowrap">
           <span className="flex items-center gap-2 italic">
-            <Target size={14} className="text-emerald-500" /> Tasks / Missions
+            <Target size={14} className="text-emerald-500" /> Tasks
           </span>
-          <button 
-            onClick={handleAddNewTask}
-            className="p-1 hover:bg-gray-800 rounded-md transition-all text-emerald-500 hover:text-emerald-400"
-          >
-            <Plus size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+             <button 
+              onClick={handleAddNewTask}
+              className="p-1.5 hover:bg-gray-800 rounded-md transition-all text-emerald-500 hover:text-emerald-400"
+            >
+              <Plus size={16} />
+            </button>
+            <button 
+              onClick={() => setIsSidebarOpen(false)}
+              className="p-1.5 hover:bg-gray-800 rounded-md transition-all text-gray-600 hover:text-white"
+            >
+              <PanelLeftClose size={16} />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-auto px-4 space-y-1">
@@ -176,7 +202,7 @@ const Home = () => {
               onClick={() => setActiveTask(ex)}
               className={`w-full text-left p-4 rounded-2xl transition-all group border ${activeTask?.id === ex.id ? 'bg-emerald-600/5 border-emerald-500/40 shadow-lg shadow-emerald-500/5' : 'bg-transparent border-transparent hover:bg-gray-800/40 hover:border-gray-800/60'}`}
             >
-              <div className={`text-xs font-black leading-relaxed tracking-tight ${activeTask?.id === ex.id ? 'text-emerald-400' : 'text-gray-400 group-hover:text-gray-100'}`}>
+              <div className={`text-xs font-black leading-relaxed tracking-tight break-words ${activeTask?.id === ex.id ? 'text-emerald-400' : 'text-gray-400 group-hover:text-gray-100'}`}>
                 {ex.title}
               </div>
               <div className="flex items-center gap-2 mt-3">
@@ -193,7 +219,7 @@ const Home = () => {
       </aside>
 
       {/* 主工作區: Task Detail */}
-      <main className="flex-1 max-w-5xl mx-auto px-16 pt-8 pb-40">
+      <main className="flex-1 max-w-5xl mx-auto px-16 pt-8 pb-40 transition-all duration-300">
         {!activeTask ? (
            <div className="flex flex-col items-center justify-center h-[70vh] text-gray-600 gap-4 opacity-50">
              <Target size={64} className="animate-pulse" />
@@ -229,7 +255,7 @@ const Home = () => {
                     className="flex items-center gap-2 px-8 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-black transition-all active:scale-95 disabled:bg-gray-800 shadow-xl shadow-emerald-600/10"
                   >
                     {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                    SYNC MISSION
+                    {isSaving ? 'SYNCING...' : 'SYNC MISSION'}
                   </button>
                </div>
             </header>
@@ -270,7 +296,7 @@ const Home = () => {
                     <FileText size={18} />
                     <h3 className="text-sm font-black uppercase tracking-widest">New Mission Fragment</h3>
                   </div>
-                  <button onClick={handleAddFragment} className="px-4 py-1.5 bg-emerald-600 rounded-lg text-[10px] font-black text-white hover:bg-emerald-500 transition-all">
+                  <button onClick={handleAddFragment} className="px-4 py-1.5 bg-emerald-600 rounded-lg text-[10px] font-black text-white hover:bg-emerald-500 transition-all shadow-lg active:scale-95 disabled:opacity-30">
                     Link Fragment
                   </button>
                </div>
@@ -294,8 +320,9 @@ const Home = () => {
                </div>
             </div>
 
+            {/* Feedback Toast */}
             {lastSaved && (
-              <div className="fixed bottom-10 right-10 flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-2xl shadow-2xl font-black text-xs uppercase tracking-widest">
+              <div className="fixed bottom-10 right-10 flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-2xl shadow-2xl font-black text-xs uppercase tracking-widest animate-in slide-in-from-bottom-10">
                 <CheckCircle2 size={16} /> {lastSaved}
               </div>
             )}
