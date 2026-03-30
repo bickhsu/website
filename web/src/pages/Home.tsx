@@ -195,6 +195,17 @@ const Home = () => {
     }
   }, [activeFragment])
 
+  const handleDeleteFragment = async (fragmentId: string) => {
+    if (!confirm("確定要刪除此知識碎片嗎? 這將永久移除錄入內容。")) return
+    try {
+      const res = await fetch(`http://localhost:8000/api/v1/ingest/fragment/${fragmentId}`, { method: 'DELETE' })
+      if (res.ok) {
+        setActiveFragment(null)
+        setLastSaved(`Enlightenment Expunged @ ${new Date().toLocaleTimeString()}`)
+      }
+    } catch (err) { console.error("Deletion failed", err) }
+  }
+
   const handleUpdateFragment = async (newDomain?: string) => {
     if (!activeFragment) return
     try {
@@ -347,6 +358,12 @@ const Home = () => {
                   <option value="Uncategorized">Uncategorized</option>
                 </select>
                 <button onClick={() => setActiveFragment(null)} className="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest px-4 transition-colors">Discard</button>
+                <button 
+                  onClick={() => handleDeleteFragment(activeFragment.id)}
+                  className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-95 shadow-xl"
+                >
+                  <Trash2 size={16} />
+                </button>
                 <button onClick={() => handleUpdateFragment()} disabled={isSaving} className="px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-blue-500/10 uppercase tracking-widest transition-all active:scale-[0.98]">Storage</button>
               </div>
             </header>

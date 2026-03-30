@@ -51,6 +51,7 @@ def update_fragment(fragment_id: UUID, payload: schemas.FragmentBase, db: Sessio
         if not fragment:
             raise HTTPException(status_code=404, detail="Fragment not found")
         
+        fragment.title = payload.title
         fragment.content = payload.content
         fragment.domain = payload.domain.value
         
