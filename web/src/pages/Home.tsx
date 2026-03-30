@@ -49,11 +49,9 @@ const Home = () => {
   const [taskStatus, setTaskStatus] = useState("Inprocessing")
   
   // --- 狀態管理 (Fragments) ---
-  const [fragmentContent, setFragmentContent] = useState("")
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
   const [linkedFragments, setLinkedFragments] = useState<Fragment[]>([])
-  const [fragmentDomain, setFragmentDomain] = useState("Work")
   
   // 快捷錄入 Modal 狀態
   const [quickLinkTaskId, setQuickLinkTaskId] = useState<string | null>(null)
@@ -149,30 +147,6 @@ const Home = () => {
       if (res.ok) {
         setLastSaved(`Mission Synced @ ${new Date().toLocaleTimeString()}`)
         fetchExecutions()
-      }
-    } finally { setIsSaving(false) }
-  }
-
-  const handleAddFragment = async () => {
-    if (!activeTask) return
-    if (!fragmentContent || fragmentContent === '<p></p>') return
-    
-    try {
-      setIsSaving(true)
-      const res = await fetch('http://localhost:8000/api/v1/ingest/fragment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: "Quick Evidence",
-          content: fragmentContent,
-          domain: fragmentDomain,
-          linked_execution_id: activeTask.id
-        })
-      })
-      if (res.ok) {
-        setFragmentContent('<p></p>')
-        setLastSaved(`Knowledge Indexed @ ${new Date().toLocaleTimeString()}`)
-        fetchFragments(activeTask.id)
       }
     } finally { setIsSaving(false) }
   }
@@ -321,30 +295,28 @@ const Home = () => {
                 </section>
 
                 <div className="mt-16 pt-8 border-t border-gray-800">
-                   <div className="flex items-center justify-between mb-8">
-                      <div className="flex items-center gap-4">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-emerald-500/80">Segment Ingestion</h3>
-                        <select 
-                          value={fragmentDomain} 
-                          onChange={(e) => setFragmentDomain(e.target.value)}
-                          className="bg-gray-800 border border-gray-800 text-[10px] font-black uppercase px-2 py-1 rounded-lg text-emerald-500/60 focus:outline-none"
-                        >
-                          <option value="Work">Work</option>
-                          <option value="Personal">Personal</option>
-                          <option value="Side_Project">Side Project</option>
-                          <option value="Uncategorized">Uncategorized</option>
-                        </select>
-                      </div>
-                      <button onClick={handleAddFragment} className="px-6 py-2 bg-emerald-600 text-[10px] font-black text-white rounded-xl shadow-lg shadow-emerald-500/10">LINK FRAGMENT</button>
+                   <div className="flex items-center gap-2 mb-8 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px]">
+                      <History size={14} className="text-emerald-500/50" />
+                      Linked Knowledge Graph // Segmented Evidence
                    </div>
-                   <div className="bg-gray-900/40 border border-gray-800/60 rounded-3xl p-6 mb-12"><TiptapEditor content={fragmentContent} onChange={setFragmentContent} /></div>
+                   
                    <div className="grid grid-cols-2 gap-4">
-                      {linkedFragments.map(f => (
-                        <div key={f.id} onClick={() => { setActiveFragment(f); setActiveTask(null); }} className="p-4 bg-gray-900/20 border border-gray-800/40 rounded-2xl cursor-pointer hover:border-emerald-500/40 transition-all truncate text-xs text-gray-600 italic">
-                          <span className="font-black text-emerald-500 mr-2 not-italic uppercase tracking-tighter text-[9px]">{f.title || 'untitled'}</span>
-                          {f.content.replace(/<[^>]+>/g, '') || "No content summary"}
+                      {linkedFragments.length === 0 ? (
+                        <div className="col-span-2 py-8 text-center border border-dashed border-gray-800/40 rounded-3xl text-[10px] text-gray-700 italic">
+                          No evidence captured or linked for this mission segment.
                         </div>
-                      ))}
+                      ) : (
+                        linkedFragments.map(f => (
+                          <div 
+                            key={f.id} 
+                            onClick={() => { setActiveFragment(f); setActiveTask(null); }} 
+                            className="p-4 bg-gray-900/20 border border-gray-800/40 rounded-2xl cursor-pointer hover:border-emerald-500/40 transition-all truncate text-xs text-gray-600 italic"
+                          >
+                            <span className="font-black text-emerald-500 mr-2 not-italic uppercase tracking-tighter text-[9px]">{f.title || 'untitled'}</span>
+                            {f.content.replace(/<[^>]+>/g, '') || "No content summary"}
+                          </div>
+                        ))
+                      )}
                    </div>
                 </div>
              </div>
