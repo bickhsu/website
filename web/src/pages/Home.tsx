@@ -51,15 +51,14 @@ const Home = () => {
   const [fragmentContent, setFragmentContent] = useState("")
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
-  const [recents, setRecents] = useState<Fragment[]>([])
+  const [linkedFragments, setLinkedFragments] = useState<Fragment[]>([])
 
   // --- 資料抓取 ---
   useEffect(() => {
     fetchExecutions()
-    fetchFragments()
   }, [])
 
-  // 當選中 Tasks 時同步編輯器內容
+  // 當選中 Tasks 時同步編輯器內容並抓取關聯 Fragment
   useEffect(() => {
     if (activeTask) {
       setTaskTitle(activeTask.title || "Untitled Mission")
@@ -67,12 +66,14 @@ const Home = () => {
       setExecutionLog(activeTask.execution_log || "")
       setValueDelivered(activeTask.value_delivered || "")
       setTaskStatus(activeTask.status || "Inprocessing")
+      fetchFragments(activeTask.id) // 只有選中任務時才抓取碎片
     } else {
       setTaskTitle("")
       setProblemStatement("")
       setExecutionLog("")
       setValueDelivered("")
       setTaskStatus("Inprocessing")
+      setLinkedFragments([])
     }
   }, [activeTask])
 
@@ -83,10 +84,10 @@ const Home = () => {
     } catch (err) { console.error("Failed to fetch executions", err) }
   }
 
-  const fetchFragments = async () => {
+  const fetchFragments = async (executionId: string) => {
     try {
-      const res = await fetch('http://localhost:8000/fragments')
-      if (res.ok) setRecents(await res.json())
+      const res = await fetch(`http://localhost:8000/api/v1/executions/${executionId}/fragments`)
+      if (res.ok) setLinkedFragments(await res.json())
     } catch (err) { console.error("Failed to fetch fragments", err) }
   }
 
@@ -158,7 +159,7 @@ const Home = () => {
       if (res.ok) {
         setFragmentContent('<p></p>')
         setLastSaved(`Fragment Linked @ ${new Date().toLocaleTimeString()}`)
-        fetchFragments()
+        fetchFragments(activeTask.id) // 存檔後立即更新局部清單
       }
     } finally { setIsSaving(false) }
   }
@@ -302,36 +303,42 @@ const Home = () => {
                     <TiptapEditor content={executionLog} onChange={setExecutionLog} />
                   </div>
                </section>
-            </div>
 
-            {/* Ingest Section */}
-            <div className="mt-12 p-8 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 space-y-6">
-               <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-emerald-400">
-                    <FileText size={18} />
-                    <h3 className="text-sm font-black uppercase tracking-widest">New Mission Fragment</h3>
+               {/* Integrated Ingest & Fragments Section */}
+               <div className="mt-8 pt-8 border-t border-gray-800">
+                  <div className="flex items-center justify-between mb-4">
+                     <div className="flex items-center gap-2 text-emerald-400">
+                       <FileText size={18} />
+                       <h3 className="text-sm font-black uppercase tracking-widest">Fragments // Capture</h3>
+                     </div>
+                     <button onClick={handleAddFragment} className="px-4 py-1.5 bg-emerald-600 rounded-lg text-[10px] font-black text-white hover:bg-emerald-500 transition-all shadow-lg active:scale-95 disabled:opacity-30">
+                       Link Evidence
+                     </button>
                   </div>
-                  <button onClick={handleAddFragment} className="px-4 py-1.5 bg-emerald-600 rounded-lg text-[10px] font-black text-white hover:bg-emerald-500 transition-all shadow-lg active:scale-95 disabled:opacity-30">
-                    Link Fragment
-                  </button>
-               </div>
-               <div className="prose prose-invert border-b border-emerald-500/10 pb-4">
-                  <TiptapEditor content={fragmentContent} onChange={setFragmentContent} />
-               </div>
-            </div>
+                  
+                  <div className="bg-emerald-500/[0.03] border border-emerald-500/10 rounded-2xl p-2 mb-8">
+                     <TiptapEditor content={fragmentContent} onChange={setFragmentContent} />
+                  </div>
 
-            {/* History Section */}
-            <div className="mt-8 px-8">
-               <div className="flex items-center gap-2 text-gray-500 mb-4">
-                  <History size={16} />
-                  <h3 className="text-[10px] font-black uppercase tracking-widest">Linked Fragments (Recent)</h3>
-               </div>
-               <div className="grid grid-cols-2 gap-4 text-xs italic text-gray-600">
-                  {recents.slice(0, 4).map(f => (
-                    <div key={f.id} className="p-4 rounded-xl bg-gray-900/40 border border-gray-800/60 font-mono truncate">
-                       {f.content.replace(/<[^>]+>/g, '') || "(Empty content)"}
-                    </div>
-                  ))}
+                  <div className="px-2">
+                     <div className="flex items-center gap-2 text-gray-600 mb-4 opacity-70">
+                        <History size={14} />
+                        <h3 className="text-[9px] font-black uppercase tracking-[0.2em]">Linked History</h3>
+                     </div>
+                     <div className="grid grid-cols-2 gap-3 text-xs italic text-gray-700">
+                        {linkedFragments.length === 0 ? (
+                          <div className="col-span-2 py-4 text-center border border-dashed border-gray-800/40 rounded-xl text-[10px]">
+                            No evidence captured for this mission segment.
+                          </div>
+                        ) : (
+                          linkedFragments.slice(0, 4).map(f => (
+                            <div key={f.id} className="p-3 rounded-xl bg-gray-900/20 border border-gray-800/40 font-mono truncate">
+                               {f.content.replace(/<[^>]+>/g, '') || "(Empty content)"}
+                            </div>
+                          ))
+                        )}
+                     </div>
+                  </div>
                </div>
             </div>
 

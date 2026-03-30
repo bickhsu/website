@@ -56,3 +56,15 @@ def delete_execution(execution_id: UUID, db: Session = Depends(get_db)):
     
     db.delete(execution)
     db.commit()
+
+@router.get("/{execution_id}/fragments", response_model=List[schemas.FragmentOut])
+def get_execution_fragments(execution_id: UUID, db: Session = Depends(get_db)):
+    # 透過 ContextualEdge 找出所有連結到此任務的 Fragment
+    edges = db.query(models.ContextualEdge).filter(
+        models.ContextualEdge.source_id == execution_id,
+        models.ContextualEdge.source_type == 'execution_unit',
+        models.ContextualEdge.target_type == 'knowledge_fragment'
+    ).all()
+    
+    fragment_ids = [edge.target_id for edge in edges]
+    return db.query(models.KnowledgeFragment).filter(models.KnowledgeFragment.id.in_(fragment_ids)).all()
