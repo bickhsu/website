@@ -6,6 +6,7 @@ from .enums import DomainEnum
 
 
 class FragmentBase(BaseModel):
+    title: Optional[str] = None
     content: str = Field(..., min_length=5, description="零碎知識點的具體內容")
     domain: DomainEnum = Field(default=DomainEnum.UNCATEGORIZED)
 

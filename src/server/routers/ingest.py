@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 def ingest_fragment(payload: schemas.FragmentCreate, db: Session = Depends(get_db)):
     try:
         new_fragment = models.KnowledgeFragment(
+            title=payload.title,
             content=payload.content,
             domain=payload.domain.value 
         )
