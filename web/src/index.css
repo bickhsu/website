@@ -35,9 +35,9 @@ body {
 }
 
 .prose :where(p):not(:where([class~="not-prose"] *)) {
-  margin-top: 0 !important;
-  margin-bottom: 0.5rem !important;
-  @apply leading-snug;
+  margin-top: 0.25rem !important;
+  margin-bottom: 1.25rem !important;
+  @apply leading-relaxed;
 }
 
 .prose :where(h1):not(:where([class~="not-prose"] *)) {
