@@ -1,12 +1,25 @@
 import { useState, useEffect } from 'react'
 import { TiptapEditor } from '../features/editor'
-import { Save, CheckCircle2, History, Loader2, Plus, Trash2, Target, Zap } from 'lucide-react'
+import { 
+  Save, 
+  CheckCircle2, 
+  Loader2, 
+  Plus, 
+  Target, 
+  Zap, 
+  Flag,
+  FileText,
+  Activity,
+  History
+} from 'lucide-react'
 
 // 定義介面
 interface Execution {
   id: string
+  title: string
   problem_statement: string
   status: string
+  value_delivered?: string
   created_at: string
 }
 
@@ -18,26 +31,41 @@ interface Fragment {
 }
 
 const Home = () => {
-  // --- 狀態管理 ---
+  // --- 狀態管理 (Tasks) ---
   const [executions, setExecutions] = useState<Execution[]>([])
   const [activeTask, setActiveTask] = useState<Execution | null>(null)
   
-  const [activeId, setActiveId] = useState<string | null>(null) // 追蹤目前編輯的文章 ID
-  const [title, setTitle] = useState("Exploring Knowledge")
-  const [content, setContent] = useState("<p>Knowledge capture in progress...</p>")
-  const [domain, setDomain] = useState("Uncategorized")
+  const [taskTitle, setTaskTitle] = useState("")
+  const [problemStatement, setProblemStatement] = useState("")
+  const [valueDelivered, setValueDelivered] = useState("")
+  const [taskStatus, setTaskStatus] = useState("Inprocessing")
   
+  // --- 狀態管理 (Fragments) ---
+  const [fragmentContent, setFragmentContent] = useState("")
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
-  
   const [recents, setRecents] = useState<Fragment[]>([])
-  const [isLoadingRecents, setIsLoadingRecents] = useState(false)
 
   // --- 資料抓取 ---
   useEffect(() => {
     fetchExecutions()
     fetchFragments()
   }, [])
+
+  // 當選中 Tasks 時同步編輯器內容
+  useEffect(() => {
+    if (activeTask) {
+      setTaskTitle(activeTask.title || "Untitled Mission")
+      setProblemStatement(activeTask.problem_statement || "")
+      setValueDelivered(activeTask.value_delivered || "")
+      setTaskStatus(activeTask.status || "Inprocessing")
+    } else {
+      setTaskTitle("")
+      setProblemStatement("")
+      setValueDelivered("")
+      setTaskStatus("Inprocessing")
+    }
+  }, [activeTask])
 
   const fetchExecutions = async () => {
     try {
@@ -48,111 +76,96 @@ const Home = () => {
 
   const fetchFragments = async () => {
     try {
-      setIsLoadingRecents(true)
       const res = await fetch('http://localhost:8000/fragments')
-      if (res.ok) {
-        const data = await res.json()
-        setRecents(data.slice(0, 10)) // 顯示稍多一點
-      }
-    } catch (err) { console.error("Failed to fetch fragments", err) } finally {
-      setIsLoadingRecents(false)
-    }
+      if (res.ok) setRecents(await res.json())
+    } catch (err) { console.error("Failed to fetch fragments", err) }
   }
 
-  // --- 功能邏輯 ---
+  // --- 功能邏輯 : Tasks ---
   const handleAddNewTask = async () => {
-    const promptValue = prompt("請輸入任務目標 (Problem Statement):")
-    if (!promptValue) return
+    const title = prompt("請輸入新任務標題:")
+    if (!title) return
     
     try {
       const res = await fetch('http://localhost:8000/api/v1/executions/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ problem_statement: promptValue, status: 'Doing' })
+        body: JSON.stringify({ 
+          title: title, 
+          problem_statement: "<p>What problem are we solving?</p>", 
+          status: 'Inprocessing' 
+        })
       })
       if (res.ok) {
         const newTask = await res.json()
         setExecutions([newTask, ...executions])
         setActiveTask(newTask)
+      } else {
+        const errorText = await res.text()
+        alert(`建立失敗 (${res.status}): ${errorText}`)
       }
-    } catch (err) { console.error(err) }
-  }
-
-  const handleNew = () => {
-    setActiveId(null)
-    setTitle("New Fragment")
-    setContent("<p>Capture fresh knowledge...</p>")
-    setDomain("Uncategorized")
-    setLastSaved(null)
-  }
-
-  const handleDelete = async () => {
-    if (!activeId || !confirm("確定要刪除這篇 fragment 嗎？")) return
-    try {
-      setIsSaving(true)
-      const res = await fetch(`http://localhost:8000/api/v1/ingest/fragment/${activeId}`, {
-        method: 'DELETE'
-      })
-      if (res.ok) {
-        handleNew()
-        fetchFragments()
-      }
-    } finally { setIsSaving(false) }
-  }
-
-  const handleSave = async () => {
-    try {
-      setIsSaving(true)
-      const url = activeId ? `http://localhost:8000/api/v1/ingest/fragment/${activeId}` : 'http://localhost:8000/api/v1/ingest/fragment'
-      const method = activeId ? 'PATCH' : 'POST'
-      
-      const payload = {
-        content: `<h1>${title}</h1>\n${content}`,
-        domain: domain,
-        // 如果是新增 Fragment，則自動串接當前任務內容
-        linked_execution_id: activeId ? undefined : activeTask?.id
-      }
-
-      const res = await fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-
-      if (res.ok) {
-        setLastSaved(new Date().toLocaleTimeString())
-        fetchFragments()
-      }
-    } finally { setIsSaving(false) }
-  }
-
-  const loadFragment = (f: Fragment) => {
-    setActiveId(f.id)
-    const titleMatch = f.content.match(/<h1>(.*?)<\/h1>/)
-    if (titleMatch) {
-      setTitle(titleMatch[1])
-      setContent(f.content.replace(titleMatch[0], '').trim())
-    } else {
-      setContent(f.content)
-      setTitle("Untitled Fragment")
+    } catch (err) { 
+      alert(`連線到 API 發生錯誤 (可能伺服器沒開): ${err}`)
     }
-    setDomain(f.domain)
+  }
+
+  const handleSaveTask = async () => {
+    if (!activeTask) return
+    try {
+      setIsSaving(true)
+      const res = await fetch(`http://localhost:8000/api/v1/executions/${activeTask.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: taskTitle,
+          problem_statement: problemStatement,
+          value_delivered: valueDelivered,
+          status: taskStatus
+        })
+      })
+      if (res.ok) {
+        setLastSaved(`Success: Task Synced @ ${new Date().toLocaleTimeString()}`)
+        fetchExecutions()
+      }
+    } finally { setIsSaving(false) }
+  }
+
+  const handleAddFragment = async () => {
+    if (!activeTask) return alert("請先選擇或建立一個任務。")
+    if (!fragmentContent || fragmentContent === '<p></p>') return alert("請輸入內容。")
+    
+    try {
+      setIsSaving(true)
+      const res = await fetch('http://localhost:8000/api/v1/ingest/fragment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: fragmentContent,
+          domain: "Task Log",
+          linked_execution_id: activeTask.id
+        })
+      })
+      if (res.ok) {
+        setFragmentContent('<p></p>')
+        setLastSaved(`Fragment Linked @ ${new Date().toLocaleTimeString()}`)
+        fetchFragments()
+      }
+    } finally { setIsSaving(false) }
   }
 
   return (
     <div className="flex w-full min-h-screen bg-transparent">
-      {/* 任務側邊欄 */}
+      {/* 側邊欄: TASKS */}
       <aside className="w-80 border-r border-gray-800/60 bg-gray-900/10 flex flex-col pt-8 pb-12 sticky top-0 h-screen">
-        <div className="px-6 mb-8 flex items-center justify-between">
-          <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 flex items-center gap-2">
-            <Target size={14} className="text-blue-500" /> Current Missions
-          </h2>
+        <div className="px-6 mb-8 flex items-center justify-between font-black uppercase tracking-[0.2em] text-gray-500 text-[11px]">
+          <span className="flex items-center gap-2 italic">
+            <Target size={14} className="text-emerald-500" /> Tasks / Missions
+          </span>
           <button 
             onClick={handleAddNewTask}
-            className="p-1 hover:bg-gray-800 rounded-md transition-colors text-gray-500 hover:text-white"
-            title="Start New Task"
+            className="p-1 hover:bg-gray-800 rounded-md transition-all text-emerald-500 hover:text-emerald-400"
           >
-            <Plus size={16} />
+            <Plus size={18} />
           </button>
         </div>
 
@@ -161,16 +174,16 @@ const Home = () => {
             <button
               key={ex.id}
               onClick={() => setActiveTask(ex)}
-              className={`w-full text-left p-3.5 rounded-2xl transition-all group border ${activeTask?.id === ex.id ? 'bg-blue-600/5 border-blue-500/40 shadow-lg shadow-blue-500/5' : 'bg-transparent border-transparent hover:bg-gray-800/30'}`}
+              className={`w-full text-left p-4 rounded-2xl transition-all group border ${activeTask?.id === ex.id ? 'bg-emerald-600/5 border-emerald-500/40 shadow-lg shadow-emerald-500/5' : 'bg-transparent border-transparent hover:bg-gray-800/40 hover:border-gray-800/60'}`}
             >
-              <div className={`text-xs font-bold leading-relaxed ${activeTask?.id === ex.id ? 'text-blue-400' : 'text-gray-400 group-hover:text-gray-200'}`}>
-                {ex.problem_statement}
+              <div className={`text-xs font-black leading-relaxed tracking-tight ${activeTask?.id === ex.id ? 'text-emerald-400' : 'text-gray-400 group-hover:text-gray-100'}`}>
+                {ex.title}
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <span className={`text-[9px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider ${activeTask?.id === ex.id ? 'bg-blue-500/20 text-blue-300' : 'bg-gray-800 text-gray-500'}`}>
+              <div className="flex items-center gap-2 mt-3">
+                <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest ${ex.status === 'Done' ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-300 border border-blue-500/20'}`}>
                   {ex.status}
                 </span>
-                <span className="text-[9px] text-gray-600 font-mono italic">
+                <span className="text-[10px] text-gray-700 font-mono italic">
                   {new Date(ex.created_at).toLocaleDateString()}
                 </span>
               </div>
@@ -179,100 +192,115 @@ const Home = () => {
         </div>
       </aside>
 
-      {/* 編輯主區域 */}
-      <main className="flex-1 max-w-5xl mx-auto px-12 pt-8 font-sans pb-40">
-        {/* 操作與狀態列 */}
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-3">
-            {activeTask && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 rounded-xl border border-blue-500/20 text-[10px] font-black text-blue-400/90 uppercase tracking-widest animate-in slide-in-from-left duration-300">
-                <Zap size={14} className="fill-blue-500/30" /> Mission Active: {activeTask.problem_statement.slice(0, 30)}...
-                <button onClick={() => setActiveTask(null)} className="ml-2 hover:text-white">✕</button>
-              </div>
-            )}
-            {activeId && (
-              <button onClick={handleNew} className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-800 text-gray-400 hover:text-white transition-all flex items-center gap-1.5 border border-transparent hover:border-gray-700">
-                <Plus size={14} /> New Fragment
-              </button>
-            )}
-            {!activeTask && !activeId && (
-               <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Select a mission to link fragments</div>
-            )}
-          </div>
+      {/* 主工作區: Task Detail */}
+      <main className="flex-1 max-w-5xl mx-auto px-16 pt-8 pb-40">
+        {!activeTask ? (
+           <div className="flex flex-col items-center justify-center h-[70vh] text-gray-600 gap-4 opacity-50">
+             <Target size={64} className="animate-pulse" />
+             <div className="text-xs font-black uppercase tracking-widest">Select a task from sidebar to begin mission</div>
+           </div>
+        ) : (
+          <div className="animate-in fade-in slide-in-from-bottom duration-500">
+            <header className="flex items-center justify-between mb-12">
+               <div className="flex items-center gap-4">
+                  <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-2xl border border-emerald-500/20">
+                     <Zap size={20} fill="currentColor" />
+                  </div>
+                  <div className="flex flex-col">
+                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Active Task ID</span>
+                     <code className="text-[10px] text-gray-700 font-mono">{activeTask.id.slice(0, 8)}...</code>
+                  </div>
+               </div>
 
-          <div className="flex items-center gap-3">
-             {lastSaved && (
-                <span className="text-[10px] text-emerald-500 font-black uppercase tracking-wider animate-pulse flex items-center gap-1">
-                  <CheckCircle2 size={12} /> Sync: {lastSaved}
-                </span>
-              )}
-            <div className="flex items-center gap-2">
-              {activeId && (
-                <button onClick={handleDelete} className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all">
-                  <Trash2 size={18} />
-                </button>
-              )}
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className={`flex items-center gap-2.5 px-6 py-2 rounded-xl text-sm font-bold transition-all ${isSaving ? 'bg-gray-800 text-gray-500' : activeId ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/10' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/10'} active:scale-95`}
-              >
-                {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                {isSaving ? 'Synching...' : (activeId ? 'Update Fragment' : 'Publish to Mission')}
-              </button>
+               <div className="flex items-center gap-4">
+                  <select 
+                    value={taskStatus} 
+                    onChange={(e) => setTaskStatus(e.target.value)}
+                    className="bg-gray-900 border border-gray-800 text-[11px] font-black uppercase tracking-widest text-emerald-400 px-4 py-2 rounded-xl focus:outline-none focus:border-emerald-500 cursor-pointer"
+                  >
+                    <option value="To-Do">To-Do</option>
+                    <option value="Inprocessing">Inprocessing</option>
+                    <option value="Done">Done</option>
+                  </select>
+
+                  <button 
+                    onClick={handleSaveTask}
+                    disabled={isSaving}
+                    className="flex items-center gap-2 px-8 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-black transition-all active:scale-95 disabled:bg-gray-800 shadow-xl shadow-emerald-600/10"
+                  >
+                    {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                    SYNC MISSION
+                  </button>
+               </div>
+            </header>
+
+            <input 
+              value={taskTitle}
+              onChange={(e) => setTaskTitle(e.target.value)}
+              className="w-full text-5xl font-black bg-transparent border-none p-0 focus:outline-none mb-16 caret-emerald-500 text-gray-100 placeholder:text-gray-800"
+              placeholder="Task Title..."
+            />
+
+            <div className="space-y-16 mb-24">
+               <section>
+                  <div className="flex items-center gap-2 mb-6 text-gray-500 border-b border-gray-800 pb-2">
+                     <Flag size={14} className="text-emerald-500" />
+                     <h3 className="text-xs font-black uppercase tracking-[0.3em]">Problem Statement</h3>
+                  </div>
+                  <div className="min-h-[150px] prose prose-invert">
+                    <TiptapEditor content={problemStatement} onChange={setProblemStatement} />
+                  </div>
+               </section>
+
+               <section>
+                  <div className="flex items-center gap-2 mb-6 text-gray-500 border-b border-gray-800 pb-2">
+                     <Activity size={14} className="text-emerald-500" />
+                     <h3 className="text-xs font-black uppercase tracking-[0.3em]">Value Delivered</h3>
+                  </div>
+                  <div className="min-h-[150px] prose prose-invert">
+                    <TiptapEditor content={valueDelivered} onChange={setValueDelivered} />
+                  </div>
+               </section>
             </div>
-          </div>
-        </div>
 
-        {/* 編輯核心 */}
-        <section className="space-y-4 mb-20">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full text-3xl font-black bg-transparent text-gray-100 placeholder:text-gray-800 focus:outline-none caret-blue-500 p-0 border-none"
-            placeholder="Fragment Title..."
-          />
-          <div className="min-h-[400px] prose prose-invert">
-            <TiptapEditor content={content} onChange={setContent} />
-          </div>
-        </section>
-
-        {/* 歷史列表 */}
-        <footer className="pt-12 border-t border-gray-800/50">
-          <div className="flex items-center gap-2 mb-8 text-gray-500">
-            <History size={16} />
-            <h2 className="text-xs font-bold uppercase tracking-[0.2em] opacity-80">Recent Fragments</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-            {isLoadingRecents ? (
-              <div className="text-sm text-gray-600 font-mono italic">Fetching subgraph...</div>
-            ) : recents.length > 0 ? (
-              recents.map(f => (
-                <button
-                  key={f.id}
-                  onClick={() => loadFragment(f)}
-                  className={`p-5 rounded-2xl text-left transition-all border ${activeId === f.id ? 'bg-blue-900/10 border-blue-500/50 shadow-lg shadow-blue-500/10' : 'bg-gray-900/40 border-gray-800/50 hover:border-gray-700'}`}
-                >
-                  <div className="text-sky-400 text-[10px] font-mono mb-1.5 uppercase tracking-widest font-bold">Fragment</div>
-                  <div className="text-sm text-gray-300 font-bold truncate group-hover:text-white leading-relaxed">
-                    {f.content.replace(/<[^>]+>/g, '').slice(0, 60) || "(Empty)"}
+            {/* Ingest Section */}
+            <div className="mt-40 p-8 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 space-y-6">
+               <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-emerald-400">
+                    <FileText size={18} />
+                    <h3 className="text-sm font-black uppercase tracking-widest">New Mission Fragment</h3>
                   </div>
-                  <div className="flex items-center justify-between mt-4">
-                    <div className="text-[10px] text-gray-600 font-mono">{new Date(f.created_at).toLocaleDateString()}</div>
-                    <div className={`text-[9px] font-mono ${activeId === f.id ? 'text-blue-400' : 'text-gray-700'}`}>
-                      {activeId === f.id ? 'FOCUSING' : 'LOAD'}
+                  <button onClick={handleAddFragment} className="px-4 py-1.5 bg-emerald-600 rounded-lg text-[10px] font-black text-white hover:bg-emerald-500 transition-all">
+                    Link Fragment
+                  </button>
+               </div>
+               <div className="prose prose-invert border-b border-emerald-500/10 pb-4">
+                  <TiptapEditor content={fragmentContent} onChange={setFragmentContent} />
+               </div>
+            </div>
+
+            {/* History Section */}
+            <div className="mt-20 px-8">
+               <div className="flex items-center gap-2 text-gray-500 mb-8">
+                  <History size={16} />
+                  <h3 className="text-[10px] font-black uppercase tracking-widest">Linked Fragments (Recent)</h3>
+               </div>
+               <div className="grid grid-cols-2 gap-4 text-xs italic text-gray-600">
+                  {recents.slice(0, 4).map(f => (
+                    <div key={f.id} className="p-4 rounded-xl bg-gray-900/40 border border-gray-800/60 font-mono truncate">
+                       {f.content.replace(/<[^>]+>/g, '') || "(Empty content)"}
                     </div>
-                  </div>
-                </button>
-              ))
-            ) : (
-              <div className="col-span-2 p-8 border border-dashed border-gray-800 rounded-2xl text-center text-gray-600 text-sm">
-                No fragments found in the graph. Create one to start.
+                  ))}
+               </div>
+            </div>
+
+            {lastSaved && (
+              <div className="fixed bottom-10 right-10 flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-2xl shadow-2xl font-black text-xs uppercase tracking-widest">
+                <CheckCircle2 size={16} /> {lastSaved}
               </div>
             )}
           </div>
-        </footer>
+        )}
       </main>
     </div>
   )
