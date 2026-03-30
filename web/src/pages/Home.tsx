@@ -267,23 +267,23 @@ const Home = () => {
               placeholder="Task Title..."
             />
 
-            <div className="space-y-8 mb-12">
+            <div className="mb-4">
                <section>
-                  <div className="flex items-center gap-2 mb-3 text-gray-500 border-b border-gray-800 pb-2">
-                     <Flag size={14} className="text-emerald-500" />
-                     <h3 className="text-xs font-black uppercase tracking-[0.3em]">Problem Statement</h3>
+                  <div className="flex items-center gap-2 mb-1 text-gray-500 border-b border-gray-800/40 pb-0.5">
+                     <Flag size={14} className="text-emerald-500/80" />
+                     <h3 className="text-[11px] font-black tracking-[0.15em] text-gray-400 uppercase">Problem Statement</h3>
                   </div>
-                  <div className="min-h-[150px] prose prose-invert">
+                  <div className="prose prose-invert">
                     <TiptapEditor content={problemStatement} onChange={setProblemStatement} />
                   </div>
                </section>
 
-               <section>
-                  <div className="flex items-center gap-2 mb-3 text-gray-500 border-b border-gray-800 pb-2">
-                     <Activity size={14} className="text-emerald-500" />
-                     <h3 className="text-xs font-black uppercase tracking-[0.3em]">Value Delivered</h3>
+               <section className="mt-1">
+                  <div className="flex items-center gap-2 mb-1 text-gray-500 border-b border-gray-800/40 pb-0.5">
+                     <Activity size={14} className="text-emerald-500/80" />
+                     <h3 className="text-[11px] font-black tracking-[0.15em] text-gray-400 uppercase">Value Delivered</h3>
                   </div>
-                  <div className="min-h-[150px] prose prose-invert">
+                  <div className="prose prose-invert">
                     <TiptapEditor content={valueDelivered} onChange={setValueDelivered} />
                   </div>
                </section>

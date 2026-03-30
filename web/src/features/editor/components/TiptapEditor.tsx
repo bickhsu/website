@@ -29,7 +29,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   }, [content, editor])
 
   return (
-    <div className="w-full bg-transparent hover:bg-white/[0.02] border border-transparent hover:border-white/[0.05] rounded-2xl px-4 py-2 transition-all group">
+    <div className="w-full bg-transparent hover:bg-white/[0.02] border border-transparent hover:border-white/[0.05] rounded-2xl px-4 py-0.5 transition-all group">
       <EditorContent editor={editor} />
     </div>
   )
