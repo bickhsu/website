@@ -195,7 +195,7 @@ const Home = () => {
     }
   }, [activeFragment])
 
-  const handleUpdateFragment = async () => {
+  const handleUpdateFragment = async (newDomain?: string) => {
     if (!activeFragment) return
     try {
       setIsSaving(true)
@@ -205,11 +205,13 @@ const Home = () => {
         body: JSON.stringify({
           title: fragmentEditTitle,
           content: fragmentEditContent,
-          domain: activeFragment.domain
+          domain: newDomain || activeFragment.domain
         })
       })
       if (res.ok) {
         setLastSaved(`Enlightenment Stored @ ${new Date().toLocaleTimeString()}`)
+        // 同步更細本地領域狀態以便切換不跳掉
+        if (newDomain) setActiveFragment({ ...activeFragment, domain: newDomain })
       }
     } finally { setIsSaving(false) }
   }
@@ -328,15 +330,32 @@ const Home = () => {
             <header className="flex items-center justify-between mb-12">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-blue-500/10 text-blue-500 rounded-2xl border border-blue-500/20"><FileText size={20} fill="currentColor" /></div>
-                <h3 className="text-lg font-black text-gray-100 uppercase tracking-widest leading-none">Knowledge Forge</h3>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Knowledge Fragment</span>
+                  <code className="text-[10px] text-gray-700 font-mono italic">{activeFragment.id.slice(0, 8)}</code>
+                </div>
               </div>
               <div className="flex items-center gap-4">
-                <button onClick={() => setActiveFragment(null)} className="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest">Discard Edit</button>
-                <button onClick={handleUpdateFragment} disabled={isSaving} className="px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-blue-500/10 tracking-widest">STORE ENLIGHTENMENT</button>
+                <select
+                  value={activeFragment.domain}
+                  onChange={(e) => handleUpdateFragment(e.target.value)}
+                  className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-blue-400 px-4 py-2 rounded-xl focus:outline-none"
+                >
+                  <option value="Work">Work</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Side_Project">Side Project</option>
+                  <option value="Uncategorized">Uncategorized</option>
+                </select>
+                <button onClick={() => setActiveFragment(null)} className="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest px-4 transition-colors">Discard</button>
+                <button onClick={() => handleUpdateFragment()} disabled={isSaving} className="px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-blue-500/10 uppercase tracking-widest transition-all active:scale-[0.98]">Storage</button>
               </div>
             </header>
-            <input value={fragmentEditTitle} onChange={(e) => setFragmentEditTitle(e.target.value)} className="w-full text-3xl font-black bg-transparent border-none p-0 focus:outline-none mb-12 caret-blue-500 text-gray-100" placeholder="Concept Title..." />
-            <div className="p-10 bg-gray-900/40 border border-gray-800 rounded-[3rem] min-h-[60vh] shadow-inner"><TiptapEditor content={fragmentEditContent} onChange={setFragmentEditContent} /></div>
+
+            <input value={fragmentEditTitle} onChange={(e) => setFragmentEditTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-blue-500 text-gray-100 placeholder:text-gray-800" placeholder="Point Title..." />
+
+            <div className="space-y-12">
+              <MissionField icon={FileText} label="Storage Content" content={fragmentEditContent} onChange={setFragmentEditContent} />
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-[70vh] text-gray-600 gap-6 opacity-40">
