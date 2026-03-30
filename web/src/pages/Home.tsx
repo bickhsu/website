@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { TiptapEditor } from '../features/editor'
-import { 
-  CheckCircle2, 
+import {
+  CheckCircle2,
   Trash2,
-  Plus, 
-  Target, 
-  Zap, 
+  Plus,
+  Target,
+  Zap,
   Flag,
   X,
   Activity,
@@ -34,6 +34,17 @@ interface Fragment {
   created_at: string
 }
 
+// --- 抽離複用組件 : MissionField ---
+const MissionField = ({ icon: Icon, label, content, onChange }: { icon: any, label: string, content: string, onChange: (v: string) => void }) => (
+  <section className="animate-in fade-in slide-in-from-bottom duration-700">
+    <div className="flex items-center gap-2 mb-2 text-gray-500 border-b border-gray-800/40 pb-1">
+      <Icon size={14} />
+      <h3 className="text-[10px] font-black uppercase tracking-widest">{label}</h3>
+    </div>
+    <TiptapEditor content={content} onChange={onChange} />
+  </section>
+)
+
 const Home = () => {
   // --- 介面狀態 ---
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
@@ -41,18 +52,18 @@ const Home = () => {
   // --- 狀態管理 (Tasks) ---
   const [executions, setExecutions] = useState<Execution[]>([])
   const [activeTask, setActiveTask] = useState<Execution | null>(null)
-  
+
   const [taskTitle, setTaskTitle] = useState("")
   const [problemStatement, setProblemStatement] = useState("")
   const [executionLog, setExecutionLog] = useState("")
   const [valueDelivered, setValueDelivered] = useState("")
   const [taskStatus, setTaskStatus] = useState("Inprocessing")
-  
+
   // --- 狀態管理 (Fragments) ---
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
   const [linkedFragments, setLinkedFragments] = useState<Fragment[]>([])
-  
+
   // 快捷錄入 Modal 狀態
   const [quickLinkTaskId, setQuickLinkTaskId] = useState<string | null>(null)
   const [quickFragmentTitle, setQuickFragmentTitle] = useState("")
@@ -98,15 +109,15 @@ const Home = () => {
   const handleAddNewTask = async () => {
     const title = prompt("請輸入新任務標題:")
     if (!title) return
-    
+
     try {
       const res = await fetch('http://localhost:8000/api/v1/executions/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          title: title, 
-          problem_statement: "<p>What problem are we solving?</p>", 
-          status: 'Inprocessing' 
+        body: JSON.stringify({
+          title: title,
+          problem_statement: "<p>What problem are we solving?</p>",
+          status: 'Inprocessing'
         })
       })
       if (res.ok) {
@@ -153,7 +164,7 @@ const Home = () => {
 
   const handleQuickAddFragment = async () => {
     if (!quickLinkTaskId || !quickFragmentTitle) return
-    
+
     try {
       setIsSaving(true)
       const res = await fetch('http://localhost:8000/api/v1/ingest/fragment', {
@@ -222,8 +233,8 @@ const Home = () => {
 
         <div className="flex-1 overflow-auto px-4 space-y-1">
           {executions.map(ex => (
-            <div 
-              key={ex.id} 
+            <div
+              key={ex.id}
               onClick={() => { setActiveTask(ex); setActiveFragment(null); }}
               className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${activeTask?.id === ex.id ? 'bg-emerald-500/10 border-emerald-500/30' : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
             >
@@ -232,13 +243,13 @@ const Home = () => {
                 <div className="mt-2 text-[8px] uppercase tracking-tighter opacity-40">{ex.status}</div>
               </div>
               <div className="flex items-center gap-1">
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); setQuickLinkTaskId(ex.id); }}
                   className="opacity-0 group-hover:opacity-100 p-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all scale-90"
                 >
                   <Plus size={12} />
                 </button>
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); handleDeleteTask(ex.id); }}
                   className="opacity-0 group-hover:opacity-100 p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all scale-90"
                 >
@@ -254,92 +265,83 @@ const Home = () => {
       <main className="flex-1 max-w-5xl mx-auto px-16 pt-8 pb-24 transition-all relative">
         {activeTask ? (
           <div className="animate-in fade-in slide-in-from-bottom duration-500">
-             <header className="flex items-center justify-between mb-12">
-                <div className="flex items-center gap-4">
-                   <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-2xl border border-emerald-500/20"><Zap size={20} fill="currentColor" /></div>
-                   <div className="flex flex-col">
-                      <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Active Mission</span>
-                      <code className="text-[10px] text-gray-700 font-mono italic">{activeTask.id.slice(0, 8)}</code>
-                   </div>
+            <header className="flex items-center justify-between mb-12">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-2xl border border-emerald-500/20"><Zap size={20} fill="currentColor" /></div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Active Mission</span>
+                  <code className="text-[10px] text-gray-700 font-mono italic">{activeTask.id.slice(0, 8)}</code>
                 </div>
-                <div className="flex items-center gap-4">
-                   <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-emerald-400 px-4 py-2 rounded-xl focus:outline-none">
-                      <option value="To-Do">To-Do</option>
-                      <option value="Inprocessing">Inprocessing</option>
-                      <option value="Done">Done</option>
-                   </select>
-                   <button 
-                     onClick={() => handleDeleteTask(activeTask.id)}
-                     className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-95 shadow-xl"
-                   >
-                     <Trash2 size={16} />
-                   </button>
-                   <button onClick={handleSaveTask} disabled={isSaving} className="px-8 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-emerald-600/10 uppercase tracking-widest">SYNC</button>
+              </div>
+              <div className="flex items-center gap-4">
+                <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-emerald-400 px-4 py-2 rounded-xl focus:outline-none">
+                  <option value="To-Do">To-Do</option>
+                  <option value="Inprocessing">Inprocessing</option>
+                  <option value="Done">Done</option>
+                </select>
+                <button
+                  onClick={() => handleDeleteTask(activeTask.id)}
+                  className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-95 shadow-xl"
+                >
+                  <Trash2 size={16} />
+                </button>
+                <button onClick={handleSaveTask} disabled={isSaving} className="px-8 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-emerald-600/10 uppercase tracking-widest">SYNC</button>
+              </div>
+            </header>
+
+            <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-emerald-500 text-gray-100 placeholder:text-gray-800" placeholder="Task Title..." />
+
+            <div className="space-y-3">
+              <MissionField icon={Flag} label="Problem Statement" content={problemStatement} onChange={setProblemStatement} />
+              <MissionField icon={Activity} label="Value Delivered" content={valueDelivered} onChange={setValueDelivered} />
+              <MissionField icon={History} label="Execution Log" content={executionLog} onChange={setExecutionLog} />
+
+              <div className="pt-6">
+                <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
+                  <History size={14} className="text-emerald-500/50" />
+                  Linked Knowledge Graph
                 </div>
-             </header>
 
-             <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-emerald-500 text-gray-100 placeholder:text-gray-800" placeholder="Task Title..." />
-
-             <div className="space-y-6">
-                <section>
-                   <div className="flex items-center gap-2 mb-2 text-gray-500 border-b border-gray-800/40 pb-1"><Flag size={14} /><h3 className="text-[10px] font-black uppercase tracking-widest">Problem Statement</h3></div>
-                   <TiptapEditor content={problemStatement} onChange={setProblemStatement} />
-                </section>
-                <section>
-                   <div className="flex items-center gap-2 mb-2 text-gray-500 border-b border-gray-800/40 pb-1"><Activity size={14} /><h3 className="text-[10px] font-black uppercase tracking-widest">Value Delivered</h3></div>
-                   <TiptapEditor content={valueDelivered} onChange={setValueDelivered} />
-                </section>
-                <section>
-                   <div className="flex items-center gap-2 mb-2 text-gray-500 border-b border-gray-800/40 pb-1"><History size={14} /><h3 className="text-[10px] font-black uppercase tracking-widest">Execution Log</h3></div>
-                   <TiptapEditor content={executionLog} onChange={setExecutionLog} />
-                </section>
-
-                <div className="mt-16 pt-8 border-t border-gray-800">
-                   <div className="flex items-center gap-2 mb-8 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px]">
-                      <History size={14} className="text-emerald-500/50" />
-                      Linked Knowledge Graph // Segmented Evidence
-                   </div>
-                   
-                   <div className="grid grid-cols-2 gap-4">
-                      {linkedFragments.length === 0 ? (
-                        <div className="col-span-2 py-8 text-center border border-dashed border-gray-800/40 rounded-3xl text-[10px] text-gray-700 italic">
-                          No evidence captured or linked for this mission segment.
-                        </div>
-                      ) : (
-                        linkedFragments.map(f => (
-                          <div 
-                            key={f.id} 
-                            onClick={() => { setActiveFragment(f); setActiveTask(null); }} 
-                            className="p-4 bg-gray-900/20 border border-gray-800/40 rounded-2xl cursor-pointer hover:border-emerald-500/40 transition-all truncate text-xs text-gray-600 italic"
-                          >
-                            <span className="font-black text-emerald-500 mr-2 not-italic uppercase tracking-tighter text-[9px]">{f.title || 'untitled'}</span>
-                            {f.content.replace(/<[^>]+>/g, '') || "No content summary"}
-                          </div>
-                        ))
-                      )}
-                   </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {linkedFragments.length === 0 ? (
+                    <div className="col-span-2 py-8 text-center border border-dashed border-gray-800/40 rounded-3xl text-[10px] text-gray-700 italic">
+                      No evidence captured or linked for this mission segment.
+                    </div>
+                  ) : (
+                    linkedFragments.map(f => (
+                      <div
+                        key={f.id}
+                        onClick={() => { setActiveFragment(f); setActiveTask(null); }}
+                        className="p-4 bg-gray-900/20 border border-gray-800/40 rounded-2xl cursor-pointer hover:border-emerald-500/40 transition-all truncate text-xs text-gray-600 italic"
+                      >
+                        <span className="font-black text-emerald-500 mr-2 not-italic uppercase tracking-tighter text-[9px]">{f.title || 'untitled'}</span>
+                        {f.content.replace(/<[^>]+>/g, '') || "No content summary"}
+                      </div>
+                    ))
+                  )}
                 </div>
-             </div>
+              </div>
+            </div>
           </div>
         ) : activeFragment ? (
           <div className="animate-in fade-in slide-in-from-right duration-500">
-             <header className="flex items-center justify-between mb-12">
-                <div className="flex items-center gap-4">
-                   <div className="p-3 bg-blue-500/10 text-blue-500 rounded-2xl border border-blue-500/20"><FileText size={20} fill="currentColor" /></div>
-                   <h3 className="text-lg font-black text-gray-100 uppercase tracking-widest leading-none">Knowledge Forge</h3>
-                </div>
-                <div className="flex items-center gap-4">
-                   <button onClick={() => setActiveFragment(null)} className="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest">Discard Edit</button>
-                   <button onClick={handleUpdateFragment} disabled={isSaving} className="px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-blue-500/10 tracking-widest">STORE ENLIGHTENMENT</button>
-                </div>
-             </header>
-             <input value={fragmentEditTitle} onChange={(e) => setFragmentEditTitle(e.target.value)} className="w-full text-3xl font-black bg-transparent border-none p-0 focus:outline-none mb-12 caret-blue-500 text-gray-100" placeholder="Concept Title..." />
-             <div className="p-10 bg-gray-900/40 border border-gray-800 rounded-[3rem] min-h-[60vh] shadow-inner"><TiptapEditor content={fragmentEditContent} onChange={setFragmentEditContent} /></div>
+            <header className="flex items-center justify-between mb-12">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-blue-500/10 text-blue-500 rounded-2xl border border-blue-500/20"><FileText size={20} fill="currentColor" /></div>
+                <h3 className="text-lg font-black text-gray-100 uppercase tracking-widest leading-none">Knowledge Forge</h3>
+              </div>
+              <div className="flex items-center gap-4">
+                <button onClick={() => setActiveFragment(null)} className="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest">Discard Edit</button>
+                <button onClick={handleUpdateFragment} disabled={isSaving} className="px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-blue-500/10 tracking-widest">STORE ENLIGHTENMENT</button>
+              </div>
+            </header>
+            <input value={fragmentEditTitle} onChange={(e) => setFragmentEditTitle(e.target.value)} className="w-full text-3xl font-black bg-transparent border-none p-0 focus:outline-none mb-12 caret-blue-500 text-gray-100" placeholder="Concept Title..." />
+            <div className="p-10 bg-gray-900/40 border border-gray-800 rounded-[3rem] min-h-[60vh] shadow-inner"><TiptapEditor content={fragmentEditContent} onChange={setFragmentEditContent} /></div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-[70vh] text-gray-600 gap-6 opacity-40">
-             <Target size={64} className="animate-pulse" />
-             <div className="text-[10px] font-black uppercase tracking-[0.3em]">Initialize mission flow to begin capture</div>
+            <Target size={64} className="animate-pulse" />
+            <div className="text-[10px] font-black uppercase tracking-[0.3em]">Initialize mission flow to begin capture</div>
           </div>
         )}
 
@@ -353,45 +355,45 @@ const Home = () => {
       {/* Quick Ingest Modal */}
       {quickLinkTaskId && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
-           <div className="w-full max-w-xl p-10 bg-gray-950 border border-gray-800 rounded-[3rem] shadow-2xl animate-in zoom-in-95 duration-300">
-              <header className="flex items-center justify-between mb-10">
-                 <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-2xl"><Plus size={24} /></div>
-                 <button onClick={() => setQuickLinkTaskId(null)} className="p-2 text-gray-600 hover:text-white transition-all"><X size={20} /></button>
-              </header>
-              <h3 className="text-xl font-black text-gray-100 uppercase tracking-widest mb-2">Rapid Enlightenment</h3>
-              <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest mb-8 italic">Linking to: {executions.find(e => e.id === quickLinkTaskId)?.title}</p>
-              
-              <div className="flex flex-col gap-6 mb-10">
-                 <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-1">Select Domain</label>
-                    <select 
-                      value={quickFragmentDomain} 
-                      onChange={(e) => setQuickFragmentDomain(e.target.value)}
-                      className="w-full bg-gray-900 border border-gray-800 p-4 rounded-3xl text-sm font-black text-emerald-500 focus:outline-none"
-                    >
-                      <option value="Work">Work</option>
-                      <option value="Personal">Personal</option>
-                      <option value="Side_Project">Side Project</option>
-                      <option value="Uncategorized">Uncategorized</option>
-                    </select>
-                 </div>
+          <div className="w-full max-w-xl p-10 bg-gray-950 border border-gray-800 rounded-[3rem] shadow-2xl animate-in zoom-in-95 duration-300">
+            <header className="flex items-center justify-between mb-10">
+              <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-2xl"><Plus size={24} /></div>
+              <button onClick={() => setQuickLinkTaskId(null)} className="p-2 text-gray-600 hover:text-white transition-all"><X size={20} /></button>
+            </header>
+            <h3 className="text-xl font-black text-gray-100 uppercase tracking-widest mb-2">Rapid Enlightenment</h3>
+            <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest mb-8 italic">Linking to: {executions.find(e => e.id === quickLinkTaskId)?.title}</p>
 
-                 <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-1">Point Title</label>
-                    <div className="p-6 bg-gray-900/40 border border-gray-800 rounded-[2rem] focus-within:border-emerald-500/30 transition-all">
-                       <input 
-                          value={quickFragmentTitle} 
-                          onChange={(e) => setQuickFragmentTitle(e.target.value)}
-                          className="w-full bg-transparent border-none focus:outline-none text-white text-lg font-black placeholder:text-gray-800"
-                          placeholder="Fragment Title..."
-                          autoFocus
-                       />
-                    </div>
-                 </div>
+            <div className="flex flex-col gap-6 mb-10">
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-1">Select Domain</label>
+                <select
+                  value={quickFragmentDomain}
+                  onChange={(e) => setQuickFragmentDomain(e.target.value)}
+                  className="w-full bg-gray-900 border border-gray-800 p-4 rounded-3xl text-sm font-black text-emerald-500 focus:outline-none"
+                >
+                  <option value="Work">Work</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Side_Project">Side Project</option>
+                  <option value="Uncategorized">Uncategorized</option>
+                </select>
               </div>
 
-              <button onClick={handleQuickAddFragment} disabled={!quickFragmentTitle || isSaving} className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-emerald-600/20 transition-all active:scale-[0.98]">ESTABLISH KNOWLEDGE EDGE</button>
-           </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-1">Point Title</label>
+                <div className="p-6 bg-gray-900/40 border border-gray-800 rounded-[2rem] focus-within:border-emerald-500/30 transition-all">
+                  <input
+                    value={quickFragmentTitle}
+                    onChange={(e) => setQuickFragmentTitle(e.target.value)}
+                    className="w-full bg-transparent border-none focus:outline-none text-white text-lg font-black placeholder:text-gray-800"
+                    placeholder="Fragment Title..."
+                    autoFocus
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button onClick={handleQuickAddFragment} disabled={!quickFragmentTitle || isSaving} className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-emerald-600/20 transition-all active:scale-[0.98]">ESTABLISH KNOWLEDGE EDGE</button>
+          </div>
         </div>
       )}
     </div>
