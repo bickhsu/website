@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { TiptapEditor } from '../features/editor'
+import { syncContentImages } from '../features/editor/utils/syncContent'
 import {
   CheckCircle2,
   Trash2,
@@ -144,14 +145,25 @@ const Home = () => {
     if (!activeTask) return
     try {
       setIsSaving(true)
+      
+      // 同步所有編輯器欄位中的圖片
+      const syncedProblem = await syncContentImages(problemStatement)
+      const syncedLog = await syncContentImages(executionLog)
+      const syncedValue = await syncContentImages(valueDelivered)
+      
+      // 更新本地狀態以反應同步後的結果
+      setProblemStatement(syncedProblem)
+      setExecutionLog(syncedLog)
+      setValueDelivered(syncedValue)
+
       const res = await fetch(`http://localhost:8000/api/v1/executions/${activeTask.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: taskTitle,
-          problem_statement: problemStatement,
-          execution_log: executionLog,
-          value_delivered: valueDelivered,
+          problem_statement: syncedProblem,
+          execution_log: syncedLog,
+          value_delivered: syncedValue,
           status: taskStatus
         })
       })
@@ -210,12 +222,17 @@ const Home = () => {
     if (!activeFragment) return
     try {
       setIsSaving(true)
+
+      // 同步圖片
+      const syncedContent = await syncContentImages(fragmentEditContent)
+      setFragmentEditContent(syncedContent)
+
       const res = await fetch(`http://localhost:8000/api/v1/ingest/fragment/${activeFragment.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: fragmentEditTitle,
-          content: fragmentEditContent,
+          content: syncedContent,
           domain: newDomain || activeFragment.domain
         })
       })
