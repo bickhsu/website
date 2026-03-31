@@ -23,7 +23,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none focus:outline-none min-h-[2rem] p-0 [&_img]:my-0 [&_img]:inline-block',
+        class: 'prose prose-invert max-w-none focus:outline-none min-h-[2rem] p-0',
       },
     },
   })

@@ -36,7 +36,7 @@ body {
 
 .prose :where(p):not(:where([class~="not-prose"] *)) {
   margin-top: 0.25rem !important;
-  margin-bottom: 1.25rem !important;
+  margin-bottom: 0.25rem !important;
   @apply leading-relaxed;
 }
 
@@ -80,8 +80,9 @@ body {
 .prose img {
   border-radius: 0.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  display: inline-block;
   max-width: 100%;
   height: auto;
 }
