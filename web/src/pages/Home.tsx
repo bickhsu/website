@@ -67,6 +67,41 @@ const KirbyIcon = ({ size = 20 }: { size?: number }) => (
 const Home = () => {
   // --- 介面狀態 ---
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [sidebarWidth, setSidebarWidth] = useState(320)
+  const [isResizing, setIsResizing] = useState(false)
+
+  // --- Resizing 邏輯 ---
+  const startResizing = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsResizing(true)
+  }
+
+  const stopResizing = () => {
+    setIsResizing(false)
+  }
+
+  const resize = (e: MouseEvent) => {
+    if (isResizing) {
+      const newWidth = e.clientX
+      if (newWidth > 150 && newWidth < 600) {
+        setSidebarWidth(newWidth)
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener('mousemove', resize)
+      window.addEventListener('mouseup', stopResizing)
+    } else {
+      window.removeEventListener('mousemove', resize)
+      window.removeEventListener('mouseup', stopResizing)
+    }
+    return () => {
+      window.removeEventListener('mousemove', resize)
+      window.removeEventListener('mouseup', stopResizing)
+    }
+  }, [isResizing])
 
   // --- 狀態管理 (Tasks) ---
   const [executions, setExecutions] = useState<Execution[]>([])
@@ -263,15 +298,18 @@ const Home = () => {
   }
 
   return (
-    <div className="flex w-full min-h-screen bg-transparent relative overflow-hidden">
+    <div className={`flex w-full min-h-screen bg-transparent relative overflow-hidden ${isResizing ? 'cursor-col-resize select-none' : ''}`}>
       {/* 側邊欄切換 */}
       {!isSidebarOpen && (
         <button onClick={() => setIsSidebarOpen(true)} className="fixed top-8 left-6 p-2 bg-gray-900 border border-gray-800 rounded-xl text-brand-500 z-50"><PanelLeftOpen size={18} /></button>
       )}
 
       {/* Sidebar */}
-      <aside className={`${isSidebarOpen ? 'w-80 border-r border-gray-800/60' : 'w-0 opacity-0'} bg-gray-900/10 h-screen transition-all flex flex-col pt-8 pb-12 sticky top-0 overflow-hidden`}>
-        <div className="px-6 mb-8 flex items-center justify-between font-black uppercase tracking-widest text-gray-500 text-[10px]">
+      <aside
+        style={{ width: isSidebarOpen ? sidebarWidth : 0 }}
+        className={`${isSidebarOpen ? 'border-r border-gray-800/60' : 'opacity-0'} bg-gray-900/10 h-screen transition-[width,opacity] flex flex-col pt-8 pb-12 sticky top-0 overflow-hidden group/sidebar`}
+      >
+        <div className="px-6 mb-8 flex items-center justify-between font-black uppercase tracking-widest text-gray-500 text-[10px] min-w-[280px]">
           <span className="flex items-center gap-2"><Target size={14} className="text-brand-500" /> Missions</span>
           <div className="flex items-center gap-1">
             <button onClick={handleAddNewTask} className="p-1.5 hover:bg-gray-800 rounded-md text-brand-500"><Plus size={16} /></button>
@@ -279,7 +317,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto px-4 space-y-1">
+        <div className="flex-1 overflow-auto px-4 space-y-1 min-w-[280px]">
           {executions.map(ex => (
             <div
               key={ex.id}
@@ -307,6 +345,12 @@ const Home = () => {
             </div>
           ))}
         </div>
+
+        {/* Resizer Handle */}
+        <div
+          onMouseDown={startResizing}
+          className="absolute right-0 top-0 w-1.5 h-full cursor-col-resize hover:bg-brand-500/30 transition-colors z-10"
+        />
       </aside>
 
       {/* Main Viewport */}
