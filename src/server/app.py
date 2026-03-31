@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from server.database import Base, engine, get_db
 from server.models import KnowledgeFragment
 from server import schemas
-from server.routers import ingest_router, executions_router
+from server.routers import ingest_router, executions_router, upload_router
 
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,6 +28,7 @@ app.add_middleware(
 
 app.include_router(ingest_router)
 app.include_router(executions_router)
+app.include_router(upload_router)
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 STATIC_DIR = BASE_DIR / "data" / "static"
