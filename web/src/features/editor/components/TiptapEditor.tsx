@@ -1,12 +1,14 @@
 import { useEffect } from 'react'
+import { InputRule } from '@tiptap/core'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
+import { Link } from '@tiptap/extension-link'
 import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu'
-import { Palette } from 'lucide-react'
+import { Palette, Link2 } from 'lucide-react'
 
 interface TiptapEditorProps {
   content: string;
@@ -30,6 +32,41 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       TextStyle,
       Color,
       BubbleMenuExtension,
+      Link.configure({
+        openOnClick: false,
+        autolink: false, // 關閉自動偵測，避免干擾 Markdown 轉換規則
+        defaultProtocol: 'https',
+        HTMLAttributes: {
+          class: 'text-brand-400 no-underline border-b border-brand-500/30 hover:border-brand-500 transition-all cursor-pointer',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
+      }).extend({
+        addInputRules() {
+          return [
+            new InputRule({
+              find: /\[([^\]]+)\]\(([^)]+)\)\s$/,
+              handler: ({ state, range, match }) => {
+                const { tr } = state
+                const start = range.from
+                const end = range.to
+                const label = match[1]
+                const href = match[2]
+
+                if (label && href) {
+                  // 1. 替換整串 [label](url) 為 label 並加上 link mark
+                  tr.replaceWith(start, end, state.schema.text(label, [
+                    state.schema.marks.link.create({ href }),
+                  ]))
+                  
+                  // 2. 在後面補一個沒有連結的空格，方便使用者繼續打字
+                  tr.insert(start + label.length, state.schema.text(' '))
+                }
+              },
+            }),
+          ]
+        },
+      }),
       Image.configure({
         inline: true,
         allowBase64: true, 
@@ -70,6 +107,19 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
                 className={`p-1.5 rounded-lg hover:bg-gray-800 transition-colors text-[10px] font-black uppercase italic ${editor.isActive('italic') ? 'text-brand-500 bg-brand-500/10' : 'text-gray-400'}`}
               >
                 I
+              </button>
+              <button 
+                onClick={() => {
+                  if (editor.isActive('link')) {
+                    editor.chain().focus().unsetLink().run()
+                  } else {
+                    const url = window.prompt('URL')
+                    if (url) editor.chain().focus().setLink({ href: url }).run()
+                  }
+                }}
+                className={`p-1.5 rounded-lg hover:bg-gray-800 transition-colors ${editor.isActive('link') ? 'text-brand-500 bg-brand-500/10' : 'text-gray-400'}`}
+              >
+                <Link2 size={12} />
               </button>
             </div>
             
