@@ -52,6 +52,14 @@ body {
   color: inherit;
 }
 
+/* 讓 Markdown 的 --- (hr) 間距縮小 */
+.prose :where(hr):not(:where([class~="not-prose"] *)) {
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
+  border-top-width: 1px;
+  @apply border-gray-800/60;
+}
+
 .prose :where(p):not(:where([class~="not-prose"] *)) {
   margin-top: 0.25rem !important;
   margin-bottom: 0.25rem !important;
