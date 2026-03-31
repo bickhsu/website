@@ -9,6 +9,9 @@ BUCKET_NAME = "images"
 
 @router.post("/image")
 async def upload_image(file: UploadFile = File(...)):
+    if not supabase_client:
+        raise HTTPException(status_code=500, detail="Supabase is not configured yet. Check .env variables.")
+
     # 檢查是否為圖片
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image.")
