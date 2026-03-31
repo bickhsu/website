@@ -421,6 +421,13 @@ const Home = () => {
           <div className="animate-in fade-in slide-in-from-right duration-500">
             <header className="flex items-center justify-between mb-12">
               <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="p-2 hover:bg-gray-800 rounded-xl text-gray-500 transition-colors"
+                  title={isSidebarOpen ? "收起側邊欄" : "展開側邊欄"}
+                >
+                  {isSidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
+                </button>
                 <div className="p-3 bg-blue-500/10 text-blue-500 rounded-2xl border border-blue-500/20"><FileText size={20} fill="currentColor" /></div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Knowledge Fragment</span>
