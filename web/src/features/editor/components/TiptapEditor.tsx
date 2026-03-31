@@ -30,6 +30,8 @@ const COLORS = [
   { name: 'Gold', value: '#fbbf24' },
 ]
 
+const LANGUAGES = ['javascript', 'typescript', 'python', 'html', 'css', 'sql', 'bash', 'yaml', 'json', 'markdown', 'plaintext']
+
 const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const editor = useEditor({
     extensions: [
@@ -151,6 +153,18 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
               >
                 <Code2 size={12} />
               </button>
+
+              {editor.isActive('codeBlock') && (
+                <select
+                  value={editor.getAttributes('codeBlock').language || 'plaintext'}
+                  onChange={e => editor.chain().focus().updateAttributes('codeBlock', { language: e.target.value }).run()}
+                  className="bg-gray-800 border border-gray-700 text-[10px] text-gray-300 px-2 py-1 rounded-md ml-2 focus:outline-none focus:border-brand-500 capitalize"
+                >
+                  {LANGUAGES.map(lang => (
+                    <option key={lang} value={lang}>{lang}</option>
+                  ))}
+                </select>
+              )}
             </div>
             
             <div className="flex items-center gap-1">
