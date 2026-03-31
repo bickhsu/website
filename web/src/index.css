@@ -131,6 +131,76 @@ body {
   color: #ccc;
 }
 
+/* Code Block & Syntax Highlighting */
+.prose pre {
+  @apply bg-gray-900/80 border border-gray-800 rounded-2xl p-6 my-6 font-mono overflow-x-auto;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0 text-gray-300 text-sm leading-relaxed;
+}
+
+.hljs-comment,
+.hljs-quote {
+  @apply text-gray-600 italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-addition {
+  @apply text-brand-400 font-bold;
+}
+
+.hljs-number,
+.hljs-string,
+.hljs-meta .hljs-meta-string,
+.hljs-literal,
+.hljs-doctag,
+.hljs-regexp {
+  @apply text-blue-400;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  @apply text-brand-100;
+}
+
+.hljs-attribute,
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-class .hljs-title,
+.hljs-type {
+  @apply text-yellow-400;
+}
+
+.hljs-symbol,
+.hljs-bullet,
+.hljs-subst,
+.hljs-meta,
+.hljs-meta .hljs-keyword,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-link {
+  @apply text-pink-400;
+}
+
+.hljs-built_in,
+.hljs-deletion {
+  @apply text-red-400;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
 /* Tiptap Resizer Handle Style */
 .prose .column-resize-handle {
   @apply bg-brand-500/30;

@@ -8,8 +8,12 @@ import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import { Link } from '@tiptap/extension-link'
 import { TableKit } from '@tiptap/extension-table'
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
+import { all, createLowlight } from 'lowlight'
 import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu'
-import { Palette, Link2, Table2 } from 'lucide-react'
+import { Palette, Link2, Table2, Code2 } from 'lucide-react'
+
+const lowlight = createLowlight(all)
 
 interface TiptapEditorProps {
   content: string;
@@ -29,7 +33,9 @@ const COLORS = [
 const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false, // 關閉基礎 CodeBlock，改用帶有語法高亮的版本
+      }),
       TextStyle,
       Color,
       BubbleMenuExtension,
@@ -37,6 +43,9 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         table: {
           resizable: true,
         },
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
       }),
       Link.configure({
         openOnClick: false,
@@ -134,6 +143,13 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
                 title="插入表格 (3x3)"
               >
                 <Table2 size={12} />
+              </button>
+              <button 
+                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                className={`p-1.5 rounded-lg hover:bg-gray-800 transition-colors ${editor.isActive('codeBlock') ? 'text-brand-500 bg-brand-500/10' : 'text-gray-400'}`}
+                title="程式碼區塊"
+              >
+                <Code2 size={12} />
               </button>
             </div>
             
