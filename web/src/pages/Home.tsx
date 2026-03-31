@@ -6,7 +6,6 @@ import {
   Trash2,
   Plus,
   Target,
-  Zap,
   Flag,
   X,
   Activity,
@@ -44,6 +43,25 @@ const MissionField = ({ icon: Icon, label, content, onChange }: { icon: any, lab
     </div>
     <TiptapEditor content={content} onChange={onChange} />
   </section>
+)
+
+// --- Kirby Icon ---
+const KirbyIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 100 100"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="drop-shadow-[0_0_8px_rgba(255,182,216,0.5)]"
+  >
+    <circle cx="50" cy="55" r="40" fill="#FFB6D8" stroke="#FF85C0" strokeWidth="2" />
+    <ellipse cx="38" cy="45" rx="3" ry="7" fill="#2D2D2D" />
+    <ellipse cx="62" cy="45" rx="3" ry="7" fill="#2D2D2D" />
+    <ellipse cx="30" cy="55" rx="6" ry="3" fill="#FF85C0" opacity="0.6" />
+    <ellipse cx="70" cy="55" rx="6" ry="3" fill="#FF85C0" opacity="0.6" />
+    <path d="M 45 65 Q 50 70 55 65" stroke="#2D2D2D" strokeWidth="2" strokeLinecap="round" />
+  </svg>
 )
 
 const Home = () => {
@@ -145,12 +163,12 @@ const Home = () => {
     if (!activeTask) return
     try {
       setIsSaving(true)
-      
+
       // 同步所有編輯器欄位中的圖片
       const syncedProblem = await syncContentImages(problemStatement)
       const syncedLog = await syncContentImages(executionLog)
       const syncedValue = await syncContentImages(valueDelivered)
-      
+
       // 更新本地狀態以反應同步後的結果
       setProblemStatement(syncedProblem)
       setExecutionLog(syncedLog)
@@ -248,15 +266,15 @@ const Home = () => {
     <div className="flex w-full min-h-screen bg-transparent relative overflow-hidden">
       {/* 側邊欄切換 */}
       {!isSidebarOpen && (
-        <button onClick={() => setIsSidebarOpen(true)} className="fixed top-8 left-6 p-2 bg-gray-900 border border-gray-800 rounded-xl text-emerald-500 z-50"><PanelLeftOpen size={18} /></button>
+        <button onClick={() => setIsSidebarOpen(true)} className="fixed top-8 left-6 p-2 bg-gray-900 border border-gray-800 rounded-xl text-brand-500 z-50"><PanelLeftOpen size={18} /></button>
       )}
 
       {/* Sidebar */}
       <aside className={`${isSidebarOpen ? 'w-80 border-r border-gray-800/60' : 'w-0 opacity-0'} bg-gray-900/10 h-screen transition-all flex flex-col pt-8 pb-12 sticky top-0 overflow-hidden`}>
         <div className="px-6 mb-8 flex items-center justify-between font-black uppercase tracking-widest text-gray-500 text-[10px]">
-          <span className="flex items-center gap-2"><Target size={14} className="text-emerald-500" /> Missions</span>
+          <span className="flex items-center gap-2"><Target size={14} className="text-brand-500" /> Missions</span>
           <div className="flex items-center gap-1">
-            <button onClick={handleAddNewTask} className="p-1.5 hover:bg-gray-800 rounded-md text-emerald-500"><Plus size={16} /></button>
+            <button onClick={handleAddNewTask} className="p-1.5 hover:bg-gray-800 rounded-md text-brand-500"><Plus size={16} /></button>
             <button onClick={() => setIsSidebarOpen(false)} className="p-1.5 hover:bg-gray-800 rounded-md text-gray-600"><PanelLeftClose size={16} /></button>
           </div>
         </div>
@@ -266,16 +284,16 @@ const Home = () => {
             <div
               key={ex.id}
               onClick={() => { setActiveTask(ex); setActiveFragment(null); }}
-              className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${activeTask?.id === ex.id ? 'bg-emerald-500/10 border-emerald-500/30' : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
+              className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${activeTask?.id === ex.id ? 'bg-gray-800/60 border-brand-500/40' : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
             >
               <div className="flex-1 min-w-0">
-                <div className={`text-xs font-black truncate ${activeTask?.id === ex.id ? 'text-emerald-400' : 'text-gray-400 group-hover:text-gray-200'}`}>{ex.title}</div>
+                <div className={`text-xs font-black truncate ${activeTask?.id === ex.id ? 'text-brand-400' : 'text-gray-400 group-hover:text-gray-200'}`}>{ex.title}</div>
                 <div className="mt-2 text-[8px] uppercase tracking-tighter opacity-40">{ex.status}</div>
               </div>
               <div className="flex items-center gap-1">
                 <button
                   onClick={(e) => { e.stopPropagation(); setQuickLinkTaskId(ex.id); }}
-                  className="opacity-0 group-hover:opacity-100 p-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all scale-90"
+                  className="opacity-0 group-hover:opacity-100 p-1.5 bg-gray-800 text-brand-500 rounded-lg hover:bg-brand-500 hover:text-white transition-all scale-90 border border-gray-700"
                 >
                   <Plus size={12} />
                 </button>
@@ -297,14 +315,16 @@ const Home = () => {
           <div className="animate-in fade-in slide-in-from-bottom duration-500">
             <header className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-2xl border border-emerald-500/20"><Zap size={20} fill="currentColor" /></div>
+                <div className="p-2 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20">
+                  <KirbyIcon size={24} />
+                </div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Active Mission</span>
                   <code className="text-[10px] text-gray-700 font-mono italic">{activeTask.id.slice(0, 8)}</code>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-emerald-400 px-4 py-2 rounded-xl focus:outline-none">
+                <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-brand-400 px-4 py-2 rounded-xl focus:outline-none">
                   <option value="To-Do">To-Do</option>
                   <option value="Inprocessing">Inprocessing</option>
                   <option value="Done">Done</option>
@@ -315,11 +335,11 @@ const Home = () => {
                 >
                   <Trash2 size={16} />
                 </button>
-                <button onClick={handleSaveTask} disabled={isSaving} className="px-8 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-emerald-600/10 uppercase tracking-widest">SYNC</button>
+                <button onClick={handleSaveTask} disabled={isSaving} className="px-8 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-brand-600/10 uppercase tracking-widest">SYNC</button>
               </div>
             </header>
 
-            <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-emerald-500 text-gray-100 placeholder:text-gray-800" placeholder="Task Title..." />
+            <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-brand-500 text-gray-100 placeholder:text-gray-800" placeholder="Task Title..." />
 
             <div className="space-y-3">
               <MissionField icon={Flag} label="Problem Statement" content={problemStatement} onChange={setProblemStatement} />
@@ -328,7 +348,7 @@ const Home = () => {
 
               <div className="pt-5">
                 <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
-                  <History size={14} className="text-emerald-500/50" />
+                  <History size={14} className="text-brand-500/50" />
                   Linked Knowledge Graph
                 </div>
 
@@ -342,9 +362,9 @@ const Home = () => {
                       <div
                         key={f.id}
                         onClick={() => { setActiveFragment(f); setActiveTask(null); }}
-                        className="p-4 bg-gray-900/20 border border-gray-800/40 rounded-2xl cursor-pointer hover:border-emerald-500/40 transition-all truncate text-xs text-gray-600 italic"
+                        className="p-4 bg-gray-900/20 border border-gray-800/40 rounded-2xl cursor-pointer hover:border-brand-500/40 transition-all truncate text-xs text-gray-600 italic"
                       >
-                        <span className="font-black text-emerald-500 mr-2 not-italic uppercase tracking-tighter text-[12px]">{f.title || 'untitled'}</span>
+                        <span className="font-black text-brand-500 mr-2 not-italic uppercase tracking-tighter text-[12px]">{f.title || 'untitled'}</span>
                         {f.content.replace(/<[^>]+>/g, '') || "No content summary"}
                       </div>
                     ))
@@ -399,7 +419,7 @@ const Home = () => {
         )}
 
         {lastSaved && (
-          <div className="fixed bottom-12 right-12 flex items-center gap-3 px-8 py-4 bg-emerald-600 text-white rounded-[2rem] shadow-2xl font-black text-[10px] uppercase tracking-widest animate-in slide-in-from-bottom-12 z-[200]">
+          <div className="fixed bottom-12 right-12 flex items-center gap-3 px-8 py-4 bg-brand-600 text-white rounded-[2rem] shadow-2xl font-black text-[10px] uppercase tracking-widest animate-in slide-in-from-bottom-12 z-[200]">
             <CheckCircle2 size={16} /> {lastSaved}
           </div>
         )}
@@ -410,7 +430,7 @@ const Home = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="w-full max-w-xl p-10 bg-gray-950 border border-gray-800 rounded-[3rem] shadow-2xl animate-in zoom-in-95 duration-300">
             <header className="flex items-center justify-between mb-10">
-              <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-2xl"><Plus size={24} /></div>
+              <div className="p-4 bg-brand-500/10 text-brand-500 rounded-2xl"><Plus size={24} /></div>
               <button onClick={() => setQuickLinkTaskId(null)} className="p-2 text-gray-600 hover:text-white transition-all"><X size={20} /></button>
             </header>
             <h3 className="text-xl font-black text-gray-100 uppercase tracking-widest mb-2">Rapid Enlightenment</h3>
@@ -422,7 +442,7 @@ const Home = () => {
                 <select
                   value={quickFragmentDomain}
                   onChange={(e) => setQuickFragmentDomain(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-800 p-4 rounded-3xl text-sm font-black text-emerald-500 focus:outline-none"
+                  className="w-full bg-gray-900 border border-gray-800 p-4 rounded-3xl text-sm font-black text-brand-500 focus:outline-none"
                 >
                   <option value="Work">Work</option>
                   <option value="Personal">Personal</option>
@@ -433,7 +453,7 @@ const Home = () => {
 
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-1">Point Title</label>
-                <div className="p-6 bg-gray-900/40 border border-gray-800 rounded-[2rem] focus-within:border-emerald-500/30 transition-all">
+                <div className="p-6 bg-gray-900/40 border border-gray-800 rounded-[2rem] focus-within:border-brand-500/30 transition-all">
                   <input
                     value={quickFragmentTitle}
                     onChange={(e) => setQuickFragmentTitle(e.target.value)}
@@ -445,7 +465,7 @@ const Home = () => {
               </div>
             </div>
 
-            <button onClick={handleQuickAddFragment} disabled={!quickFragmentTitle || isSaving} className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-emerald-600/20 transition-all active:scale-[0.98]">ESTABLISH KNOWLEDGE EDGE</button>
+            <button onClick={handleQuickAddFragment} disabled={!quickFragmentTitle || isSaving} className="w-full py-5 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-brand-600/20 transition-all active:scale-[0.98]">ESTABLISH KNOWLEDGE EDGE</button>
           </div>
         </div>
       )}

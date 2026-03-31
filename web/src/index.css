@@ -1,6 +1,19 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@theme {
+  --brand-main: #d9717f;
+
+  --color-brand-50: color-mix(in oklab, var(--brand-main), white 95%);
+  --color-brand-100: color-mix(in oklab, var(--brand-main), white 90%);
+  --color-brand-200: color-mix(in oklab, var(--brand-main), white 70%);
+  --color-brand-300: color-mix(in oklab, var(--brand-main), white 40%);
+  --color-brand-400: color-mix(in oklab, var(--brand-main), white 20%);
+  --color-brand-500: var(--brand-main);
+  --color-brand-600: color-mix(in oklab, var(--brand-main), black 15%);
+  --color-brand-700: color-mix(in oklab, var(--brand-main), black 35%);
+}
+
 html {
   scrollbar-gutter: stable;
 }
