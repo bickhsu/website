@@ -47,6 +47,11 @@ body {
   max-width: none !important;
 }
 
+/* 確保粗體、斜體等標籤能繼承 Tiptap 設定的顏色 */
+.prose :where(strong, b, em, i):not(:where([class~="not-prose"] *)) {
+  color: inherit;
+}
+
 .prose :where(p):not(:where([class~="not-prose"] *)) {
   margin-top: 0.25rem !important;
   margin-bottom: 0.25rem !important;
