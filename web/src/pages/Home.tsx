@@ -12,7 +12,8 @@ import {
   History,
   FileText,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  ChevronDown
 } from 'lucide-react'
 
 // 定義介面
@@ -35,15 +36,29 @@ interface Fragment {
 }
 
 // --- 抽離複用組件 : MissionField ---
-const MissionField = ({ icon: Icon, label, content, onChange }: { icon: any, label: string, content: string, onChange: (v: string) => void }) => (
-  <section className="animate-in fade-in slide-in-from-bottom duration-700">
-    <div className="flex items-center gap-2 mb-2 text-gray-500 border-b border-gray-800/40 pb-1">
-      <Icon size={14} />
-      <h3 className="text-[10px] font-black uppercase tracking-widest">{label}</h3>
-    </div>
-    <TiptapEditor content={content} onChange={onChange} />
-  </section>
-)
+const MissionField = ({ icon: Icon, label, content, onChange, defaultCollapsed = false }: { icon: any, label: string, content: string, onChange: (v: string) => void, defaultCollapsed?: boolean }) => {
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed)
+
+  return (
+    <section className="animate-in fade-in slide-in-from-bottom duration-700">
+      <div 
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="flex items-center justify-between mb-2 text-gray-500 border-b border-gray-800/40 pb-1 cursor-pointer group hover:text-gray-300 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Icon size={14} className={isCollapsed ? 'text-gray-600' : 'text-brand-500'} />
+          <h3 className="text-[10px] font-black uppercase tracking-widest">{label}</h3>
+        </div>
+        <ChevronDown size={14} className={`transition-transform duration-300 ${isCollapsed ? '-rotate-90 text-gray-600' : 'rotate-0 text-gray-500'}`} />
+      </div>
+      {!isCollapsed && (
+        <div className="animate-in fade-in zoom-in-95 duration-300">
+          <TiptapEditor content={content} onChange={onChange} />
+        </div>
+      )}
+    </section>
+  )
+}
 
 // --- Kirby Icon ---
 const KirbyIcon = ({ size = 20 }: { size?: number }) => (
