@@ -103,6 +103,44 @@ body {
   @apply bg-gray-700;
 }
 
+.prose table {
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid rgba(255, 182, 216, 0.2);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  position: relative;
+}
+
+.prose th {
+  background-color: rgba(255, 182, 216, 0.05);
+  font-weight: 800;
+  color: var(--brand-500);
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.prose td {
+  font-size: 13px;
+  color: #ccc;
+}
+
+/* Tiptap Resizer Handle Style */
+.prose .column-resize-handle {
+  @apply bg-brand-500/30;
+  bottom: -2px;
+  position: absolute;
+  right: -2px;
+  top: 0;
+  width: 4px;
+}
+
 .prose img {
   border-radius: 0.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);

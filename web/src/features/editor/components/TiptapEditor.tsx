@@ -7,8 +7,9 @@ import Image from '@tiptap/extension-image'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import { Link } from '@tiptap/extension-link'
+import { TableKit } from '@tiptap/extension-table'
 import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu'
-import { Palette, Link2 } from 'lucide-react'
+import { Palette, Link2, Table2 } from 'lucide-react'
 
 interface TiptapEditorProps {
   content: string;
@@ -32,6 +33,11 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       TextStyle,
       Color,
       BubbleMenuExtension,
+      TableKit.configure({
+        table: {
+          resizable: true,
+        },
+      }),
       Link.configure({
         openOnClick: false,
         autolink: false, // 關閉自動偵測，避免干擾 Markdown 轉換規則
@@ -118,8 +124,16 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
                   }
                 }}
                 className={`p-1.5 rounded-lg hover:bg-gray-800 transition-colors ${editor.isActive('link') ? 'text-brand-500 bg-brand-500/10' : 'text-gray-400'}`}
+                title="連結"
               >
                 <Link2 size={12} />
+              </button>
+              <button 
+                onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+                className="p-1.5 rounded-lg hover:bg-gray-800 transition-colors text-gray-400"
+                title="插入表格 (3x3)"
+              >
+                <Table2 size={12} />
               </button>
             </div>
             
