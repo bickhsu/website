@@ -17,6 +17,7 @@ def ingest_fragment(payload: schemas.FragmentCreate, db: Session = Depends(get_d
         new_fragment = models.KnowledgeFragment(
             title=payload.title,
             content=payload.content,
+            hook=payload.hook,
             domain=payload.domain.value 
         )
         db.add(new_fragment)
@@ -53,6 +54,7 @@ def update_fragment(fragment_id: UUID, payload: schemas.FragmentBase, db: Sessio
         
         fragment.title = payload.title
         fragment.content = payload.content
+        fragment.hook = payload.hook
         fragment.domain = payload.domain.value
         
         db.commit()
