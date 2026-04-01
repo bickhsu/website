@@ -31,6 +31,7 @@ interface Fragment {
   id: string
   title: string
   content: string
+  hook?: string
   domain: string
   created_at: string
 }
@@ -41,7 +42,7 @@ const MissionField = ({ icon: Icon, label, content, onChange, defaultCollapsed =
 
   return (
     <section className="animate-in fade-in slide-in-from-bottom duration-700">
-      <div 
+      <div
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="flex items-center justify-between mb-2 text-gray-500 border-b border-gray-800/40 pb-1 cursor-pointer group hover:text-gray-300 transition-colors"
       >
@@ -141,6 +142,7 @@ const Home = () => {
   // 主視角切換: Fragment 模式
   const [activeFragment, setActiveFragment] = useState<Fragment | null>(null)
   const [fragmentEditTitle, setFragmentEditTitle] = useState("")
+  const [fragmentEditHook, setFragmentEditHook] = useState("")
   const [fragmentEditContent, setFragmentEditContent] = useState("")
 
   // --- 資料抓取 ---
@@ -271,6 +273,7 @@ const Home = () => {
   useEffect(() => {
     if (activeFragment) {
       setFragmentEditTitle(activeFragment.title || "Untitled Fragment")
+      setFragmentEditHook(activeFragment.hook || "")
       setFragmentEditContent(activeFragment.content || "")
     }
   }, [activeFragment])
@@ -301,13 +304,20 @@ const Home = () => {
         body: JSON.stringify({
           title: fragmentEditTitle,
           content: syncedContent,
+          hook: fragmentEditHook,
           domain: newDomain || activeFragment.domain
         })
       })
       if (res.ok) {
         setLastSaved(`Enlightenment Stored @ ${new Date().toLocaleTimeString()}`)
-        // 同步更細本地領域狀態以便切換不跳掉
-        if (newDomain) setActiveFragment({ ...activeFragment, domain: newDomain })
+        // 同步更新本地狀態以便展示正確內容
+        setActiveFragment({
+          ...activeFragment,
+          title: fragmentEditTitle,
+          content: syncedContent,
+          hook: fragmentEditHook,
+          domain: newDomain || activeFragment.domain
+        })
       }
     } finally { setIsSaving(false) }
   }
@@ -436,7 +446,7 @@ const Home = () => {
           <div className="animate-in fade-in slide-in-from-right duration-500">
             <header className="flex items-center justify-between mb-12">
               <div className="flex items-center gap-4">
-                <button 
+                <button
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                   className="p-2 hover:bg-gray-800 rounded-xl text-gray-500 transition-colors"
                   title={isSidebarOpen ? "收起側邊欄" : "展開側邊欄"}
@@ -474,7 +484,8 @@ const Home = () => {
             <input value={fragmentEditTitle} onChange={(e) => setFragmentEditTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-blue-500 text-gray-100 placeholder:text-gray-800" placeholder="Point Title..." />
 
             <div className="space-y-12">
-              <MissionField icon={FileText} label="Storage Content" content={fragmentEditContent} onChange={setFragmentEditContent} />
+              <MissionField icon={History} label="Hook" content={fragmentEditHook} onChange={setFragmentEditHook} />
+              <MissionField icon={FileText} label="Content" content={fragmentEditContent} onChange={setFragmentEditContent} />
             </div>
           </div>
         ) : (
