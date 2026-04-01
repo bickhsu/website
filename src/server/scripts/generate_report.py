@@ -21,9 +21,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     print("❌ 錯誤：找不到 GEMINI_API_KEY。請確認你的 .env 檔案已經設定好。")
     sys.exit(1)
-
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-pro-latest') 
 
 
 def get_recent_data(days=7):
@@ -96,6 +94,11 @@ def main():
     
     # 4. 組合最終丟給 AI 的內容
     final_prompt = f"{system_prompt}\n\n---\n\n{context_data}\n\n請根據上方資料與規則產出週報："
+
+    model = genai.GenerativeModel(
+        model_name='gemini-3.1-pro-preview',
+        system_instruction=system_prompt # 將讀取的 md 作為系統指令
+    )
 
     print("\n⏳ 正在將資料送往 Gemini 生成週報，請稍候...\n")
     try:
