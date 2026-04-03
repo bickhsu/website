@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from typing import List
 import logging
 from uuid import UUID
 
@@ -9,6 +10,11 @@ from server.database import get_db
 
 router = APIRouter(prefix="/api/v1/ingest", tags=["Ingestion Pipeline"])
 logger = logging.getLogger(__name__)
+
+
+@router.get("/fragments", response_model=List[schemas.FragmentOut])
+def list_fragments(db: Session = Depends(get_db)):
+    return db.query(models.KnowledgeFragment).order_by(models.KnowledgeFragment.created_at.desc()).all()
 
 
 @router.post("/fragment", response_model=schemas.FragmentOut, status_code=status.HTTP_201_CREATED)

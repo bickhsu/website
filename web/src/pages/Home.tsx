@@ -141,6 +141,8 @@ const Home = () => {
 
   // 主視角切換: Fragment 模式
   const [activeFragment, setActiveFragment] = useState<Fragment | null>(null)
+  const [allFragments, setAllFragments] = useState<Fragment[]>([])
+  const [sidebarTab, setSidebarTab] = useState<'tasks' | 'fragments'>('tasks')
   const [fragmentEditTitle, setFragmentEditTitle] = useState("")
   const [fragmentEditHook, setFragmentEditHook] = useState("")
   const [fragmentEditContent, setFragmentEditContent] = useState("")
@@ -148,6 +150,7 @@ const Home = () => {
   // --- 資料抓取 ---
   useEffect(() => {
     fetchExecutions()
+    fetchAllFragments()
   }, [])
 
   // 當選中 Tasks 時同步編輯器內容並抓取關聯 Fragment
@@ -174,6 +177,13 @@ const Home = () => {
       const res = await fetch(`http://localhost:8000/api/v1/executions/${executionId}/fragments`)
       if (res.ok) setLinkedFragments(await res.json())
     } catch (err) { console.error("Failed to fetch fragments", err) }
+  }
+
+  const fetchAllFragments = async () => {
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/ingest/fragments')
+      if (res.ok) setAllFragments(await res.json())
+    } catch (err) { console.error("Failed to fetch all fragments", err) }
   }
 
   // --- 功能邏輯 : Tasks ---
@@ -240,6 +250,31 @@ const Home = () => {
       if (res.ok) {
         setLastSaved(`Mission Synced @ ${new Date().toLocaleTimeString()}`)
         fetchExecutions()
+        fetchAllFragments()
+      }
+    } finally { setIsSaving(false) }
+  }
+
+  const handleAddNewFragment = async () => {
+    const title = prompt("請輸入新片段標題:")
+    if (!title) return
+
+    try {
+      setIsSaving(true)
+      const res = await fetch('http://localhost:8000/api/v1/ingest/fragment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title,
+          content: "<p>New fragment content...</p>",
+          domain: "Work"
+        })
+      })
+      if (res.ok) {
+        const newFrag = await res.json()
+        fetchAllFragments()
+        setActiveTask(null)
+        setActiveFragment(newFrag)
       }
     } finally { setIsSaving(false) }
   }
@@ -265,6 +300,7 @@ const Home = () => {
         setQuickLinkTaskId(null)
         setActiveTask(null)
         setActiveFragment(newFrag)
+        fetchAllFragments()
       }
     } finally { setIsSaving(false) }
   }
@@ -310,6 +346,7 @@ const Home = () => {
       })
       if (res.ok) {
         setLastSaved(`Enlightenment Stored @ ${new Date().toLocaleTimeString()}`)
+        fetchAllFragments()
         // 同步更新本地狀態以便展示正確內容
         setActiveFragment({
           ...activeFragment,
@@ -334,41 +371,77 @@ const Home = () => {
         style={{ width: isSidebarOpen ? sidebarWidth : 0 }}
         className={`${isSidebarOpen ? 'border-r border-gray-800/60' : 'opacity-0'} bg-gray-900/10 h-screen transition-[width,opacity] flex flex-col pt-8 pb-12 sticky top-0 overflow-hidden group/sidebar`}
       >
-        <div className="px-6 mb-8 flex items-center justify-between font-black uppercase tracking-widest text-gray-500 text-[10px] min-w-[280px]">
-          <span className="flex items-center gap-2"><Target size={14} className="text-brand-500" /> Missions</span>
-          <div className="flex items-center gap-1">
-            <button onClick={handleAddNewTask} className="p-1.5 hover:bg-gray-800 rounded-md text-brand-500"><Plus size={16} /></button>
+        <div className="px-6 mb-4 flex items-center justify-between font-black uppercase tracking-widest text-gray-500 text-[10px] min-w-[280px]">
+          <div className="flex items-center gap-4 border-b border-gray-800 flex-1 pb-2">
+            <button
+              onClick={() => setSidebarTab('tasks')}
+              className={`flex items-center gap-2 pb-2 transition-all border-b-2 ${sidebarTab === 'tasks' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-600 hover:text-gray-400'}`}
+            >
+              <Target size={14} /> Tasks
+            </button>
+            <button
+              onClick={() => setSidebarTab('fragments')}
+              className={`flex items-center gap-2 pb-2 transition-all border-b-2 ${sidebarTab === 'fragments' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-600 hover:text-gray-400'}`}
+            >
+              <FileText size={14} /> Fragments
+            </button>
+          </div>
+          <div className="flex items-center gap-1 ml-4 pb-2">
+            <button onClick={sidebarTab === 'tasks' ? handleAddNewTask : handleAddNewFragment} className="p-1.5 hover:bg-gray-800 rounded-md text-brand-500"><Plus size={16} /></button>
             <button onClick={() => setIsSidebarOpen(false)} className="p-1.5 hover:bg-gray-800 rounded-md text-gray-600"><PanelLeftClose size={16} /></button>
           </div>
         </div>
 
         <div className="flex-1 overflow-auto px-4 space-y-1 min-w-[280px]">
-          {executions.map(ex => (
-            <div
-              key={ex.id}
-              onClick={() => { setActiveTask(ex); setActiveFragment(null); }}
-              className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${activeTask?.id === ex.id ? 'bg-gray-800/60 border-brand-500/40' : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
-            >
-              <div className="flex-1 min-w-0">
-                <div className={`text-xs font-black truncate ${activeTask?.id === ex.id ? 'text-brand-400' : 'text-gray-400 group-hover:text-gray-200'}`}>{ex.title}</div>
-                <div className="mt-2 text-[8px] uppercase tracking-tighter opacity-40">{ex.status}</div>
+          {sidebarTab === 'tasks' ? (
+            executions.map(ex => (
+              <div
+                key={ex.id}
+                onClick={() => { setActiveTask(ex); setActiveFragment(null); }}
+                className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${activeTask?.id === ex.id ? 'bg-gray-800/60 border-brand-500/40' : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className={`text-xs font-black truncate ${activeTask?.id === ex.id ? 'text-brand-400' : 'text-gray-400 group-hover:text-gray-200'}`}>{ex.title}</div>
+                  <div className="mt-2 text-[8px] uppercase tracking-tighter opacity-40">{ex.status}</div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setQuickLinkTaskId(ex.id); }}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 bg-gray-800 text-brand-500 rounded-lg hover:bg-brand-500 hover:text-white transition-all scale-90 border border-gray-700"
+                  >
+                    <Plus size={12} />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDeleteTask(ex.id); }}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all scale-90"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={(e) => { e.stopPropagation(); setQuickLinkTaskId(ex.id); }}
-                  className="opacity-0 group-hover:opacity-100 p-1.5 bg-gray-800 text-brand-500 rounded-lg hover:bg-brand-500 hover:text-white transition-all scale-90 border border-gray-700"
-                >
-                  <Plus size={12} />
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleDeleteTask(ex.id); }}
-                  className="opacity-0 group-hover:opacity-100 p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all scale-90"
-                >
-                  <Trash2 size={12} />
-                </button>
+            ))
+          ) : (
+            allFragments.map(f => (
+              <div
+                key={f.id}
+                onClick={() => { setActiveFragment(f); setActiveTask(null); }}
+                className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${activeFragment?.id === f.id ? 'bg-blue-500/10 border-blue-500/40' : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className={`text-xs font-black truncate ${activeFragment?.id === f.id ? 'text-blue-400' : 'text-gray-400 group-hover:text-gray-200'}`}>{f.title || 'Untitled'}</div>
+                  <div className="mt-2 text-[8px] uppercase tracking-tighter opacity-40">{f.domain}</div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDeleteFragment(f.id); fetchAllFragments(); }}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all scale-90"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Resizer Handle */}
