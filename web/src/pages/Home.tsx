@@ -369,7 +369,7 @@ const Home = () => {
       {/* Sidebar */}
       <aside
         style={{ width: isSidebarOpen ? sidebarWidth : 0 }}
-        className={`${isSidebarOpen ? 'border-r border-gray-800/60' : 'opacity-0'} bg-gray-900/10 h-screen transition-[width,opacity] flex flex-col pt-8 pb-12 sticky top-0 overflow-hidden group/sidebar`}
+        className={`${isSidebarOpen ? 'border-r border-gray-800/60' : 'opacity-0'} bg-gray-900/10 h-screen ${isResizing ? '' : 'transition-[width,opacity] duration-300'} flex flex-col pt-8 pb-12 sticky top-0 overflow-hidden group/sidebar`}
       >
         <div className="px-6 mb-4 flex items-center justify-between font-black uppercase tracking-widest text-gray-500 text-[10px] min-w-[280px]">
           <div className="flex items-center gap-4 border-b border-gray-800 flex-1 pb-2">
@@ -457,7 +457,7 @@ const Home = () => {
       </aside>
 
       {/* Main Viewport */}
-      <main className="flex-1 max-w-5xl mx-auto px-16 pt-8 pb-24 transition-all relative">
+      <main className={`flex-1 max-w-5xl mx-auto px-16 pt-8 pb-24 ${isResizing ? '' : 'transition-all duration-300'} relative`}>
         {activeTask ? (
           <div className="animate-in fade-in slide-in-from-bottom duration-500">
             <header className="flex items-center justify-between mb-6">
