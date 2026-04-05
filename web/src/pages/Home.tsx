@@ -80,6 +80,95 @@ const KirbyIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 )
 
+// --- 抽離複用組件 : SidebarTabButton ---
+const SidebarTabButton = ({ active, onClick, icon: Icon, label, colorClass }: { active: boolean, onClick: () => void, icon: any, label: string, colorClass: string }) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 pb-2 transition-all border-b-2 ${active ? `${colorClass} border-current` : 'border-transparent text-gray-600 hover:text-gray-400'}`}
+  >
+    <Icon size={14} /> {label}
+  </button>
+)
+
+// --- 抽離複用組件 : SidebarItem ---
+const SidebarItem = ({ 
+  active, 
+  onClick, 
+  title, 
+  subtitle, 
+  activeColorClass, 
+  onDelete, 
+  onQuickAction,
+  quickActionIcon: QuickActionIcon 
+}: { 
+  active: boolean, 
+  onClick: () => void, 
+  title: string, 
+  subtitle: string, 
+  activeColorClass: string,
+  onDelete?: (e: React.MouseEvent) => void,
+  onQuickAction?: (e: React.MouseEvent) => void,
+  quickActionIcon?: any
+}) => (
+  <div
+    onClick={onClick}
+    className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${active ? `bg-gray-800/60 ${activeColorClass.replace('text-', 'border-').replace('500', '400')}/40` : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
+  >
+    <div className="flex-1 min-w-0">
+      <div className={`text-xs font-black truncate ${active ? activeColorClass : 'text-gray-400 group-hover:text-gray-200'}`}>{title}</div>
+      <div className="mt-2 text-[8px] uppercase tracking-tighter opacity-40">{subtitle}</div>
+    </div>
+    <div className="flex items-center gap-1">
+      {onQuickAction && QuickActionIcon && (
+        <button
+          onClick={onQuickAction}
+          className="opacity-0 group-hover:opacity-100 p-1.5 bg-gray-800 text-knowledge-500 rounded-lg hover:bg-knowledge-500 hover:text-white transition-all scale-90 border border-gray-700"
+        >
+          <QuickActionIcon size={12} />
+        </button>
+      )}
+      {onDelete && (
+        <button
+          onClick={onDelete}
+          className="opacity-0 group-hover:opacity-100 p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all scale-90"
+        >
+          <Trash2 size={12} />
+        </button>
+      )}
+    </div>
+  </div>
+)
+
+// --- 抽離複用組件 : ViewHeader ---
+const ViewHeader = ({ 
+  icon: Icon, 
+  title, 
+  id, 
+  colorClass, 
+  children 
+}: { 
+  icon: any, 
+  title: string, 
+  id: string, 
+  colorClass: string,
+  children: React.ReactNode 
+}) => (
+  <header className="flex items-center justify-between mb-12 animate-in fade-in duration-700">
+    <div className="flex items-center gap-4">
+      <div className={`p-3 ${colorClass.replace('text-', 'bg-').replace('500', '500/10')} ${colorClass} rounded-2xl border ${colorClass.replace('text-', 'border-').replace('500', '500/20')}`}>
+        <Icon size={20} fill={Icon === KirbyIcon ? 'none' : 'currentColor'} />
+      </div>
+      <div className="flex flex-col">
+        <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">{title}</span>
+        <code className="text-[10px] text-gray-700 font-mono italic">{id.slice(0, 8)}</code>
+      </div>
+    </div>
+    <div className="flex items-center gap-4">
+      {children}
+    </div>
+  </header>
+)
+
 const Home = () => {
   // --- 介面狀態 ---
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
@@ -373,18 +462,8 @@ const Home = () => {
       >
         <div className="px-6 mb-4 flex items-center justify-between font-black uppercase tracking-widest text-gray-500 text-[10px] min-w-[280px]">
           <div className="flex items-center gap-4 border-b border-gray-800 flex-1 pb-2">
-            <button
-              onClick={() => setSidebarTab('tasks')}
-              className={`flex items-center gap-2 pb-2 transition-all border-b-2 ${sidebarTab === 'tasks' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-600 hover:text-gray-400'}`}
-            >
-              <Target size={14} /> Tasks
-            </button>
-            <button
-              onClick={() => setSidebarTab('fragments')}
-              className={`flex items-center gap-2 pb-2 transition-all border-b-2 ${sidebarTab === 'fragments' ? 'border-knowledge-500 text-knowledge-500' : 'border-transparent text-gray-600 hover:text-gray-400'}`}
-            >
-              <FileText size={14} /> Fragments
-            </button>
+            <SidebarTabButton active={sidebarTab === 'tasks'} onClick={() => setSidebarTab('tasks')} icon={Target} label="Tasks" colorClass="text-brand-500" />
+            <SidebarTabButton active={sidebarTab === 'fragments'} onClick={() => setSidebarTab('fragments')} icon={FileText} label="Fragments" colorClass="text-knowledge-500" />
           </div>
           <div className="flex items-center gap-1 ml-4 pb-2">
             <button
@@ -400,51 +479,29 @@ const Home = () => {
         <div className="flex-1 overflow-auto px-4 space-y-1 min-w-[280px]">
           {sidebarTab === 'tasks' ? (
             executions.map(ex => (
-              <div
+              <SidebarItem 
                 key={ex.id}
+                active={activeTask?.id === ex.id}
                 onClick={() => { setActiveTask(ex); setActiveFragment(null); }}
-                className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${activeTask?.id === ex.id ? 'bg-gray-800/60 border-brand-500/40' : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className={`text-xs font-black truncate ${activeTask?.id === ex.id ? 'text-brand-400' : 'text-gray-400 group-hover:text-gray-200'}`}>{ex.title}</div>
-                  <div className="mt-2 text-[8px] uppercase tracking-tighter opacity-40">{ex.status}</div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setQuickLinkTaskId(ex.id); }}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 bg-gray-800 text-knowledge-500 rounded-lg hover:bg-knowledge-500 hover:text-white transition-all scale-90 border border-gray-700"
-                  >
-                    <Plus size={12} />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDeleteTask(ex.id); }}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all scale-90"
-                  >
-                    <Trash2 size={12} />
-                  </button>
-                </div>
-              </div>
+                title={ex.title}
+                subtitle={ex.status}
+                activeColorClass="text-brand-500"
+                onQuickAction={(e) => { e.stopPropagation(); setQuickLinkTaskId(ex.id); }}
+                quickActionIcon={Plus}
+                onDelete={(e) => { e.stopPropagation(); handleDeleteTask(ex.id); }}
+              />
             ))
           ) : (
             allFragments.map(f => (
-              <div
+              <SidebarItem 
                 key={f.id}
+                active={activeFragment?.id === f.id}
                 onClick={() => { setActiveFragment(f); setActiveTask(null); }}
-                className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${activeFragment?.id === f.id ? 'bg-knowledge-500/10 border-knowledge-500/40' : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className={`text-xs font-black truncate ${activeFragment?.id === f.id ? 'text-knowledge-400' : 'text-gray-400 group-hover:text-gray-200'}`}>{f.title || 'Untitled'}</div>
-                  <div className="mt-2 text-[8px] uppercase tracking-tighter opacity-40">{f.domain}</div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDeleteFragment(f.id); fetchAllFragments(); }}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all scale-90"
-                  >
-                    <Trash2 size={12} />
-                  </button>
-                </div>
-              </div>
+                title={f.title || 'Untitled'}
+                subtitle={f.domain}
+                activeColorClass="text-knowledge-400"
+                onDelete={(e) => { e.stopPropagation(); handleDeleteFragment(f.id); fetchAllFragments(); }}
+              />
             ))
           )}
         </div>
@@ -460,31 +517,25 @@ const Home = () => {
       <main className={`flex-1 max-w-5xl mx-auto px-16 pt-8 pb-24 ${isResizing ? '' : 'transition-all duration-300'} relative`}>
         {activeTask ? (
           <div className="animate-in fade-in slide-in-from-bottom duration-500">
-            <header className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <div className="p-2 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20">
-                  <KirbyIcon size={24} />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Active Mission</span>
-                  <code className="text-[10px] text-gray-700 font-mono italic">{activeTask.id.slice(0, 8)}</code>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-brand-400 px-4 py-2 rounded-xl focus:outline-none">
-                  <option value="To-Do">To-Do</option>
-                  <option value="Inprocessing">Inprocessing</option>
-                  <option value="Done">Done</option>
-                </select>
-                <button
-                  onClick={() => handleDeleteTask(activeTask.id)}
-                  className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-95 shadow-xl"
-                >
-                  <Trash2 size={16} />
-                </button>
-                <button onClick={handleSaveTask} disabled={isSaving} className="px-8 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-brand-600/10 uppercase tracking-widest">SYNC</button>
-              </div>
-            </header>
+            <ViewHeader 
+              icon={KirbyIcon} 
+              title="Active Mission" 
+              id={activeTask.id} 
+              colorClass="text-brand-500"
+            >
+              <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-brand-400 px-4 py-2 rounded-xl focus:outline-none">
+                <option value="To-Do">To-Do</option>
+                <option value="Inprocessing">Inprocessing</option>
+                <option value="Done">Done</option>
+              </select>
+              <button
+                onClick={() => handleDeleteTask(activeTask.id)}
+                className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-95 shadow-xl"
+              >
+                <Trash2 size={16} />
+              </button>
+              <button onClick={handleSaveTask} disabled={isSaving} className="px-8 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-brand-600/10 uppercase tracking-widest">SYNC</button>
+            </ViewHeader>
 
             <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-brand-500 text-gray-100 placeholder:text-gray-800" placeholder="Task Title..." />
 
@@ -522,35 +573,31 @@ const Home = () => {
           </div>
         ) : activeFragment ? (
           <div className="animate-in fade-in slide-in-from-right duration-500">
-            <header className="flex items-center justify-between mb-12">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-knowledge-500/10 text-knowledge-500 rounded-2xl border border-knowledge-500/20"><FileText size={20} fill="currentColor" /></div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Knowledge Fragment</span>
-                  <code className="text-[10px] text-gray-700 font-mono italic">{activeFragment.id.slice(0, 8)}</code>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <select
-                  value={activeFragment.domain}
-                  onChange={(e) => handleUpdateFragment(e.target.value)}
-                  className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-knowledge-400 px-4 py-2 rounded-xl focus:outline-none"
-                >
-                  <option value="Work">Work</option>
-                  <option value="Personal">Personal</option>
-                  <option value="Side_Project">Side Project</option>
-                  <option value="Uncategorized">Uncategorized</option>
-                </select>
-                <button onClick={() => setActiveFragment(null)} className="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest px-4 transition-colors">Discard</button>
-                <button
-                  onClick={() => handleDeleteFragment(activeFragment.id)}
-                  className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-95 shadow-xl"
-                >
-                  <Trash2 size={16} />
-                </button>
-                <button onClick={() => handleUpdateFragment()} disabled={isSaving} className="px-8 py-2.5 bg-knowledge-600 hover:bg-knowledge-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-knowledge-500/10 uppercase tracking-widest transition-all active:scale-[0.98]">Storage</button>
-              </div>
-            </header>
+            <ViewHeader 
+              icon={FileText} 
+              title="Knowledge Fragment" 
+              id={activeFragment.id} 
+              colorClass="text-knowledge-500"
+            >
+              <select
+                value={activeFragment.domain}
+                onChange={(e) => handleUpdateFragment(e.target.value)}
+                className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-knowledge-400 px-4 py-2 rounded-xl focus:outline-none"
+              >
+                <option value="Work">Work</option>
+                <option value="Personal">Personal</option>
+                <option value="Side_Project">Side Project</option>
+                <option value="Uncategorized">Uncategorized</option>
+              </select>
+              <button onClick={() => setActiveFragment(null)} className="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest px-4 transition-colors">Discard</button>
+              <button
+                onClick={() => handleDeleteFragment(activeFragment.id)}
+                className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-95 shadow-xl"
+              >
+                <Trash2 size={16} />
+              </button>
+              <button onClick={() => handleUpdateFragment()} disabled={isSaving} className="px-8 py-2.5 bg-knowledge-600 hover:bg-knowledge-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-knowledge-500/10 uppercase tracking-widest transition-all active:scale-[0.98]">Storage</button>
+            </ViewHeader>
 
             <input value={fragmentEditTitle} onChange={(e) => setFragmentEditTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-knowledge-500 text-gray-100 placeholder:text-gray-800" placeholder="Point Title..." />
 
