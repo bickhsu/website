@@ -37,7 +37,7 @@ interface Fragment {
 }
 
 // --- 抽離複用組件 : MissionField ---
-const MissionField = ({ icon: Icon, label, content, onChange, defaultCollapsed = false }: { icon: any, label: string, content: string, onChange: (v: string) => void, defaultCollapsed?: boolean }) => {
+const MissionField = ({ icon: Icon, label, content, onChange, activeColorClass = 'text-brand-500', defaultCollapsed = false }: { icon: any, label: string, content: string, onChange: (v: string) => void, activeColorClass?: string, defaultCollapsed?: boolean }) => {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed)
 
   return (
@@ -47,7 +47,7 @@ const MissionField = ({ icon: Icon, label, content, onChange, defaultCollapsed =
         className="flex items-center justify-between mb-2 text-gray-500 border-b border-gray-800/40 pb-1 cursor-pointer group hover:text-gray-300 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <Icon size={14} className={isCollapsed ? 'text-gray-600' : 'text-brand-500'} />
+          <Icon size={14} className={isCollapsed ? 'text-gray-600' : activeColorClass} />
           <h3 className="text-[10px] font-black uppercase tracking-widest">{label}</h3>
         </div>
         <ChevronDown size={14} className={`transition-transform duration-300 ${isCollapsed ? '-rotate-90 text-gray-600' : 'rotate-0 text-gray-500'}`} />
@@ -381,13 +381,18 @@ const Home = () => {
             </button>
             <button
               onClick={() => setSidebarTab('fragments')}
-              className={`flex items-center gap-2 pb-2 transition-all border-b-2 ${sidebarTab === 'fragments' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-600 hover:text-gray-400'}`}
+              className={`flex items-center gap-2 pb-2 transition-all border-b-2 ${sidebarTab === 'fragments' ? 'border-knowledge-500 text-knowledge-500' : 'border-transparent text-gray-600 hover:text-gray-400'}`}
             >
               <FileText size={14} /> Fragments
             </button>
           </div>
           <div className="flex items-center gap-1 ml-4 pb-2">
-            <button onClick={sidebarTab === 'tasks' ? handleAddNewTask : handleAddNewFragment} className="p-1.5 hover:bg-gray-800 rounded-md text-brand-500"><Plus size={16} /></button>
+            <button
+              onClick={sidebarTab === 'tasks' ? handleAddNewTask : handleAddNewFragment}
+              className={`p-1.5 hover:bg-gray-800 rounded-md transition-colors ${sidebarTab === 'tasks' ? 'text-brand-500' : 'text-knowledge-500'}`}
+            >
+              <Plus size={16} />
+            </button>
             <button onClick={() => setIsSidebarOpen(false)} className="p-1.5 hover:bg-gray-800 rounded-md text-gray-600"><PanelLeftClose size={16} /></button>
           </div>
         </div>
@@ -407,7 +412,7 @@ const Home = () => {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={(e) => { e.stopPropagation(); setQuickLinkTaskId(ex.id); }}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 bg-gray-800 text-brand-500 rounded-lg hover:bg-brand-500 hover:text-white transition-all scale-90 border border-gray-700"
+                    className="opacity-0 group-hover:opacity-100 p-1.5 bg-gray-800 text-knowledge-500 rounded-lg hover:bg-knowledge-500 hover:text-white transition-all scale-90 border border-gray-700"
                   >
                     <Plus size={12} />
                   </button>
@@ -425,10 +430,10 @@ const Home = () => {
               <div
                 key={f.id}
                 onClick={() => { setActiveFragment(f); setActiveTask(null); }}
-                className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${activeFragment?.id === f.id ? 'bg-blue-500/10 border-blue-500/40' : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
+                className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${activeFragment?.id === f.id ? 'bg-knowledge-500/10 border-knowledge-500/40' : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
               >
                 <div className="flex-1 min-w-0">
-                  <div className={`text-xs font-black truncate ${activeFragment?.id === f.id ? 'text-blue-400' : 'text-gray-400 group-hover:text-gray-200'}`}>{f.title || 'Untitled'}</div>
+                  <div className={`text-xs font-black truncate ${activeFragment?.id === f.id ? 'text-knowledge-400' : 'text-gray-400 group-hover:text-gray-200'}`}>{f.title || 'Untitled'}</div>
                   <div className="mt-2 text-[8px] uppercase tracking-tighter opacity-40">{f.domain}</div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -526,7 +531,7 @@ const Home = () => {
                 >
                   {isSidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
                 </button>
-                <div className="p-3 bg-blue-500/10 text-blue-500 rounded-2xl border border-blue-500/20"><FileText size={20} fill="currentColor" /></div>
+                <div className="p-3 bg-knowledge-500/10 text-knowledge-500 rounded-2xl border border-knowledge-500/20"><FileText size={20} fill="currentColor" /></div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Knowledge Fragment</span>
                   <code className="text-[10px] text-gray-700 font-mono italic">{activeFragment.id.slice(0, 8)}</code>
@@ -536,7 +541,7 @@ const Home = () => {
                 <select
                   value={activeFragment.domain}
                   onChange={(e) => handleUpdateFragment(e.target.value)}
-                  className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-blue-400 px-4 py-2 rounded-xl focus:outline-none"
+                  className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-knowledge-400 px-4 py-2 rounded-xl focus:outline-none"
                 >
                   <option value="Work">Work</option>
                   <option value="Personal">Personal</option>
@@ -550,15 +555,15 @@ const Home = () => {
                 >
                   <Trash2 size={16} />
                 </button>
-                <button onClick={() => handleUpdateFragment()} disabled={isSaving} className="px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-blue-500/10 uppercase tracking-widest transition-all active:scale-[0.98]">Storage</button>
+                <button onClick={() => handleUpdateFragment()} disabled={isSaving} className="px-8 py-2.5 bg-knowledge-600 hover:bg-knowledge-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-knowledge-500/10 uppercase tracking-widest transition-all active:scale-[0.98]">Storage</button>
               </div>
             </header>
 
-            <input value={fragmentEditTitle} onChange={(e) => setFragmentEditTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-blue-500 text-gray-100 placeholder:text-gray-800" placeholder="Point Title..." />
+            <input value={fragmentEditTitle} onChange={(e) => setFragmentEditTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-knowledge-500 text-gray-100 placeholder:text-gray-800" placeholder="Point Title..." />
 
             <div className="space-y-12">
-              <MissionField icon={History} label="Hook" content={fragmentEditHook} onChange={setFragmentEditHook} />
-              <MissionField icon={FileText} label="Content" content={fragmentEditContent} onChange={setFragmentEditContent} />
+              <MissionField icon={History} label="Hook" content={fragmentEditHook} onChange={setFragmentEditHook} activeColorClass="text-knowledge-500" />
+              <MissionField icon={FileText} label="Content" content={fragmentEditContent} onChange={setFragmentEditContent} activeColorClass="text-knowledge-500" />
             </div>
           </div>
         ) : (
@@ -580,19 +585,19 @@ const Home = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="w-full max-w-xl p-10 bg-gray-950 border border-gray-800 rounded-[3rem] shadow-2xl animate-in zoom-in-95 duration-300">
             <header className="flex items-center justify-between mb-10">
-              <div className="p-4 bg-brand-500/10 text-brand-500 rounded-2xl"><Plus size={24} /></div>
+              <div className="p-4 bg-knowledge-500/10 text-knowledge-500 rounded-2xl"><Plus size={24} /></div>
               <button onClick={() => setQuickLinkTaskId(null)} className="p-2 text-gray-600 hover:text-white transition-all"><X size={20} /></button>
             </header>
             <h3 className="text-xl font-black text-gray-100 uppercase tracking-widest mb-2">Rapid Enlightenment</h3>
             <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest mb-8 italic">Linking to: {executions.find(e => e.id === quickLinkTaskId)?.title}</p>
-
+ 
             <div className="flex flex-col gap-6 mb-10">
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-1">Select Domain</label>
                 <select
                   value={quickFragmentDomain}
                   onChange={(e) => setQuickFragmentDomain(e.target.value)}
-                  className="w-full bg-gray-900 border border-gray-800 p-4 rounded-3xl text-sm font-black text-brand-500 focus:outline-none"
+                  className="w-full bg-gray-900 border border-gray-800 p-4 rounded-3xl text-sm font-black text-knowledge-500 focus:outline-none"
                 >
                   <option value="Work">Work</option>
                   <option value="Personal">Personal</option>
@@ -600,10 +605,10 @@ const Home = () => {
                   <option value="Uncategorized">Uncategorized</option>
                 </select>
               </div>
-
+ 
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-1">Point Title</label>
-                <div className="p-6 bg-gray-900/40 border border-gray-800 rounded-[2rem] focus-within:border-brand-500/30 transition-all">
+                <div className="p-6 bg-gray-900/40 border border-gray-800 rounded-[2rem] focus-within:border-knowledge-500/30 transition-all">
                   <input
                     value={quickFragmentTitle}
                     onChange={(e) => setQuickFragmentTitle(e.target.value)}
@@ -614,8 +619,8 @@ const Home = () => {
                 </div>
               </div>
             </div>
-
-            <button onClick={handleQuickAddFragment} disabled={!quickFragmentTitle || isSaving} className="w-full py-5 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-brand-600/20 transition-all active:scale-[0.98]">ESTABLISH KNOWLEDGE EDGE</button>
+ 
+            <button onClick={handleQuickAddFragment} disabled={!quickFragmentTitle || isSaving} className="w-full py-5 bg-knowledge-600 hover:bg-knowledge-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-knowledge-600/20 transition-all active:scale-[0.98]">ESTABLISH KNOWLEDGE EDGE</button>
           </div>
         </div>
       )}

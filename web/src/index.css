@@ -4,6 +4,8 @@
 @theme {
   --brand-main: #d9717f;
 
+  --knowledge-main: #71d98e;
+
   --color-brand-50: color-mix(in oklab, var(--brand-main), white 95%);
   --color-brand-100: color-mix(in oklab, var(--brand-main), white 90%);
   --color-brand-200: color-mix(in oklab, var(--brand-main), white 70%);
@@ -12,6 +14,15 @@
   --color-brand-500: var(--brand-main);
   --color-brand-600: color-mix(in oklab, var(--brand-main), black 15%);
   --color-brand-700: color-mix(in oklab, var(--brand-main), black 35%);
+
+  --color-knowledge-50: color-mix(in oklab, var(--knowledge-main), white 95%);
+  --color-knowledge-100: color-mix(in oklab, var(--knowledge-main), white 90%);
+  --color-knowledge-200: color-mix(in oklab, var(--knowledge-main), white 70%);
+  --color-knowledge-300: color-mix(in oklab, var(--knowledge-main), white 40%);
+  --color-knowledge-400: color-mix(in oklab, var(--knowledge-main), white 20%);
+  --color-knowledge-500: var(--knowledge-main);
+  --color-knowledge-600: color-mix(in oklab, var(--knowledge-main), black 15%);
+  --color-knowledge-700: color-mix(in oklab, var(--knowledge-main), black 35%);
 }
 
 html {
