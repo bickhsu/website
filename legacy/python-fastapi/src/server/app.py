@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from .database import Base, engine, get_db
 from .models import KnowledgeFragment
-from  import schemas
+from . import schemas
 from .routers import ingest_router, executions_router, upload_router
 
 

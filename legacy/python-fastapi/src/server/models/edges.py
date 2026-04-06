@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, DateTime, func, Index
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
-from .database import Base
+from ..database import Base
 
 class ContextualEdge(Base):
     __tablename__ = "contextual_edges"

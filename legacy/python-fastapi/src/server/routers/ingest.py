@@ -5,8 +5,8 @@ from typing import List
 import logging
 from uuid import UUID
 
-from  import models, schemas
-from .database import get_db 
+from .. import models, schemas
+from ..database import get_db 
 
 router = APIRouter(prefix="/api/v1/ingest", tags=["Ingestion Pipeline"])
 logger = logging.getLogger(__name__)

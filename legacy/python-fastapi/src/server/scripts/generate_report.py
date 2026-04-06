@@ -10,9 +10,9 @@ sys.path.append(project_root)
 from dotenv import load_dotenv
 import google.generativeai as genai
 
-from .database import DBSession
-from .models.executions import ExecutionUnit
-from .models.fragments import KnowledgeFragment
+from ..database import DBSession
+from ..models.executions import ExecutionUnit
+from ..models.fragments import KnowledgeFragment
 
 
 load_dotenv()
