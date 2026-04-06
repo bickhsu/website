@@ -6,10 +6,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
-from server.database import Base, engine, get_db
-from server.models import KnowledgeFragment
-from server import schemas
-from server.routers import ingest_router, executions_router, upload_router
+from .database import Base, engine, get_db
+from .models import KnowledgeFragment
+from  import schemas
+from .routers import ingest_router, executions_router, upload_router
 
 
 from fastapi.middleware.cors import CORSMiddleware

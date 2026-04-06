@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
 
-from server import models, schemas
-from server.database import get_db
+from  import models, schemas
+from .database import get_db
 
 
 router = APIRouter(prefix="/api/v1/executions", tags=["Execution Units"])

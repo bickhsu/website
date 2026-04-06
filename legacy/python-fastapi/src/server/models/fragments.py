@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Text, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
-from server.database import Base
+from .database import Base
 
 class KnowledgeFragment(Base):
     __tablename__ = "knowledge_fragments"
