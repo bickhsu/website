@@ -36,14 +36,14 @@ model contextual_edges {
 }
 
 model execution_units {
-  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  status            String?   @default("To-Do") @db.VarChar(20)
+  id                String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  status            String?     @default("To-Do") @db.VarChar(20)
   problem_statement String
   value_delivered   String?
-  created_at        DateTime? @default(now()) @db.Timestamptz(6)
-  title             String    @default("Untitled Action") @db.VarChar(150)
+  created_at        DateTime?   @default(now()) @db.Timestamptz(6)
+  title             String      @default("Untitled Action") @db.VarChar(150)
   execution_log     String?
-  domain            String?   @default("General") @db.VarChar(50)
+  domain            DomainEnum? @default(General)
 }
 
 model knowledge_fragments {
