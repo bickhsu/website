@@ -9,7 +9,8 @@ const { user, password, host: DB_HOST, dbname } = process.env;
 const encodedPassword = password ? encodeURIComponent(password) : "";
 delete process.env.host;
 
-const DIRECT_URL = `postgresql://${user}:${encodedPassword}@${DB_HOST}:5432/${dbname}?sslmode=require`;
+export const DIRECT_URL = `postgresql://${user}:${encodedPassword}@${DB_HOST}:5432/${dbname}?sslmode=require`;
+export const DATABASE_URL = `postgresql://${user}:${encodedPassword}@${DB_HOST}:6543/${dbname}?pgbouncer=true`;
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
