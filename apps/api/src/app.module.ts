@@ -8,8 +8,9 @@ import { PrismaModule } from './database/prisma.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: '../../../.env',
     }),
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
