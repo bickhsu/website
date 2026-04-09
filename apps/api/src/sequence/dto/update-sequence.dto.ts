@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateFragmentDto } from './create-sequence.dto';
+import { CreateSequenceDto } from './create-sequence.dto';
 
-export class UpdateFragmentDto extends PartialType(CreateFragmentDto) { }
+export class UpdateSequenceDto extends PartialType(CreateSequenceDto) {}

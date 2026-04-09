@@ -1,26 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFragmentDto } from './dto/create-sequence.dto';
-import { UpdateFragmentDto } from './dto/update-sequence.dto';
+import { CreateSequenceDto } from './dto/create-sequence.dto';
+import { UpdateSequenceDto } from './dto/update-sequence.dto';
 
 @Injectable()
-export class FragmentService {
-  create(createFragmentDto: CreateFragmentDto) {
-    return 'This action adds a new fragment';
+export class SequenceService {
+  create(createSequenceDto: CreateSequenceDto) {
+    return 'This action adds a new sequence';
   }
 
   findAll() {
-    return `This action returns all fragment`;
+    return `This action returns all sequence`;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} fragment`;
+    return `This action returns a #${id} sequence`;
   }
 
-  update(id: number, updateFragmentDto: UpdateFragmentDto) {
-    return `This action updates a #${id} fragment`;
+  update(id: number, updateSequenceDto: UpdateSequenceDto) {
+    return `This action updates a #${id} sequence`;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} fragment`;
+    return `This action removes a #${id} sequence`;
   }
 }

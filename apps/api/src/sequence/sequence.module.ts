@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { FragmentService } from './sequence.service';
-import { FragmentController } from './sequence.controller';
+import { SequenceService } from './sequence.service';
+import { SequenceController } from './sequence.controller';
 
 @Module({
-  controllers: [FragmentController],
-  providers: [FragmentService],
+  controllers: [SequenceController],
+  providers: [SequenceService],
 })
-export class FragmentModule { }
+export class SequenceModule {}

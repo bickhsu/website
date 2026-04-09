@@ -3,7 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './database/prisma.module';
-import { FragmentModule } from './sequence/sequence.module';
+import { FrameModule } from './frame/frame.module';
+import { KeyframeModule } from './keyframe/keyframe.module';
+import { SequenceModule } from './sequence/sequence.module';
 import * as path from 'path';
 
 @Module({
@@ -13,7 +15,9 @@ import * as path from 'path';
       envFilePath: path.join(process.cwd(), '../../.env'),
     }),
     PrismaModule,
-    FragmentModule,
+    SequenceModule,
+    FrameModule,
+    KeyframeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
