@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFragmentDto } from './dto/create-fragment.dto';
-import { UpdateFragmentDto } from './dto/update-fragment.dto';
+import { CreateFragmentDto } from './dto/create-sequence.dto';
+import { UpdateFragmentDto } from './dto/update-sequence.dto';
 
 @Injectable()
 export class FragmentService {

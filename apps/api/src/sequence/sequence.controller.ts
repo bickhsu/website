@@ -1,11 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { FragmentService } from './fragment.service';
-import { CreateFragmentDto } from './dto/create-fragment.dto';
-import { UpdateFragmentDto } from './dto/update-fragment.dto';
+import { FragmentService } from './sequence.service';
+import { CreateFragmentDto } from './dto/create-sequence.dto';
+import { UpdateFragmentDto } from './dto/update-sequence.dto';
 
 @Controller('fragment')
 export class FragmentController {
-  constructor(private readonly fragmentService: FragmentService) {}
+  constructor(private readonly fragmentService: FragmentService) { }
 
   @Post()
   create(@Body() createFragmentDto: CreateFragmentDto) {

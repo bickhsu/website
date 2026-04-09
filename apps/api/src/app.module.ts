@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './database/prisma.module';
-import { FragmentModule } from './fragment/fragment.module';
+import { FragmentModule } from './sequence/sequence.module';
 import * as path from 'path';
 
 @Module({
