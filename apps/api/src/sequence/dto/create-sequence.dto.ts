@@ -1,16 +1,24 @@
-import { IsString, IsOptional, IsEnum, IsUUID, IsNotEmpty } from 'class-validator';
-import { DomainEnum } from '../../../generated/prisma';
+import { IsString, IsOptional, IsEnum, IsNotEmpty } from 'class-validator';
+import { DomainEnum, StatusEnum } from '../../../generated/prisma';
 
 export class CreateSequenceDto {
     @IsString()
     @IsNotEmpty()
     title: string;
 
+    @IsEnum(StatusEnum)
+    @IsOptional()
+    status?: StatusEnum = StatusEnum.ACTIVE;
+
     @IsEnum(DomainEnum)
     @IsOptional()
-    domain?: DomainEnum = DomainEnum.General;
+    domain?: DomainEnum = DomainEnum.GENERAL;
 
-    @IsUUID()
+    @IsString()
     @IsOptional()
-    linked_execution_id?: string;
+    problemStatement?: string;
+
+    @IsString()
+    @IsOptional()
+    valueDelivered?: string;
 }
