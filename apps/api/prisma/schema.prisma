@@ -8,9 +8,9 @@ datasource db {
 }
 
 enum DomainEnum {
-  General
-  Personal
-  Work
+  GENERAL
+  PERSONAL
+  WORK
 }
 
 enum StatusEnum {
@@ -49,13 +49,13 @@ model execution_units {
   created_at        DateTime?   @default(now()) @db.Timestamptz(6)
   title             String      @default("Untitled Action") @db.VarChar(150)
   execution_log     String?
-  domain            DomainEnum? @default(General)
+  domain            DomainEnum? @default(GENERAL)
 }
 
 model knowledge_fragments {
   id         String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   content    String
-  domain     DomainEnum? @default(General)
+  domain     DomainEnum? @default(GENERAL)
   created_at DateTime?   @default(now()) @db.Timestamptz(6)
   title      String      @default("Untitled Fragment") @db.VarChar(150)
   hook       String?
@@ -67,7 +67,7 @@ model Sequence {
   problemStatement String?     @map("problem_statement") @db.Text
   valueDelivered   String?     @map("value_delivered") @db.Text
   title            String      @default("Untitled Sequence") @db.VarChar(150)
-  domain           DomainEnum? @default(General)
+  domain           DomainEnum? @default(GENERAL)
   createdAt        DateTime?   @default(now()) @map("created_at") @db.Timestamptz(3)
 
   sequenceFrames    SequenceFrame[]
@@ -81,7 +81,7 @@ model Keyframe {
   title     String      @default("Untitled Keyframe") @db.VarChar(150)
   content   String?     @db.Text
   hook      String?     @db.Text
-  domain    DomainEnum? @default(General)
+  domain    DomainEnum? @default(GENERAL)
   createdAt DateTime?   @default(now()) @map("created_at") @db.Timestamptz(3)
 
   keyframeFrames    KeyframeFrame[]
