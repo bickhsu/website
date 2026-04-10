@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../database/prisma.service';
 import { CreateSequenceDto } from './dto/create-sequence.dto';
 import { UpdateSequenceDto } from './dto/update-sequence.dto';
 
 @Injectable()
 export class SequenceService {
+  constructor(private readonly prisma: PrismaService) { }
   create(createSequenceDto: CreateSequenceDto) {
     return 'This action adds a new sequence';
   }
