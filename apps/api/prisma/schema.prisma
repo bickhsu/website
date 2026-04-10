@@ -13,6 +13,11 @@ enum DomainEnum {
   Work
 }
 
+enum StatusEnum {
+  ACTIVE
+  ARCHIVED
+}
+
 model articles {
   id         Int       @id @default(autoincrement())
   title      String?   @db.VarChar
@@ -58,7 +63,7 @@ model knowledge_fragments {
 
 model Sequence {
   id               String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  status           String?     @default("To-Do") @db.VarChar(20)
+  status           StatusEnum? @default(ACTIVE)
   problemStatement String?     @map("problem_statement") @db.Text
   valueDelivered   String?     @map("value_delivered") @db.Text
   title            String      @default("Untitled Sequence") @db.VarChar(150)
