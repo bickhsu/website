@@ -6,6 +6,7 @@ import { UpdateSequenceDto } from './dto/update-sequence.dto';
 @Injectable()
 export class SequenceService {
   constructor(private readonly prisma: PrismaService) { }
+
   create(createSequenceDto: CreateSequenceDto) {
     return 'This action adds a new sequence';
   }
