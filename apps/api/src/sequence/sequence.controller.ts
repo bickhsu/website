@@ -5,30 +5,30 @@ import { UpdateSequenceDto } from './dto/update-sequence.dto';
 
 @Controller('sequence')
 export class SequenceController {
-  constructor(private readonly sequenceService: SequenceService) {}
+  constructor(private readonly sequenceService: SequenceService) { }
 
   @Post()
-  create(@Body() createSequenceDto: CreateSequenceDto) {
+  async create(@Body() createSequenceDto: CreateSequenceDto) {
     return this.sequenceService.create(createSequenceDto);
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.sequenceService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.sequenceService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSequenceDto: UpdateSequenceDto) {
+  async update(@Param('id') id: string, @Body() updateSequenceDto: UpdateSequenceDto) {
     return this.sequenceService.update(+id, updateSequenceDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.sequenceService.remove(+id);
   }
 }
