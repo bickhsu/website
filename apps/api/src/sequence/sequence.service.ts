@@ -2,7 +2,6 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { PrismaService } from '../database/prisma.service';
 import { CreateSequenceDto } from './dto/create-sequence.dto';
 import { UpdateSequenceDto } from './dto/update-sequence.dto';
-import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class SequenceService {
@@ -54,15 +53,16 @@ export class SequenceService {
 
   async remove(id: string) {
     try {
-      await this.prisma.sequenceFrame.deleteMany({
-        where: { sequenceId: id },
-      });
-
-      return await this.prisma.sequence.delete({
+      const { count } = await this.prisma.sequence.deleteMany({
         where: { id },
       });
+      return {
+        id,
+        deleted: count > 0,
+        message: count > 0 ? 'Deleted successfully' : 'Already non-existent',
+      }
     } catch (error) {
-      throw new InternalServerErrorException('Delete failed, Target might not exist.')
+      throw new InternalServerErrorException('Database execution failed.')
     }
   }
 }
