@@ -1,13 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateFrameDto } from './dto/create-frame.dto';
 import { UpdateFrameDto } from './dto/update-frame.dto';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class FrameService {
-  create(createFrameDto: CreateFrameDto) {
-    return 'This action adds a new frame';
+  constructor(private readonly prisma: PrismaService) { }
+  async create(createFrameDto: CreateFrameDto) {
+    try {
+      const newFrame = await this.prisma.frame.create({
+        data: createFrameDto,
+      });
+      return newFrame;
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to create the frame');
+    }
   }
-
   findAll() {
     return `This action returns all frame`;
   }
