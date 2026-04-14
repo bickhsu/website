@@ -9,10 +9,9 @@ export class SequenceService {
 
   async create(createSequenceDto: CreateSequenceDto) {
     try {
-      const newSequence = await this.prisma.sequence.create({
+      return await this.prisma.sequence.create({
         data: createSequenceDto,
       });
-      return newSequence;
     } catch (error) {
       throw new InternalServerErrorException('Failed to create the sequence');
     }
