@@ -62,14 +62,13 @@ model knowledge_fragments {
 }
 
 model Sequence {
-  id               String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  status           StatusEnum? @default(ACTIVE)
-  problemStatement String?     @map("problem_statement") @db.Text
-  valueDelivered   String?     @map("value_delivered") @db.Text
-  title            String      @default("Untitled Sequence") @db.VarChar(150)
-  domain           DomainEnum? @default(GENERAL)
-  createdAt        DateTime?   @default(now()) @map("created_at") @db.Timestamptz(3)
-
+  id                String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  status            StatusEnum?        @default(ACTIVE)
+  problemStatement  String?            @map("problem_statement") @db.Text
+  valueDelivered    String?            @map("value_delivered") @db.Text
+  title             String             @default("Untitled Sequence") @db.VarChar(150)
+  domain            DomainEnum?        @default(GENERAL)
+  createdAt         DateTime?          @default(now()) @map("created_at") @db.Timestamptz(3)
   sequenceFrames    SequenceFrame[]
   sequenceKeyframes SequenceKeyframe[]
 
@@ -77,13 +76,12 @@ model Sequence {
 }
 
 model Keyframe {
-  id        String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  title     String      @default("Untitled Keyframe") @db.VarChar(150)
-  content   String?     @db.Text
-  hook      String?     @db.Text
-  domain    DomainEnum? @default(GENERAL)
-  createdAt DateTime?   @default(now()) @map("created_at") @db.Timestamptz(3)
-
+  id                String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title             String             @default("Untitled Keyframe") @db.VarChar(150)
+  content           String?            @db.Text
+  hook              String?            @db.Text
+  domain            DomainEnum?        @default(GENERAL)
+  createdAt         DateTime?          @default(now()) @map("created_at") @db.Timestamptz(3)
   keyframeFrames    KeyframeFrame[]
   sequenceKeyframes SequenceKeyframe[]
 
@@ -91,10 +89,9 @@ model Keyframe {
 }
 
 model Frame {
-  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  content   String?   @db.Text
-  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(3)
-
+  id             String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  content        String?         @db.Text
+  createdAt      DateTime?       @default(now()) @map("created_at") @db.Timestamptz(3)
   sequenceFrames SequenceFrame[]
   keyframeFrames KeyframeFrame[]
 
@@ -105,34 +102,31 @@ model SequenceFrame {
   sequenceId String   @map("sequence_id") @db.Uuid
   frameId    String   @map("frame_id") @db.Uuid
   addedAt    DateTime @default(now()) @map("added_at") @db.Timestamptz(3)
+  sequence   Sequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  frame      Frame    @relation(fields: [frameId], references: [id], onDelete: Cascade)
 
-  sequence Sequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
-  frame    Frame    @relation(fields: [frameId], references: [id], onDelete: Cascade)
-
-  @@id([sequenceId, frameId, addedAt])
+  @@id([sequenceId, frameId])
   @@map("sequence_frames")
-}
-
-model KeyframeFrame {
-  keyframeId String   @map("keyframe_id") @db.Uuid
-  frameId    String   @map("frame_id") @db.Uuid
-  addedAt    DateTime @default(now()) @map("added_at") @db.Timestamptz(3)
-
-  keyframe Keyframe @relation(fields: [keyframeId], references: [id], onDelete: Cascade)
-  frame    Frame    @relation(fields: [frameId], references: [id], onDelete: Cascade)
-
-  @@id([keyframeId, frameId, addedAt])
-  @@map("keyframe_frames")
 }
 
 model SequenceKeyframe {
   sequenceId String   @map("sequence_id") @db.Uuid
   keyframeId String   @map("keyframe_id") @db.Uuid
   addedAt    DateTime @default(now()) @map("added_at") @db.Timestamptz(3)
+  sequence   Sequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  keyframe   Keyframe @relation(fields: [keyframeId], references: [id], onDelete: Cascade)
 
-  sequence Sequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
-  keyframe Keyframe @relation(fields: [keyframeId], references: [id], onDelete: Cascade)
-
-  @@id([sequenceId, keyframeId, addedAt])
+  @@id([sequenceId, keyframeId])
   @@map("sequence_keyframes")
+}
+
+model KeyframeFrame {
+  keyframeId String   @map("keyframe_id") @db.Uuid
+  frameId    String   @map("frame_id") @db.Uuid
+  addedAt    DateTime @default(now()) @map("added_at") @db.Timestamptz(3)
+  keyframe   Keyframe @relation(fields: [keyframeId], references: [id], onDelete: Cascade)
+  frame      Frame    @relation(fields: [frameId], references: [id], onDelete: Cascade)
+
+  @@id([keyframeId, frameId])
+  @@map("keyframe_frames")
 }
