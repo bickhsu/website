@@ -19,16 +19,16 @@ export class KeyframeController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.keyframeService.findOne(+id);
+    return this.keyframeService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateKeyframeDto: UpdateKeyframeDto) {
-    return this.keyframeService.update(+id, updateKeyframeDto);
+    return this.keyframeService.update(id, updateKeyframeDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.keyframeService.remove(+id);
+    return this.keyframeService.remove(id);
   }
 }

@@ -1,26 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateKeyframeDto } from './dto/create-keyframe.dto';
 import { UpdateKeyframeDto } from './dto/update-keyframe.dto';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class KeyframeService {
-  create(createKeyframeDto: CreateKeyframeDto) {
-    return 'This action adds a new keyframe';
+  constructor(private readonly prisma: PrismaService) { }
+
+  async create(createKeyframeDto: CreateKeyframeDto) {
+    return this.prisma.keyframe.create({
+      data: createKeyframeDto,
+    });
   }
 
-  findAll() {
-    return `This action returns all keyframe`;
+  async findAll() {
+    return this.prisma.keyframe.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} keyframe`;
+  async findOne(id: string) {
+    const keyframe = await this.prisma.keyframe.findUnique({
+      where: { id },
+      include: {
+        keyframeFrames: {
+          include: {
+            frame: true
+          }
+        }
+      },
+    });
+
+    if (!keyframe) {
+      throw new NotFoundException(`Keyframe with ID ${id} not found`);
+    }
+
+    return keyframe;
   }
 
-  update(id: number, updateKeyframeDto: UpdateKeyframeDto) {
-    return `This action updates a #${id} keyframe`;
+  async update(id: string, updateKeyframeDto: UpdateKeyframeDto) {
+    return this.prisma.keyframe.update({
+      where: { id },
+      data: updateKeyframeDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} keyframe`;
+  async remove(id: string) {
+    const { count } = await this.prisma.keyframe.deleteMany({
+      where: { id },
+    });
+
+    return {
+      id,
+      deleted: count > 0,
+      message: count > 0 ? 'Deleted successfully' : 'Already non-existent',
+    };
   }
 }
