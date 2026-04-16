@@ -1,14 +1,20 @@
-import { ArgumentsHost, Catch, HttpStatus } from '@nestjs/common';
-import { BaseExceptionFilter } from '@nestjs/core';
+import {
+  ArgumentsHost,
+  Catch,
+  HttpStatus,
+  ExceptionFilter,
+  Logger
+} from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
 import { Response } from 'express';
 
 @Catch(Prisma.PrismaClientKnownRequestError)
-export class PrismaClientExceptionFilter extends BaseExceptionFilter {
+export class PrismaClientExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(PrismaClientExceptionFilter.name);
+
   catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const message = exception.message.replace(/\n/g, '');
 
     switch (exception.code) {
       case 'P2002': { // Unique constraint failed
@@ -24,7 +30,8 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
         const status = HttpStatus.NOT_FOUND;
         response.status(status).json({
           statusCode: status,
-          message: (exception.meta?.cause as string) || 'Record not found',
+          message: (exception.meta?.cause as string) || 'Database record not found',
+          error: 'Not Found',
         });
         break;
       }
@@ -33,13 +40,25 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
         response.status(status).json({
           statusCode: status,
           message: `Foreign key constraint failed on the field: ${exception.meta?.field_name}`,
+          error: 'Bad Request',
         });
         break;
       }
-      default:
-        // Fallback to default 500 error handled by BaseExceptionFilter
-        super.catch(exception, host);
+      default: {
+        const status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+        this.logger.error(
+          `[Prisma Error ${exception.code}] ${exception.message}`,
+          exception.stack,
+          PrismaClientExceptionFilter.name
+        );
+        response.status(status).json({
+          statusCode: status,
+          message: `A database error occurred while processing your request.`,
+          error: 'Internal Server Error',
+        });
         break;
+      }
     }
   }
 }
