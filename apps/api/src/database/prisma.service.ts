@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma-client";
-import { DATABASE_URL } from "../../prisma.config";
+import { DATABASE_URL } from "@api/prisma.config";
 
 
 @Injectable()
