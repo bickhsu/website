@@ -1,5 +1,5 @@
 import { IsString, IsOptional, IsEnum, IsNotEmpty } from 'class-validator';
-import { DomainEnum } from '../../../generated/prisma';
+import { DomainEnum } from '@prisma-client';
 
 export class CreateSequenceDto {
     @IsString()

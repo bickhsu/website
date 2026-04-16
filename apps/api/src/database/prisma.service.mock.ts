@@ -1,5 +1,5 @@
 import { Provider } from '@nestjs/common';
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from '@prisma-client';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { PrismaService } from './prisma.service';
 

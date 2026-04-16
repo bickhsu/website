@@ -13,6 +13,12 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "allowJs": true,
+    "paths": {
+      "@prisma-client": ["src/generated/prisma/index"],
+      "@prisma-client/*": ["src/generated/prisma/*"],
+      "@api/*": ["src/*"]
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
