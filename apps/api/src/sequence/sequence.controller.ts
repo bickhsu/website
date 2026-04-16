@@ -19,16 +19,16 @@ export class SequenceController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.sequenceService.findOne(+id);
+    return this.sequenceService.findOne(id);
   }
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateSequenceDto: UpdateSequenceDto) {
-    return this.sequenceService.update(+id, updateSequenceDto);
+    return this.sequenceService.update(id, updateSequenceDto);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    return this.sequenceService.remove(+id);
+    return this.sequenceService.remove(id);
   }
 }
