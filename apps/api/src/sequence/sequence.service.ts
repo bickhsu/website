@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateSequenceDto } from './dto/create-sequence.dto';
 import { UpdateSequenceDto } from './dto/update-sequence.dto';
@@ -8,23 +8,15 @@ export class SequenceService {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(createSequenceDto: CreateSequenceDto) {
-    try {
-      return await this.prisma.sequence.create({
-        data: createSequenceDto,
-      });
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to create the sequence');
-    }
+    return this.prisma.sequence.create({
+      data: createSequenceDto,
+    });
   }
 
   async findAll() {
-    try {
-      return await this.prisma.sequence.findMany({
-        orderBy: { createdAt: 'desc' },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to fetch sequences.');
-    }
+    return this.prisma.sequence.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async findOne(id: string) {
@@ -40,28 +32,21 @@ export class SequenceService {
   }
 
   async update(id: string, updateSequenceDto: UpdateSequenceDto) {
-    try {
-      return await this.prisma.sequence.update({
-        where: { id },
-        data: updateSequenceDto,
-      });
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to update the sequence.')
-    }
+    return this.prisma.sequence.update({
+      where: { id },
+      data: updateSequenceDto,
+    });
   }
 
   async remove(id: string) {
-    try {
-      const { count } = await this.prisma.sequence.deleteMany({
-        where: { id },
-      });
-      return {
-        id,
-        deleted: count > 0,
-        message: count > 0 ? 'Deleted successfully' : 'Already non-existent',
-      }
-    } catch (error) {
-      throw new InternalServerErrorException('Database execution failed.')
-    }
+    const { count } = await this.prisma.sequence.deleteMany({
+      where: { id },
+    });
+
+    return {
+      id,
+      deleted: count > 0,
+      message: count > 0 ? 'Deleted successfully' : 'Already non-existent',
+    };
   }
 }
