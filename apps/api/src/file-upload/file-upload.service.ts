@@ -1,25 +1,20 @@
-import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { SupabaseService } from '../database/supabase.service';
 import { randomUUID } from 'crypto';
 import * as path from 'path';
 
 @Injectable()
 export class FileUploadService {
-  constructor(private supabaseService: SupabaseService) { }
+  private readonly logger = new Logger(FileUploadService.name);
+  constructor(private readonly supabaseService: SupabaseService) { }
 
   async uploadImage(file: Express.Multer.File): Promise<{ url: string }> {
-    if (!file.mimetype.startsWith('image/')) {
-      throw new BadRequestException('File must be an image');
-    }
-
     const supabase = this.supabaseService.getClient();
     const bucketName = 'images';
-
-    // Generate unique filename: editor/{uuid}.{ext}
     const fileExt = path.extname(file.originalname) || '.png';
-    const filePath = `editor/${randomUUID()}${fileExt}`;
+    const filePath = `editor/${Date.now()}-${randomUUID()}${fileExt}`;
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from(bucketName)
       .upload(filePath, file.buffer, {
         contentType: file.mimetype,
@@ -27,14 +22,14 @@ export class FileUploadService {
       });
 
     if (error) {
-      console.error('Supabase storage upload error:', error);
-      throw new InternalServerErrorException(error.message);
+      this.logger.error(`Image Upload Failed: ${error.message}`);
+      throw new InternalServerErrorException('Image Upload Failed. Please try again later.');
     }
 
-    const { data: { publicUrl } } = supabase.storage
+    const { data } = supabase.storage
       .from(bucketName)
       .getPublicUrl(filePath);
 
-    return { url: publicUrl };
+    return { url: data.publicUrl };
   }
 }
