@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { FrameModule } from './frame/frame.module';
 import { KeyframeModule } from './keyframe/keyframe.module';
 import { SequenceModule } from './sequence/sequence.module';
+import { UploadModule } from './file-upload/file-upload.module';
 import * as path from 'path';
 
 @Module({
@@ -18,6 +19,7 @@ import * as path from 'path';
     SequenceModule,
     FrameModule,
     KeyframeModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
