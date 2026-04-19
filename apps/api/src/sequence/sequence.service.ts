@@ -22,7 +22,18 @@ export class SequenceService {
   async findOne(id: string) {
     const sequence = await this.prisma.sequence.findUnique({
       where: { id },
-      include: { sequenceFrames: true },
+      include: {
+        sequenceFrames: {
+          include: {
+            frame: true,
+          },
+        },
+        sequenceKeyframes: {
+          include: {
+            keyframe: true,
+          },
+        },
+      },
     });
 
     if (!sequence) {

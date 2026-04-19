@@ -63,14 +63,30 @@ describe('SequenceService', () => {
 
   describe('findOne', () => {
     it('should return a sequence if found', async () => {
-      const expectedResult = { id: '1', name: 'Test', sequenceFrames: [] };
+      const expectedResult = { 
+        id: '1', 
+        name: 'Test', 
+        sequenceFrames: [],
+        sequenceKeyframes: [] 
+      };
       mockPrismaService.sequence.findUnique.mockResolvedValue(expectedResult);
 
       const result = await service.findOne('1');
       expect(result).toEqual(expectedResult);
       expect(prisma.sequence.findUnique).toHaveBeenCalledWith({
         where: { id: '1' },
-        include: { sequenceFrames: true },
+        include: {
+          sequenceFrames: {
+            include: {
+              frame: true,
+            },
+          },
+          sequenceKeyframes: {
+            include: {
+              keyframe: true,
+            },
+          },
+        },
       });
     });
 
