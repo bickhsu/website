@@ -420,7 +420,7 @@ const Home = () => {
       setIsSaving(true)
       const syncedContent = await syncContentImages(editingFrameContent)
       
-      const res = await fetch(`${ENDPOINTS.API_BASE}/frame/${frameId}`, {
+      const res = await fetch(`${API_BASE_URL}/frame/${frameId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: syncedContent })
