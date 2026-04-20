@@ -295,24 +295,24 @@ const Home = () => {
     } catch (err) { console.error("Failed to fetch all keyframes", err) }
   }
 
-  // --- 功能邏輯 : Tasks ---
+  // --- Function Logic : Sequences ---
   const handleAddNewTask = async () => {
     const title = prompt("請輸入新任務標題:")
     if (!title) return
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/executions/', {
+      const res = await fetch(ENDPOINTS.SEQUENCES, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: title,
-          problem_statement: "<p>What problem are we solving?</p>",
-          status: 'Inprocessing'
+          problemStatement: "<p>What problem are we solving?</p>",
+          status: 'ACTIVE'
         })
       })
       if (res.ok) {
         const newTask = await res.json()
-        setExecutions([newTask, ...executions])
+        setSequences([newTask, ...sequences])
         setActiveTask(newTask)
       }
     } catch (err) { console.error(err) }
@@ -321,10 +321,10 @@ const Home = () => {
   const handleDeleteTask = async (taskId: string) => {
     if (!confirm("確定要刪除此任務嗎? 這將永久移除工作記錄。")) return
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/executions/${taskId}`, { method: 'DELETE' })
+      const res = await fetch(`${ENDPOINTS.SEQUENCES}/${taskId}`, { method: 'DELETE' })
       if (res.ok) {
         if (activeTask?.id === taskId) setActiveTask(null)
-        fetchExecutions()
+        fetchSequences()
         setLastSaved(`Mission Expunged @ ${new Date().toLocaleTimeString()}`)
       }
     } catch (err) { console.error("Deletion failed", err) }
@@ -337,29 +337,26 @@ const Home = () => {
 
       // 同步所有編輯器欄位中的圖片
       const syncedProblem = await syncContentImages(problemStatement)
-      const syncedLog = await syncContentImages(executionLog)
       const syncedValue = await syncContentImages(valueDelivered)
 
       // 更新本地狀態以反應同步後的結果
       setProblemStatement(syncedProblem)
-      setExecutionLog(syncedLog)
       setValueDelivered(syncedValue)
 
-      const res = await fetch(`http://localhost:8000/api/v1/executions/${activeTask.id}`, {
+      const res = await fetch(`${ENDPOINTS.SEQUENCES}/${activeTask.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: taskTitle,
-          problem_statement: syncedProblem,
-          execution_log: syncedLog,
-          value_delivered: syncedValue,
+          problemStatement: syncedProblem,
+          valueDelivered: syncedValue,
           status: taskStatus
         })
       })
       if (res.ok) {
         setLastSaved(`Mission Synced @ ${new Date().toLocaleTimeString()}`)
-        fetchExecutions()
-        fetchAllFragments()
+        fetchSequences()
+        fetchAllKeyframes()
       }
     } finally { setIsSaving(false) }
   }
