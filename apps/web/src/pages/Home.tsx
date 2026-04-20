@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { TiptapEditor } from '../features/editor'
 import { syncContentImages } from '../features/editor/utils/syncContent'
 import { API_BASE_URL, ENDPOINTS } from '../config/api'
@@ -266,19 +266,33 @@ const Home = () => {
     fetchAllKeyframes()
   }, [])
 
+  const currentTaskIdRef = useRef<string | null>(null);
+
   // 當選中 Tasks 時同步編輯器內容並抓取詳情
   useEffect(() => {
     if (activeTask) {
-      setTaskTitle(activeTask.title || "Untitled Mission")
-      setProblemStatement(activeTask.problemStatement || "")
-      setValueDelivered(activeTask.valueDelivered || "")
-      setTaskStatus(activeTask.status || "Inprocessing")
-      fetchSequenceDetail(activeTask.id)
-
-      // 自動偵測：如果有內容則展開，沒內容則隱藏
-      const hasContent = !!(activeTask.problemStatement?.trim() && activeTask.problemStatement !== '<p></p>') || 
-                        !!(activeTask.valueDelivered?.trim() && activeTask.valueDelivered !== '<p></p>');
-      setShowExtendedFields(hasContent);
+      // 只有在「切換了不同的任務」或是「第一次點進來時的詳細資料回傳」時才覆寫內容
+      if (currentTaskIdRef.current !== activeTask.id) {
+        currentTaskIdRef.current = activeTask.id;
+        
+        setTaskTitle(activeTask.title || "Untitled Mission")
+        setProblemStatement(activeTask.problemStatement || "")
+        setValueDelivered(activeTask.valueDelivered || "")
+        setTaskStatus(activeTask.status || "Inprocessing")
+        
+        // 自動偵測：如果有內容則展開，沒內容則隱藏
+        const hasContent = !!(activeTask.problemStatement?.trim() && activeTask.problemStatement !== '<p></p>') || 
+                          !!(activeTask.valueDelivered?.trim() && activeTask.valueDelivered !== '<p></p>');
+        setShowExtendedFields(hasContent);
+        
+        fetchSequenceDetail(activeTask.id);
+      } else if (activeTask.sequenceFrames) {
+        // 當抓取詳情 (或更新) 帶有 sequenceFrames 回來時，如果這是不含 frames 的最初版任務更新
+        // 我們選擇不去覆寫 UI 輸入框，以免打斷使用者剛好在輸入的狀況，
+        // 只有 frames 更新是透過 activeTask 渲染的，所以不用做字串覆寫
+      }
+    } else {
+      currentTaskIdRef.current = null;
     }
   }, [activeTask])
 
@@ -318,7 +332,6 @@ const Home = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: title,
-          problemStatement: "<p>What problem are we solving?</p>",
         })
       })
       if (res.ok) {
