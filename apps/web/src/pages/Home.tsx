@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { TiptapEditor } from '../features/editor'
 import { syncContentImages } from '../features/editor/utils/syncContent'
 import { API_BASE_URL, ENDPOINTS } from '../config/api'
@@ -13,7 +14,9 @@ import {
   FileText,
   PanelLeftClose,
   PanelLeftOpen,
-  ChevronDown
+  ChevronDown,
+  Compass,
+  Clock
 } from 'lucide-react'
 
 // Define Interface
