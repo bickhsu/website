@@ -735,7 +735,7 @@ const Home = () => {
               <button onClick={() => setQuickLinkTaskId(null)} className="p-2 text-gray-600 hover:text-white transition-all"><X size={20} /></button>
             </header>
             <h3 className="text-xl font-black text-gray-100 uppercase tracking-widest mb-2">Rapid Enlightenment</h3>
-            <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest mb-8 italic">Linking to: {executions.find(e => e.id === quickLinkTaskId)?.title}</p>
+            <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest mb-8 italic">Linking to: {sequences.find(s => s.id === quickLinkTaskId)?.title}</p>
 
             <div className="flex flex-col gap-6 mb-10">
               <div className="flex flex-col gap-2">
@@ -745,10 +745,11 @@ const Home = () => {
                   onChange={(e) => setQuickFragmentDomain(e.target.value)}
                   className="w-full bg-gray-900 border border-gray-800 p-4 rounded-3xl text-sm font-black text-knowledge-500 focus:outline-none"
                 >
-                  <option value="Work">Work</option>
-                  <option value="Personal">Personal</option>
-                  <option value="Side_Project">Side Project</option>
-                  <option value="Uncategorized">Uncategorized</option>
+                  <option value="GENERAL">General</option>
+                  <option value="WORK">Work</option>
+                  <option value="PERSONAL">Personal</option>
+                  <option value="RESEARCH">Research</option>
+                  <option value="IDEA">Idea</option>
                 </select>
               </div>
 
@@ -758,15 +759,15 @@ const Home = () => {
                   <input
                     value={quickFragmentTitle}
                     onChange={(e) => setQuickFragmentTitle(e.target.value)}
-                    className="w-full bg-transparent border-none focus:outline-none text-white text-lg font-black placeholder:text-gray-800"
-                    placeholder="Fragment Title..."
+                    className="w-full bg-transparent border-none p-0 focus:outline-none text-gray-100 placeholder:text-gray-800 font-black"
+                    placeholder="ENTER CORE INSIGHT..."
                     autoFocus
                   />
                 </div>
               </div>
             </div>
 
-            <button onClick={handleQuickAddFragment} disabled={!quickFragmentTitle || isSaving} className="w-full py-5 bg-knowledge-600 hover:bg-knowledge-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-knowledge-600/20 transition-all active:scale-[0.98]">ESTABLISH KNOWLEDGE EDGE</button>
+            <button onClick={handleQuickAddKeyframe} disabled={!quickFragmentTitle || isSaving} className="w-full py-5 bg-knowledge-600 hover:bg-knowledge-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-knowledge-600/20 transition-all active:scale-[0.98]">ESTABLISH KNOWLEDGE EDGE</button>
           </div>
         </div>
       )}
