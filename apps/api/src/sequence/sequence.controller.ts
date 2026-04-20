@@ -27,6 +27,11 @@ export class SequenceController {
     return this.sequenceService.update(id, updateSequenceDto);
   }
 
+  @Post(':id/frames')
+  async addFrame(@Param('id') id: string, @Body('content') content: string) {
+    return this.sequenceService.addFrame(id, content);
+  }
+
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.sequenceService.remove(id);

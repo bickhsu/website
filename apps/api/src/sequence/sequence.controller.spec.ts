@@ -11,6 +11,7 @@ describe('SequenceController', () => {
     findAll: jest.fn(),
     findOne: jest.fn(),
     update: jest.fn(),
+    addFrame: jest.fn(),
     remove: jest.fn(),
   };
 
@@ -74,6 +75,18 @@ describe('SequenceController', () => {
       const result = await controller.update('1', dto as any);
       expect(result).toEqual({ id: '1', ...dto });
       expect(service.update).toHaveBeenCalledWith('1', dto);
+    });
+  });
+
+  describe('addFrame', () => {
+    it('should call service.addFrame', async () => {
+      const content = 'New message';
+      const expectedResult = { id: 'f1', content };
+      mockSequenceService.addFrame.mockResolvedValue(expectedResult);
+
+      const result = await controller.addFrame('1', content);
+      expect(result).toEqual(expectedResult);
+      expect(service.addFrame).toHaveBeenCalledWith('1', content);
     });
   });
 

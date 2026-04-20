@@ -80,6 +80,9 @@ describe('SequenceService', () => {
             include: {
               frame: true,
             },
+            orderBy: {
+              addedAt: 'asc',
+            },
           },
           sequenceKeyframes: {
             include: {
@@ -108,6 +111,28 @@ describe('SequenceService', () => {
       expect(prisma.sequence.update).toHaveBeenCalledWith({
         where: { id: '1' },
         data: dto,
+      });
+    });
+  });
+
+  describe('addFrame', () => {
+    it('should create a sequence frame', async () => {
+      const content = 'Test comment';
+      const expectedResult = { sequenceId: '1', frame: { id: 'f1', content } };
+      mockPrismaService.sequenceFrame = { create: jest.fn().mockResolvedValue(expectedResult) };
+
+      const result = await service.addFrame('1', content);
+      expect(result).toEqual(expectedResult);
+      expect(mockPrismaService.sequenceFrame.create).toHaveBeenCalledWith({
+        data: {
+          sequenceId: '1',
+          frame: {
+            create: { content },
+          },
+        },
+        include: {
+          frame: true,
+        },
       });
     });
   });

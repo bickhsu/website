@@ -27,6 +27,9 @@ export class SequenceService {
           include: {
             frame: true,
           },
+          orderBy: {
+            addedAt: 'asc',
+          },
         },
         sequenceKeyframes: {
           include: {
@@ -46,6 +49,22 @@ export class SequenceService {
     return this.prisma.sequence.update({
       where: { id },
       data: updateSequenceDto,
+    });
+  }
+
+  async addFrame(id: string, content: string) {
+    return this.prisma.sequenceFrame.create({
+      data: {
+        sequenceId: id,
+        frame: {
+          create: {
+            content,
+          },
+        },
+      },
+      include: {
+        frame: true,
+      },
     });
   }
 
