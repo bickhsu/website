@@ -258,6 +258,7 @@ const Home = () => {
   const [fragmentEditTitle, setFragmentEditTitle] = useState("")
   const [fragmentEditHook, setFragmentEditHook] = useState("")
   const [fragmentEditContent, setFragmentEditContent] = useState("")
+  const [showExtendedFields, setShowExtendedFields] = useState(false)
 
   // --- 資料抓取 ---
   useEffect(() => {
@@ -273,6 +274,11 @@ const Home = () => {
       setValueDelivered(activeTask.valueDelivered || "")
       setTaskStatus(activeTask.status || "Inprocessing")
       fetchSequenceDetail(activeTask.id)
+
+      // 自動偵測：如果有內容則展開，沒內容則隱藏
+      const hasContent = !!(activeTask.problemStatement?.trim() && activeTask.problemStatement !== '<p></p>') || 
+                        !!(activeTask.valueDelivered?.trim() && activeTask.valueDelivered !== '<p></p>');
+      setShowExtendedFields(hasContent);
     }
   }, [activeTask])
 
@@ -604,8 +610,20 @@ const Home = () => {
             <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-brand-500 text-gray-100 placeholder:text-gray-800" placeholder="Sequence Title..." />
 
             <div className="space-y-3">
-              <MissionField icon={Flag} label="Problem Statement" content={problemStatement} onChange={setProblemStatement} />
-              <MissionField icon={Activity} label="Value Delivered" content={valueDelivered} onChange={setValueDelivered} />
+              {showExtendedFields ? (
+                <>
+                  <MissionField icon={Flag} label="Problem Statement" content={problemStatement} onChange={setProblemStatement} />
+                  <MissionField icon={Activity} label="Value Delivered" content={valueDelivered} onChange={setValueDelivered} />
+                </>
+              ) : (
+                <button 
+                  onClick={() => setShowExtendedFields(true)}
+                  className="w-full py-4 border border-dashed border-gray-800 rounded-3xl text-[10px] font-black uppercase tracking-widest text-gray-700 hover:border-brand-500/30 hover:text-brand-500/60 transition-all flex items-center justify-center gap-2 group"
+                >
+                  <Plus size={14} className="opacity-40 group-hover:opacity-100" />
+                  Add Strategic Context
+                </button>
+              )}
 
               {/* --- 留言板 (Message Board) --- */}
               <div className="pt-8 animate-in fade-in slide-in-from-bottom duration-700">
