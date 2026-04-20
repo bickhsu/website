@@ -226,29 +226,28 @@ const Home = () => {
     }
   }, [isResizing])
 
-  // --- 狀態管理 (Tasks) ---
-  const [executions, setExecutions] = useState<Execution[]>([])
-  const [activeTask, setActiveTask] = useState<Execution | null>(null)
+  // --- State Management (Sequences) ---
+  const [sequences, setSequences] = useState<Sequence[]>([])
+  const [activeTask, setActiveTask] = useState<Sequence | null>(null)
 
   const [taskTitle, setTaskTitle] = useState("")
   const [problemStatement, setProblemStatement] = useState("")
-  const [executionLog, setExecutionLog] = useState("")
   const [valueDelivered, setValueDelivered] = useState("")
   const [taskStatus, setTaskStatus] = useState("Inprocessing")
 
-  // --- 狀態管理 (Fragments) ---
+  // --- State Management (Keyframes) ---
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
-  const [linkedFragments, setLinkedFragments] = useState<Fragment[]>([])
+  const [linkedKeyframes, setLinkedKeyframes] = useState<SequenceKeyframe[]>([])
 
-  // 快捷錄入 Modal 狀態
+  // Quick Link Modal State
   const [quickLinkTaskId, setQuickLinkTaskId] = useState<string | null>(null)
   const [quickFragmentTitle, setQuickFragmentTitle] = useState("")
   const [quickFragmentDomain, setQuickFragmentDomain] = useState("Work")
 
-  // 主視角切換: Fragment 模式
-  const [activeFragment, setActiveFragment] = useState<Fragment | null>(null)
-  const [allFragments, setAllFragments] = useState<Fragment[]>([])
+  // Main View Toggle: Fragment Mode
+  const [activeKeyframe, setActiveKeyframe] = useState<Keyframe | null>(null)
+  const [allKeyframes, setAllKeyframes] = useState<Keyframe[]>([])
   const [sidebarTab, setSidebarTab] = useState<'tasks' | 'fragments'>('tasks')
   const [fragmentEditTitle, setFragmentEditTitle] = useState("")
   const [fragmentEditHook, setFragmentEditHook] = useState("")
@@ -256,41 +255,44 @@ const Home = () => {
 
   // --- 資料抓取 ---
   useEffect(() => {
-    fetchExecutions()
-    fetchAllFragments()
+    fetchSequences()
+    fetchAllKeyframes()
   }, [])
 
-  // 當選中 Tasks 時同步編輯器內容並抓取關聯 Fragment
+  // 當選中 Tasks 時同步編輯器內容並抓取詳情
   useEffect(() => {
     if (activeTask) {
       setTaskTitle(activeTask.title || "Untitled Mission")
-      setProblemStatement(activeTask.problem_statement || "")
-      setExecutionLog(activeTask.execution_log || "")
-      setValueDelivered(activeTask.value_delivered || "")
+      setProblemStatement(activeTask.problemStatement || "")
+      setValueDelivered(activeTask.valueDelivered || "")
       setTaskStatus(activeTask.status || "Inprocessing")
-      fetchFragments(activeTask.id)
+      fetchSequenceDetail(activeTask.id)
     }
   }, [activeTask])
 
-  const fetchExecutions = async () => {
+  const fetchSequences = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/executions/')
-      if (res.ok) setExecutions(await res.json())
-    } catch (err) { console.error("Failed to fetch executions", err) }
+      const res = await fetch(ENDPOINTS.SEQUENCES)
+      if (res.ok) setSequences(await res.json())
+    } catch (err) { console.error("Failed to fetch sequences", err) }
   }
 
-  const fetchFragments = async (executionId: string) => {
+  const fetchSequenceDetail = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/executions/${executionId}/fragments`)
-      if (res.ok) setLinkedFragments(await res.json())
-    } catch (err) { console.error("Failed to fetch fragments", err) }
+      const res = await fetch(`${ENDPOINTS.SEQUENCES}/${id}`)
+      if (res.ok) {
+        const fullData = await res.json()
+        setActiveTask(fullData)
+        setLinkedKeyframes(fullData.sequenceKeyframes || [])
+      }
+    } catch (err) { console.error("Failed to fetch sequence details", err) }
   }
 
-  const fetchAllFragments = async () => {
+  const fetchAllKeyframes = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/ingest/fragments')
-      if (res.ok) setAllFragments(await res.json())
-    } catch (err) { console.error("Failed to fetch all fragments", err) }
+      const res = await fetch(ENDPOINTS.KEYFRAMES)
+      if (res.ok) setAllKeyframes(await res.json())
+    } catch (err) { console.error("Failed to fetch all keyframes", err) }
   }
 
   // --- 功能邏輯 : Tasks ---
