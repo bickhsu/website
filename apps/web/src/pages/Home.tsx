@@ -679,11 +679,11 @@ const Home = () => {
                     </div>
                   ) : (
                     activeTask.sequenceFrames?.map((sf, idx) => (
-                      <div key={sf.frame.id || idx} className="group relative flex gap-4 p-4 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-brand-500/20 transition-all">
-                        <div className="flex flex-col items-center">
+                      <div key={sf.frame.id || idx} className="group relative flex gap-4 p-4 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-brand-500/20 transition-all overflow-hidden">
+                        <div className="flex flex-col items-center flex-shrink-0">
                           <div className="w-1 h-full bg-gray-800 rounded-full group-last:bg-transparent" />
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 overflow-hidden">
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-[9px] font-mono text-gray-600 uppercase tracking-tighter">
                               Frame #{idx + 1} — {new Date(sf.addedAt).toLocaleString()}
@@ -706,7 +706,7 @@ const Home = () => {
                             </div>
                           ) : (
                             <div
-                              className="text-xs text-gray-300 leading-relaxed prose prose-invert prose-sm prose-p:text-xs prose-p:my-1 prose-headings:text-sm prose-li:text-xs max-w-none break-words"
+                              className="text-xs text-gray-300 leading-relaxed prose prose-invert prose-sm prose-p:text-xs prose-p:my-1 prose-headings:text-sm prose-li:text-xs max-w-none break-words overflow-x-auto"
                               dangerouslySetInnerHTML={{ __html: sf.frame.content }}
                             />
                           )}
