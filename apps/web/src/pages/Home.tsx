@@ -254,7 +254,7 @@ const Home = () => {
   // Main View Toggle: Fragment Mode
   const [activeKeyframe, setActiveKeyframe] = useState<Keyframe | null>(null)
   const [allKeyframes, setAllKeyframes] = useState<Keyframe[]>([])
-  const [sidebarTab, setSidebarTab] = useState<'tasks' | 'keyframes'>('tasks')
+  const [sidebarTab, setSidebarTab] = useState<'sequences' | 'keyframes'>('sequences')
   const [fragmentEditTitle, setFragmentEditTitle] = useState("")
   const [fragmentEditHook, setFragmentEditHook] = useState("")
   const [fragmentEditContent, setFragmentEditContent] = useState("")
@@ -515,12 +515,12 @@ const Home = () => {
         <div className="px-6 mb-4 flex items-center justify-between font-black uppercase tracking-widest text-gray-500 text-[10px] min-w-[280px]">
           <div className="flex items-center gap-4 border-b border-gray-800 flex-1 pb-2">
             <SidebarTabButton 
-              active={sidebarTab === 'tasks'} 
+              active={sidebarTab === 'sequences'} 
               onClick={() => {
-                setSidebarTab('tasks');
-                setActiveKeyframe(null); // 切換到任務時，清空碎片選取
+                setSidebarTab('sequences');
+                setActiveKeyframe(null); // 切換到序列時，清空碎片選取
               }} 
-              icon={Target} label="Tasks" colorClass="text-brand-500" 
+              icon={Target} label="Sequences" colorClass="text-brand-500" 
             />
             <SidebarTabButton 
               active={sidebarTab === 'keyframes'} 
@@ -533,8 +533,8 @@ const Home = () => {
           </div>
           <div className="flex items-center gap-1 ml-4 pb-2">
             <button
-              onClick={sidebarTab === 'tasks' ? handleAddNewTask : handleAddNewKeyframe}
-              className={`p-1.5 hover:bg-gray-800 rounded-md transition-colors ${sidebarTab === 'tasks' ? 'text-brand-500' : 'text-knowledge-500'}`}
+              onClick={sidebarTab === 'sequences' ? handleAddNewTask : handleAddNewKeyframe}
+              className={`p-1.5 hover:bg-gray-800 rounded-md transition-colors ${sidebarTab === 'sequences' ? 'text-brand-500' : 'text-knowledge-500'}`}
             >
               <Plus size={16} />
             </button>
@@ -543,7 +543,7 @@ const Home = () => {
         </div>
 
         <div className="flex-1 overflow-auto px-4 space-y-1 min-w-[280px]">
-          {sidebarTab === 'tasks' ? (
+          {sidebarTab === 'sequences' ? (
             sequences.map(seq => (
               <SidebarItem
                 key={seq.id}
@@ -579,13 +579,12 @@ const Home = () => {
         />
       </aside>
 
-      {/* Main Viewport */}
       <main className={`flex-1 max-w-5xl mx-auto px-16 pt-8 pb-24 ${isResizing ? '' : 'transition-all duration-300'} relative`}>
-        {activeTask && sidebarTab === 'tasks' ? (
+        {activeTask && sidebarTab === 'sequences' ? (
           <div className="animate-in fade-in slide-in-from-bottom duration-500">
             <ViewHeader
               icon={KirbyIcon}
-              title="Active Mission"
+              title="Active Sequence"
               id={activeTask.id}
               colorClass="text-brand-500"
             >
@@ -602,7 +601,7 @@ const Home = () => {
               <button onClick={handleSaveTask} disabled={isSaving} className="px-8 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-brand-600/10 uppercase tracking-widest">SYNC</button>
             </ViewHeader>
 
-            <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-brand-500 text-gray-100 placeholder:text-gray-800" placeholder="Task Title..." />
+            <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-brand-500 text-gray-100 placeholder:text-gray-800" placeholder="Sequence Title..." />
 
             <div className="space-y-3">
               <MissionField icon={Flag} label="Problem Statement" content={problemStatement} onChange={setProblemStatement} />
