@@ -707,11 +707,11 @@ const Home = () => {
             <div className="flex flex-wrap gap-2 mb-8">
               <div className="flex items-center gap-2 px-4 py-1.5 bg-gray-900/50 border border-gray-800 rounded-full text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                 <Compass size={12} className="text-knowledge-500" />
-                Domain: {activeKeyframe.domain}
+                Domain: {activeKeyframe.domain || 'GENERAL'}
               </div>
               <div className="flex items-center gap-2 px-4 py-1.5 bg-gray-900/50 border border-gray-800 rounded-full text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                 <Clock size={12} className="text-knowledge-500" />
-                Logged: {new Date(activeKeyframe.createdAt).toLocaleDateString()}
+                Logged: {activeKeyframe.createdAt ? new Date(activeKeyframe.createdAt).toLocaleDateString() : 'Unknown'}
               </div>
             </div>
 
