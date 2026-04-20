@@ -102,12 +102,19 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     },
   })
 
-  // 當外部 content 改變且與目前編輯器內容不符時，主動更新編輯器
+  // 使用一個稍微寬鬆的條件來檢查 HTML 是否真的改變，避免無限迴圈
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content)
+    if (!editor) return;
+    
+    const currentHTML = editor.getHTML();
+    if (content !== currentHTML) {
+      // 只有在內容真的不同時才更新，且避免在正在輸入時強制更新
+      const isSame = currentHTML.replace(/\s/g, '') === content.replace(/\s/g, '');
+      if (!isSame) {
+        editor.commands.setContent(content, false);
+      }
     }
-  }, [content, editor])
+  }, [content, editor]);
 
   return (
     <div className="w-full bg-transparent hover:bg-white/[0.02] border border-transparent hover:border-white/[0.05] rounded-2xl px-4 py-0.5 transition-all group relative">
