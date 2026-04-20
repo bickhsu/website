@@ -254,7 +254,7 @@ const Home = () => {
   // Main View Toggle: Fragment Mode
   const [activeKeyframe, setActiveKeyframe] = useState<Keyframe | null>(null)
   const [allKeyframes, setAllKeyframes] = useState<Keyframe[]>([])
-  const [sidebarTab, setSidebarTab] = useState<'tasks' | 'fragments'>('tasks')
+  const [sidebarTab, setSidebarTab] = useState<'tasks' | 'keyframes'>('tasks')
   const [fragmentEditTitle, setFragmentEditTitle] = useState("")
   const [fragmentEditHook, setFragmentEditHook] = useState("")
   const [fragmentEditContent, setFragmentEditContent] = useState("")
@@ -509,11 +509,11 @@ const Home = () => {
         <div className="px-6 mb-4 flex items-center justify-between font-black uppercase tracking-widest text-gray-500 text-[10px] min-w-[280px]">
           <div className="flex items-center gap-4 border-b border-gray-800 flex-1 pb-2">
             <SidebarTabButton active={sidebarTab === 'tasks'} onClick={() => setSidebarTab('tasks')} icon={Target} label="Tasks" colorClass="text-brand-500" />
-            <SidebarTabButton active={sidebarTab === 'fragments'} onClick={() => setSidebarTab('fragments')} icon={FileText} label="Fragments" colorClass="text-knowledge-500" />
+            <SidebarTabButton active={sidebarTab === 'keyframes'} onClick={() => setSidebarTab('keyframes')} icon={FileText} label="Keyframes" colorClass="text-knowledge-500" />
           </div>
           <div className="flex items-center gap-1 ml-4 pb-2">
             <button
-              onClick={sidebarTab === 'tasks' ? handleAddNewTask : handleAddNewFragment}
+              onClick={sidebarTab === 'tasks' ? handleAddNewTask : handleAddNewKeyframe}
               className={`p-1.5 hover:bg-gray-800 rounded-md transition-colors ${sidebarTab === 'tasks' ? 'text-brand-500' : 'text-knowledge-500'}`}
             >
               <Plus size={16} />
