@@ -646,19 +646,19 @@ const Home = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  {linkedFragments.length === 0 ? (
+                  {linkedKeyframes.length === 0 ? (
                     <div className="col-span-2 py-8 text-center border border-dashed border-gray-800/40 rounded-3xl text-[10px] text-gray-700 italic">
                       No evidence captured or linked for this mission segment.
                     </div>
                   ) : (
-                    linkedFragments.map(f => (
+                    linkedKeyframes.map(sk => (
                       <div
-                        key={f.id}
-                        onClick={() => { setActiveFragment(f); setActiveTask(null); }}
+                        key={sk.keyframe.id}
+                        onClick={() => { setActiveKeyframe(sk.keyframe); setActiveTask(null); }}
                         className="p-4 bg-gray-900/20 border border-gray-800/40 rounded-2xl cursor-pointer hover:border-brand-500/40 transition-all truncate text-xs text-gray-600 italic"
                       >
-                        <span className="font-black text-brand-500 mr-2 not-italic uppercase tracking-tighter text-[12px]">{f.title || 'untitled'}</span>
-                        {f.content.replace(/<[^>]+>/g, '') || "No content summary"}
+                        <span className="font-black text-brand-500 mr-2 not-italic uppercase tracking-tighter text-[12px]">{sk.keyframe.title || 'untitled'}</span>
+                        {sk.keyframe.content.replace(/<[^>]+>/g, '') || "No content summary"}
                       </div>
                     ))
                   )}
