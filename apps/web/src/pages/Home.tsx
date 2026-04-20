@@ -235,6 +235,9 @@ const Home = () => {
   const [valueDelivered, setValueDelivered] = useState("")
   const [taskStatus, setTaskStatus] = useState("Inprocessing")
 
+  // --- 狀態管理 (Message Board) ---
+  const [newFrameContent, setNewFrameContent] = useState("")
+
   // --- State Management (Keyframes) ---
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
@@ -359,6 +362,27 @@ const Home = () => {
         fetchAllKeyframes()
       }
     } finally { setIsSaving(false) }
+  }
+
+  const handleAddFrame = async () => {
+    if (!activeTask || !newFrameContent.trim()) return
+    try {
+      setIsSaving(true)
+      const res = await fetch(`${ENDPOINTS.SEQUENCES}/${activeTask.id}/frames`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newFrameContent })
+      })
+      if (res.ok) {
+        setNewFrameContent("")
+        // 重新抓取詳情以更新留言列表
+        fetchSequenceDetail(activeTask.id)
+      }
+    } catch (err) {
+      console.error("Failed to add frame", err)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleAddNewKeyframe = async () => {
@@ -561,7 +585,61 @@ const Home = () => {
               <MissionField icon={Flag} label="Problem Statement" content={problemStatement} onChange={setProblemStatement} />
               <MissionField icon={Activity} label="Value Delivered" content={valueDelivered} onChange={setValueDelivered} />
 
-              <div className="pt-5">
+              {/* --- 留言板 (Message Board) --- */}
+              <div className="pt-8 animate-in fade-in slide-in-from-bottom duration-700">
+                <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
+                  <History size={14} className="text-brand-500/50" />
+                  Mission Timeline (Frames)
+                </div>
+
+                <div className="space-y-4 mb-6">
+                  {activeTask.sequenceFrames?.length === 0 ? (
+                    <div className="py-6 text-center border border-dashed border-gray-800/40 rounded-3xl text-[10px] text-gray-700 italic">
+                      No logs recorded for this mission yet.
+                    </div>
+                  ) : (
+                    activeTask.sequenceFrames?.map((sf, idx) => (
+                      <div key={sf.frame.id || idx} className="group relative flex gap-4 p-4 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-brand-500/20 transition-all">
+                        <div className="flex flex-col items-center">
+                          <div className="w-1 h-full bg-gray-800 rounded-full group-last:bg-transparent" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[9px] font-mono text-gray-600 uppercase tracking-tighter">
+                              Frame #{idx + 1} — {new Date(sf.addedAt).toLocaleString()}
+                            </span>
+                          </div>
+                          <div
+                            className="text-sm text-gray-300 leading-relaxed prose prose-invert prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{ __html: sf.frame.content }}
+                          />
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* 新增留言區域 */}
+                <div className="mt-4">
+                  <div className="bg-gray-800/30 rounded-2xl border border-gray-800 p-2 focus-within:border-brand-500/40 transition-all shadow-inner">
+                    <TiptapEditor
+                      content={newFrameContent}
+                      onChange={setNewFrameContent}
+                    />
+                    <div className="flex justify-end p-2 border-t border-gray-800/50 mt-2">
+                      <button
+                        onClick={handleAddFrame}
+                        disabled={isSaving || !newFrameContent.trim()}
+                        className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-30 disabled:hover:bg-brand-600 text-white text-[10px] font-black rounded-xl transition-all shadow-lg shadow-brand-600/10 uppercase tracking-widest"
+                      >
+                        <Plus size={14} /> Commit Frame
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-8">
                 <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
                   <History size={14} className="text-brand-500/50" />
                   Linked Knowledge Graph
