@@ -313,15 +313,20 @@ const Home = () => {
         body: JSON.stringify({
           title: title,
           problemStatement: "<p>What problem are we solving?</p>",
-          status: 'ACTIVE'
         })
       })
       if (res.ok) {
         const newTask = await res.json()
         setSequences([newTask, ...sequences])
         setActiveTask(newTask)
+      } else {
+        const errData = await res.json()
+        alert(`建立失敗: ${errData.message || res.statusText}`)
       }
-    } catch (err) { console.error(err) }
+    } catch (err) {
+      console.error(err)
+      alert("連線後端失敗，請確認 API 是否啟動。")
+    }
   }
 
   const handleDeleteTask = async (taskId: string) => {
