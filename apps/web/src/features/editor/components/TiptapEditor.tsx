@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { InputRule } from '@tiptap/core'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
@@ -56,18 +56,9 @@ const CustomLink = Link.extend({
       }),
     ];
   },
-}).configure({
-  openOnClick: false,
-  autolink: false,
-  defaultProtocol: 'https',
-  HTMLAttributes: {
-    class: 'text-brand-400 no-underline border-b border-brand-500/30 hover:border-brand-500 transition-all cursor-pointer',
-    target: '_blank',
-    rel: 'noopener noreferrer',
-  },
 });
 
-const EXTENSIONS = [
+const getExtensions = () => [
   StarterKit.configure({
     codeBlock: false,
   }),
@@ -82,7 +73,16 @@ const EXTENSIONS = [
   CodeBlockLowlight.configure({
     lowlight,
   }),
-  CustomLink,
+  CustomLink.configure({
+    openOnClick: false,
+    autolink: false,
+    defaultProtocol: 'https',
+    HTMLAttributes: {
+      class: 'text-brand-400 no-underline border-b border-brand-500/30 hover:border-brand-500 transition-all cursor-pointer',
+      target: '_blank',
+      rel: 'noopener noreferrer',
+    },
+  }),
   Image.configure({
     inline: true,
     allowBase64: true,
@@ -90,8 +90,10 @@ const EXTENSIONS = [
 ];
 
 const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
+  const extensions = React.useMemo(() => getExtensions(), []);
+  
   const editor = useEditor({
-    extensions: EXTENSIONS,
+    extensions,
     content: content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
