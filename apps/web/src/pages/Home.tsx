@@ -625,7 +625,7 @@ const Home = () => {
         />
       </aside>
 
-      <main className={`flex-1 max-w-5xl mx-auto px-16 pt-8 pb-24 ${isResizing ? '' : 'transition-all duration-300'} relative`}>
+      <main className={`flex-1 min-w-0 max-w-5xl mx-auto px-16 pt-8 pb-24 ${isResizing ? '' : 'transition-all duration-300'} relative`}>
         {activeTask && sidebarTab === 'sequences' ? (
           <div className="animate-in fade-in slide-in-from-bottom duration-500">
             <ViewHeader
