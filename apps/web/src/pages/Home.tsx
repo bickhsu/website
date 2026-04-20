@@ -511,15 +511,15 @@ const Home = () => {
               />
             ))
           ) : (
-            allFragments.map(f => (
+            allKeyframes.map(kf => (
               <SidebarItem
-                key={f.id}
-                active={activeFragment?.id === f.id}
-                onClick={() => { setActiveFragment(f); setActiveTask(null); }}
-                title={f.title || 'Untitled'}
-                subtitle={f.domain}
+                key={kf.id}
+                active={activeKeyframe?.id === kf.id}
+                onClick={() => { setActiveKeyframe(kf); setActiveTask(null); }}
+                title={kf.title || 'Untitled'}
+                subtitle={kf.domain}
                 activeColorClass="text-knowledge-400"
-                onDelete={(e) => { e.stopPropagation(); handleDeleteFragment(f.id); fetchAllFragments(); }}
+                onDelete={(e) => { e.stopPropagation(); handleDeleteKeyframe(kf.id); fetchAllKeyframes(); }}
               />
             ))
           )}
