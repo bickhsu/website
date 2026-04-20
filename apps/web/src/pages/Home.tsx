@@ -581,7 +581,7 @@ const Home = () => {
 
       {/* Main Viewport */}
       <main className={`flex-1 max-w-5xl mx-auto px-16 pt-8 pb-24 ${isResizing ? '' : 'transition-all duration-300'} relative`}>
-        {activeTask ? (
+        {activeTask && sidebarTab === 'tasks' ? (
           <div className="animate-in fade-in slide-in-from-bottom duration-500">
             <ViewHeader
               icon={KirbyIcon}
@@ -677,7 +677,7 @@ const Home = () => {
                     linkedKeyframes.map(sk => (
                       <div
                         key={sk.keyframe.id}
-                        onClick={() => { setActiveKeyframe(sk.keyframe); setActiveTask(null); }}
+                        onClick={() => { setActiveKeyframe(sk.keyframe); setActiveTask(null); setSidebarTab('keyframes'); }}
                         className="p-4 bg-gray-900/20 border border-gray-800/40 rounded-2xl cursor-pointer hover:border-brand-500/40 transition-all truncate text-xs text-gray-600 italic"
                       >
                         <span className="font-black text-brand-500 mr-2 not-italic uppercase tracking-tighter text-[12px]">{sk.keyframe.title || 'untitled'}</span>
@@ -689,7 +689,7 @@ const Home = () => {
               </div>
             </div>
           </div>
-        ) : activeKeyframe ? (
+        ) : activeKeyframe && sidebarTab === 'keyframes' ? (
           <div className="animate-in fade-in slide-in-from-right duration-500">
             <ViewHeader
               icon={FileText}
