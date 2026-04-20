@@ -1,3 +1,8 @@
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+// Load .env from project root before anything else
+dotenv.config({ path: path.join(process.cwd(), '../../.env') });
+
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -31,6 +36,6 @@ async function bootstrap() {
     new PrismaClientExceptionFilter(),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(3000);
 }
 bootstrap();
