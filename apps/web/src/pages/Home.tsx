@@ -543,9 +543,8 @@ const Home = () => {
               colorClass="text-brand-500"
             >
               <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-brand-400 px-4 py-2 rounded-xl focus:outline-none">
-                <option value="To-Do">To-Do</option>
-                <option value="Inprocessing">Inprocessing</option>
-                <option value="Done">Done</option>
+                <option value="ACTIVE">Active</option>
+                <option value="ARCHIVED">Archived</option>
               </select>
               <button
                 onClick={() => handleDeleteTask(activeTask.id)}
@@ -561,7 +560,6 @@ const Home = () => {
             <div className="space-y-3">
               <MissionField icon={Flag} label="Problem Statement" content={problemStatement} onChange={setProblemStatement} />
               <MissionField icon={Activity} label="Value Delivered" content={valueDelivered} onChange={setValueDelivered} />
-              <MissionField icon={History} label="Execution Log" content={executionLog} onChange={setExecutionLog} />
 
               <div className="pt-5">
                 <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
