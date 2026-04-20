@@ -240,6 +240,8 @@ const Home = () => {
 
   // --- 狀態管理 (Message Board) ---
   const [newFrameContent, setNewFrameContent] = useState("")
+  const [editingFrameId, setEditingFrameId] = useState<string | null>(null)
+  const [editingFrameContent, setEditingFrameContent] = useState("")
 
   // --- State Management (Keyframes) ---
   const [isSaving, setIsSaving] = useState(false)
@@ -409,6 +411,31 @@ const Home = () => {
       console.error("Failed to add frame", err)
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleUpdateFrame = async (frameId: string) => {
+    if (!activeTask) return
+    try {
+      setIsSaving(true)
+      const syncedContent = await syncContentImages(editingFrameContent)
+      
+      const res = await fetch(`${ENDPOINTS.API_BASE}/frame/${frameId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: syncedContent })
+      })
+      
+      if (res.ok) {
+        setEditingFrameId(null)
+        setEditingFrameContent("")
+        fetchSequenceDetail(activeTask.id)
+        setLastSaved(`Frame updated @ ${new Date().toLocaleTimeString()}`)
+      }
+    } catch (err) {
+      console.error("Failed to update frame", err)
+    } finally { 
+      setIsSaving(false) 
     }
   }
 
@@ -656,16 +683,33 @@ const Home = () => {
                         <div className="flex flex-col items-center">
                           <div className="w-1 h-full bg-gray-800 rounded-full group-last:bg-transparent" />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-[9px] font-mono text-gray-600 uppercase tracking-tighter">
                               Frame #{idx + 1} — {new Date(sf.addedAt).toLocaleString()}
                             </span>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                              {editingFrameId === sf.frame.id ? (
+                                <>
+                                  <button onClick={() => setEditingFrameId(null)} className="text-[9px] font-black uppercase text-gray-500 hover:text-gray-300">Cancel</button>
+                                  <button onClick={() => handleUpdateFrame(sf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-brand-500 hover:text-brand-400">Save</button>
+                                </>
+                              ) : (
+                                <button onClick={() => { setEditingFrameId(sf.frame.id); setEditingFrameContent(sf.frame.content); }} className="text-[9px] font-black uppercase text-gray-500 hover:text-knowledge-500 transition-colors">Edit</button>
+                              )}
+                            </div>
                           </div>
-                          <div
-                            className="text-sm text-gray-300 leading-relaxed prose prose-invert prose-sm max-w-none"
-                            dangerouslySetInnerHTML={{ __html: sf.frame.content }}
-                          />
+                          
+                          {editingFrameId === sf.frame.id ? (
+                            <div className="mt-2 bg-gray-900 border border-brand-500/30 rounded-xl p-2 min-w-0">
+                              <TiptapEditor content={editingFrameContent} onChange={setEditingFrameContent} />
+                            </div>
+                          ) : (
+                            <div
+                              className="text-sm text-gray-300 leading-relaxed prose prose-invert prose-sm max-w-none break-words"
+                              dangerouslySetInnerHTML={{ __html: sf.frame.content }}
+                            />
+                          )}
                         </div>
                       </div>
                     ))
