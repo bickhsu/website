@@ -706,7 +706,7 @@ const Home = () => {
                             </div>
                           ) : (
                             <div
-                              className="text-sm text-gray-300 leading-relaxed prose prose-invert prose-sm max-w-none break-words"
+                              className="text-xs text-gray-300 leading-relaxed prose prose-invert prose-sm prose-p:text-xs prose-p:my-1 prose-headings:text-sm prose-li:text-xs max-w-none break-words"
                               dangerouslySetInnerHTML={{ __html: sf.frame.content }}
                             />
                           )}
