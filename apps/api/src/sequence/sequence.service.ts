@@ -55,7 +55,9 @@ export class SequenceService {
   async addFrame(id: string, content: string) {
     return this.prisma.sequenceFrame.create({
       data: {
-        sequenceId: id,
+        sequence: {
+          connect: { id },
+        },
         frame: {
           create: {
             content,

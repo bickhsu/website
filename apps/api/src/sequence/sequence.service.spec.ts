@@ -125,7 +125,9 @@ describe('SequenceService', () => {
       expect(result).toEqual(expectedResult);
       expect(mockPrismaService.sequenceFrame.create).toHaveBeenCalledWith({
         data: {
-          sequenceId: '1',
+          sequence: {
+            connect: { id: '1' },
+          },
           frame: {
             create: { content },
           },
