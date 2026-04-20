@@ -17,7 +17,8 @@ const lowlight = createLowlight(all)
 
 interface TiptapEditorProps {
   content: string;
-  onChange: (html: string) => void;
+  onChange?: (html: string) => void;
+  editable?: boolean;
 }
 
 const COLORS = [
@@ -89,14 +90,15 @@ const getExtensions = () => [
   }),
 ];
 
-const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
+const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps) => {
   const extensions = React.useMemo(() => getExtensions(), []);
   
   const editor = useEditor({
+    editable,
     extensions,
     content: content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML())
+      onChange?.(editor.getHTML())
     },
     editorProps: {
       attributes: {
@@ -121,8 +123,8 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   }, [content, editor]);
 
   return (
-    <div className="w-full bg-transparent hover:bg-white/[0.02] border border-transparent hover:border-white/[0.05] rounded-2xl px-4 py-0.5 transition-all group relative">
-      {editor && (
+    <div className={`w-full bg-transparent ${editable ? 'hover:bg-white/[0.02] border border-transparent hover:border-white/[0.05] rounded-2xl px-4 py-0.5' : ''} transition-all group relative`}>
+      {editor && editable && (
         <BubbleMenu editor={editor} options={{ duration: 100 } as any}>
           <div className="flex items-center gap-1.5 p-1.5 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center gap-1 border-r border-gray-800 pr-1.5 mr-1 pt-0.5 pb-0.5">

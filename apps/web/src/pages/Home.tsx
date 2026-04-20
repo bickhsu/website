@@ -705,10 +705,9 @@ const Home = () => {
                               <TiptapEditor content={editingFrameContent} onChange={setEditingFrameContent} />
                             </div>
                           ) : (
-                            <div
-                              className="text-xs text-gray-300 leading-relaxed prose prose-invert prose-sm prose-p:text-xs prose-p:my-1 prose-headings:text-sm prose-li:text-xs max-w-none break-words overflow-x-auto"
-                              dangerouslySetInnerHTML={{ __html: sf.frame.content }}
-                            />
+                            <div className="flex-1 min-w-0">
+                              <TiptapEditor content={sf.frame.content} editable={false} />
+                            </div>
                           )}
                         </div>
                       </div>
