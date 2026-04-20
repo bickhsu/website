@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
 import { TiptapEditor } from '../features/editor'
 import { syncContentImages } from '../features/editor/utils/syncContent'
+import { API_BASE_URL, ENDPOINTS } from '../config/api'
 import {
   CheckCircle2,
   Trash2,
@@ -16,24 +16,42 @@ import {
   ChevronDown
 } from 'lucide-react'
 
-// 定義介面
-interface Execution {
+// Define Interface
+interface Frame {
   id: string
-  title: string
-  problem_statement: string
-  status: string
-  value_delivered?: string
-  execution_log?: string
-  created_at: string
+  content: string
+  createdAt: string
 }
 
-interface Fragment {
+interface SequenceFrame {
+  addedAt: string
+  frame: Frame
+}
+
+interface Keyframe {
   id: string
   title: string
   content: string
   hook?: string
   domain: string
-  created_at: string
+  createdAt: string
+}
+
+interface SequenceKeyframe {
+  addedAt: string
+  keyframe: Keyframe
+}
+
+interface Sequence {
+  id: string
+  title: string
+  problemStatement: string
+  status: string
+  valueDelivered?: string
+  domain: string
+  createdAt: string
+  sequenceFrames: SequenceFrame[]
+  sequenceKeyframes: SequenceKeyframe[]
 }
 
 // --- 抽離複用組件 : MissionField ---
@@ -91,20 +109,20 @@ const SidebarTabButton = ({ active, onClick, icon: Icon, label, colorClass }: { 
 )
 
 // --- 抽離複用組件 : SidebarItem ---
-const SidebarItem = ({ 
-  active, 
-  onClick, 
-  title, 
-  subtitle, 
-  activeColorClass, 
-  onDelete, 
+const SidebarItem = ({
+  active,
+  onClick,
+  title,
+  subtitle,
+  activeColorClass,
+  onDelete,
   onQuickAction,
-  quickActionIcon: QuickActionIcon 
-}: { 
-  active: boolean, 
-  onClick: () => void, 
-  title: string, 
-  subtitle: string, 
+  quickActionIcon: QuickActionIcon
+}: {
+  active: boolean,
+  onClick: () => void,
+  title: string,
+  subtitle: string,
   activeColorClass: string,
   onDelete?: (e: React.MouseEvent) => void,
   onQuickAction?: (e: React.MouseEvent) => void,
@@ -140,18 +158,18 @@ const SidebarItem = ({
 )
 
 // --- 抽離複用組件 : ViewHeader ---
-const ViewHeader = ({ 
-  icon: Icon, 
-  title, 
-  id, 
-  colorClass, 
-  children 
-}: { 
-  icon: any, 
-  title: string, 
-  id: string, 
+const ViewHeader = ({
+  icon: Icon,
+  title,
+  id,
+  colorClass,
+  children
+}: {
+  icon: any,
+  title: string,
+  id: string,
   colorClass: string,
-  children: React.ReactNode 
+  children: React.ReactNode
 }) => (
   <header className="flex items-center justify-between mb-12 animate-in fade-in duration-700">
     <div className="flex items-center gap-4">
@@ -479,7 +497,7 @@ const Home = () => {
         <div className="flex-1 overflow-auto px-4 space-y-1 min-w-[280px]">
           {sidebarTab === 'tasks' ? (
             executions.map(ex => (
-              <SidebarItem 
+              <SidebarItem
                 key={ex.id}
                 active={activeTask?.id === ex.id}
                 onClick={() => { setActiveTask(ex); setActiveFragment(null); }}
@@ -493,7 +511,7 @@ const Home = () => {
             ))
           ) : (
             allFragments.map(f => (
-              <SidebarItem 
+              <SidebarItem
                 key={f.id}
                 active={activeFragment?.id === f.id}
                 onClick={() => { setActiveFragment(f); setActiveTask(null); }}
@@ -517,10 +535,10 @@ const Home = () => {
       <main className={`flex-1 max-w-5xl mx-auto px-16 pt-8 pb-24 ${isResizing ? '' : 'transition-all duration-300'} relative`}>
         {activeTask ? (
           <div className="animate-in fade-in slide-in-from-bottom duration-500">
-            <ViewHeader 
-              icon={KirbyIcon} 
-              title="Active Mission" 
-              id={activeTask.id} 
+            <ViewHeader
+              icon={KirbyIcon}
+              title="Active Mission"
+              id={activeTask.id}
               colorClass="text-brand-500"
             >
               <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-brand-400 px-4 py-2 rounded-xl focus:outline-none">
@@ -573,10 +591,10 @@ const Home = () => {
           </div>
         ) : activeFragment ? (
           <div className="animate-in fade-in slide-in-from-right duration-500">
-            <ViewHeader 
-              icon={FileText} 
-              title="Knowledge Fragment" 
-              id={activeFragment.id} 
+            <ViewHeader
+              icon={FileText}
+              title="Knowledge Fragment"
+              id={activeFragment.id}
               colorClass="text-knowledge-500"
             >
               <select
@@ -630,7 +648,7 @@ const Home = () => {
             </header>
             <h3 className="text-xl font-black text-gray-100 uppercase tracking-widest mb-2">Rapid Enlightenment</h3>
             <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest mb-8 italic">Linking to: {executions.find(e => e.id === quickLinkTaskId)?.title}</p>
- 
+
             <div className="flex flex-col gap-6 mb-10">
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-1">Select Domain</label>
@@ -645,7 +663,7 @@ const Home = () => {
                   <option value="Uncategorized">Uncategorized</option>
                 </select>
               </div>
- 
+
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-1">Point Title</label>
                 <div className="p-6 bg-gray-900/40 border border-gray-800 rounded-[2rem] focus-within:border-knowledge-500/30 transition-all">
@@ -659,7 +677,7 @@ const Home = () => {
                 </div>
               </div>
             </div>
- 
+
             <button onClick={handleQuickAddFragment} disabled={!quickFragmentTitle || isSaving} className="w-full py-5 bg-knowledge-600 hover:bg-knowledge-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-knowledge-600/20 transition-all active:scale-[0.98]">ESTABLISH KNOWLEDGE EDGE</button>
           </div>
         </div>
