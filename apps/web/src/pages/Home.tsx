@@ -446,6 +446,7 @@ const Home = () => {
 
   // 當開啟 Keyframe 編輯時同步狀態
   useEffect(() => {
+    console.log("Active Keyframe Changed:", activeKeyframe);
     if (activeKeyframe) {
       setFragmentEditTitle(activeKeyframe.title || "Untitled Keyframe")
       setFragmentEditHook(activeKeyframe.hook || "")
@@ -513,8 +514,22 @@ const Home = () => {
       >
         <div className="px-6 mb-4 flex items-center justify-between font-black uppercase tracking-widest text-gray-500 text-[10px] min-w-[280px]">
           <div className="flex items-center gap-4 border-b border-gray-800 flex-1 pb-2">
-            <SidebarTabButton active={sidebarTab === 'tasks'} onClick={() => setSidebarTab('tasks')} icon={Target} label="Tasks" colorClass="text-brand-500" />
-            <SidebarTabButton active={sidebarTab === 'keyframes'} onClick={() => setSidebarTab('keyframes')} icon={FileText} label="Keyframes" colorClass="text-knowledge-500" />
+            <SidebarTabButton 
+              active={sidebarTab === 'tasks'} 
+              onClick={() => {
+                setSidebarTab('tasks');
+                setActiveKeyframe(null); // 切換到任務時，清空碎片選取
+              }} 
+              icon={Target} label="Tasks" colorClass="text-brand-500" 
+            />
+            <SidebarTabButton 
+              active={sidebarTab === 'keyframes'} 
+              onClick={() => {
+                setSidebarTab('keyframes');
+                setActiveTask(null); // 切換到碎片時，清空任務選取
+              }} 
+              icon={FileText} label="Keyframes" colorClass="text-knowledge-500" 
+            />
           </div>
           <div className="flex items-center gap-1 ml-4 pb-2">
             <button
