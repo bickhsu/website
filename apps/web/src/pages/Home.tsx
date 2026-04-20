@@ -666,39 +666,50 @@ const Home = () => {
               </div>
             </div>
           </div>
-        ) : activeFragment ? (
+        ) : activeKeyframe ? (
           <div className="animate-in fade-in slide-in-from-right duration-500">
             <ViewHeader
               icon={FileText}
               title="Knowledge Fragment"
-              id={activeFragment.id}
+              id={activeKeyframe.id}
               colorClass="text-knowledge-500"
             >
               <select
-                value={activeFragment.domain}
-                onChange={(e) => handleUpdateFragment(e.target.value)}
+                value={activeKeyframe.domain}
+                onChange={(e) => handleUpdateKeyframe(e.target.value)}
                 className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-knowledge-400 px-4 py-2 rounded-xl focus:outline-none"
               >
-                <option value="Work">Work</option>
-                <option value="Personal">Personal</option>
-                <option value="Side_Project">Side Project</option>
-                <option value="Uncategorized">Uncategorized</option>
+                <option value="GENERAL">General</option>
+                <option value="WORK">Work</option>
+                <option value="PERSONAL">Personal</option>
+                <option value="RESEARCH">Research</option>
+                <option value="IDEA">Idea</option>
               </select>
-              <button onClick={() => setActiveFragment(null)} className="text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-widest px-4 transition-colors">Discard</button>
               <button
-                onClick={() => handleDeleteFragment(activeFragment.id)}
+                onClick={() => handleDeleteKeyframe(activeKeyframe.id)}
                 className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-95 shadow-xl"
               >
                 <Trash2 size={16} />
               </button>
-              <button onClick={() => handleUpdateFragment()} disabled={isSaving} className="px-8 py-2.5 bg-knowledge-600 hover:bg-knowledge-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-knowledge-500/10 uppercase tracking-widest transition-all active:scale-[0.98]">Storage</button>
+              <button onClick={() => handleUpdateKeyframe()} disabled={isSaving} className="px-8 py-2.5 bg-knowledge-600 hover:bg-knowledge-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-knowledge-600/10 uppercase tracking-widest">STORE</button>
             </ViewHeader>
 
-            <input value={fragmentEditTitle} onChange={(e) => setFragmentEditTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-knowledge-500 text-gray-100 placeholder:text-gray-800" placeholder="Point Title..." />
+            <input value={fragmentEditTitle} onChange={(e) => setFragmentEditTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-4 caret-knowledge-500 text-gray-100 placeholder:text-gray-800" placeholder="Fragment Title..." />
 
-            <div className="space-y-12">
-              <MissionField icon={History} label="Hook" content={fragmentEditHook} onChange={setFragmentEditHook} activeColorClass="text-knowledge-500" />
-              <MissionField icon={FileText} label="Content" content={fragmentEditContent} onChange={setFragmentEditContent} activeColorClass="text-knowledge-500" />
+            <div className="flex flex-wrap gap-2 mb-8">
+              <div className="flex items-center gap-2 px-4 py-1.5 bg-gray-900/50 border border-gray-800 rounded-full text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                <Compass size={12} className="text-knowledge-500" />
+                Domain: {activeKeyframe.domain}
+              </div>
+              <div className="flex items-center gap-2 px-4 py-1.5 bg-gray-900/50 border border-gray-800 rounded-full text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                <Clock size={12} className="text-knowledge-500" />
+                Logged: {new Date(activeKeyframe.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <MissionField icon={Compass} label="Epistemic Hook" content={fragmentEditHook} onChange={setFragmentEditHook} />
+              <MissionField icon={FileText} label="Insight Depth" content={fragmentEditContent} onChange={setFragmentEditContent} />
             </div>
           </div>
         ) : (
