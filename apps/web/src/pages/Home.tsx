@@ -361,78 +361,80 @@ const Home = () => {
     } finally { setIsSaving(false) }
   }
 
-  const handleAddNewFragment = async () => {
+  const handleAddNewKeyframe = async () => {
     const title = prompt("請輸入新片段標題:")
     if (!title) return
 
     try {
       setIsSaving(true)
-      const res = await fetch('http://localhost:8000/api/v1/ingest/fragment', {
+      const res = await fetch(ENDPOINTS.KEYFRAMES, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: title,
-          content: "<p>New fragment content...</p>",
-          domain: "Work"
+          content: "<p>New keyframe content...</p>",
+          domain: "GENERAL"
         })
       })
       if (res.ok) {
-        const newFrag = await res.json()
-        fetchAllFragments()
+        const newKeyframe = await res.json()
+        fetchAllKeyframes()
         setActiveTask(null)
-        setActiveFragment(newFrag)
+        setActiveKeyframe(newKeyframe)
       }
     } finally { setIsSaving(false) }
   }
 
-  const handleQuickAddFragment = async () => {
+  const handleQuickAddKeyframe = async () => {
     if (!quickLinkTaskId || !quickFragmentTitle) return
 
     try {
       setIsSaving(true)
-      const res = await fetch('http://localhost:8000/api/v1/ingest/fragment', {
+      // 注意：目前後端建立 Keyframe 暫未實作直接帶入 sequenceId 的自動關聯
+      // 這裡我們先發送請求，後續再補齊後端關聯邏輯
+      const res = await fetch(ENDPOINTS.KEYFRAMES, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: quickFragmentTitle,
-          content: "<p>Initial fragment content...</p>",
-          domain: quickFragmentDomain,
-          linked_execution_id: quickLinkTaskId
+          content: "<p>Initial keyframe content...</p>",
+          domain: quickFragmentDomain.toUpperCase(),
         })
       })
       if (res.ok) {
-        const newFrag = await res.json()
+        const newKeyframe = await res.json()
         setQuickFragmentTitle('')
         setQuickLinkTaskId(null)
         setActiveTask(null)
-        setActiveFragment(newFrag)
-        fetchAllFragments()
+        setActiveKeyframe(newKeyframe)
+        fetchAllKeyframes()
       }
     } finally { setIsSaving(false) }
   }
 
-  // 當開啟 Fragment 編輯時同步狀態
+  // 當開啟 Keyframe 編輯時同步狀態
   useEffect(() => {
-    if (activeFragment) {
-      setFragmentEditTitle(activeFragment.title || "Untitled Fragment")
-      setFragmentEditHook(activeFragment.hook || "")
-      setFragmentEditContent(activeFragment.content || "")
+    if (activeKeyframe) {
+      setFragmentEditTitle(activeKeyframe.title || "Untitled Keyframe")
+      setFragmentEditHook(activeKeyframe.hook || "")
+      setFragmentEditContent(activeKeyframe.content || "")
     }
-  }, [activeFragment])
+  }, [activeKeyframe])
 
-  const handleDeleteFragment = async (fragmentId: string) => {
+  const handleDeleteKeyframe = async (keyframeId: string) => {
     if (!confirm("確定要刪除此知識碎片嗎? 這將永久移除錄入內容。")) return
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/ingest/fragment/${fragmentId}`, { method: 'DELETE' })
+      const res = await fetch(`${ENDPOINTS.KEYFRAMES}/${keyframeId}`, { method: 'DELETE' })
       if (res.ok) {
-        setActiveFragment(null)
+        setActiveKeyframe(null)
         setLastSaved(`Enlightenment Expunged @ ${new Date().toLocaleTimeString()}`)
+        fetchAllKeyframes()
       }
     } catch (err) { console.error("Deletion failed", err) }
   }
 
-  const handleUpdateFragment = async (newDomain?: string) => {
-    if (!activeFragment) return
+  const handleUpdateKeyframe = async (newDomain?: string) => {
+    if (!activeKeyframe) return
     try {
       setIsSaving(true)
 
@@ -440,26 +442,26 @@ const Home = () => {
       const syncedContent = await syncContentImages(fragmentEditContent)
       setFragmentEditContent(syncedContent)
 
-      const res = await fetch(`http://localhost:8000/api/v1/ingest/fragment/${activeFragment.id}`, {
+      const res = await fetch(`${ENDPOINTS.KEYFRAMES}/${activeKeyframe.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: fragmentEditTitle,
           content: syncedContent,
           hook: fragmentEditHook,
-          domain: newDomain || activeFragment.domain
+          domain: newDomain || activeKeyframe.domain
         })
       })
       if (res.ok) {
         setLastSaved(`Enlightenment Stored @ ${new Date().toLocaleTimeString()}`)
-        fetchAllFragments()
+        fetchAllKeyframes()
         // 同步更新本地狀態以便展示正確內容
-        setActiveFragment({
-          ...activeFragment,
+        setActiveKeyframe({
+          ...activeKeyframe,
           title: fragmentEditTitle,
           content: syncedContent,
           hook: fragmentEditHook,
-          domain: newDomain || activeFragment.domain
+          domain: (newDomain || activeKeyframe.domain) as any
         })
       }
     } finally { setIsSaving(false) }
