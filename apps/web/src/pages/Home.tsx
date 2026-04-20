@@ -497,17 +497,17 @@ const Home = () => {
 
         <div className="flex-1 overflow-auto px-4 space-y-1 min-w-[280px]">
           {sidebarTab === 'tasks' ? (
-            executions.map(ex => (
+            sequences.map(seq => (
               <SidebarItem
-                key={ex.id}
-                active={activeTask?.id === ex.id}
-                onClick={() => { setActiveTask(ex); setActiveFragment(null); }}
-                title={ex.title}
-                subtitle={ex.status}
+                key={seq.id}
+                active={activeTask?.id === seq.id}
+                onClick={() => { setActiveTask(seq); setActiveKeyframe(null); }}
+                title={seq.title}
+                subtitle={seq.status}
                 activeColorClass="text-brand-500"
-                onQuickAction={(e) => { e.stopPropagation(); setQuickLinkTaskId(ex.id); }}
+                onQuickAction={(e) => { e.stopPropagation(); setQuickLinkTaskId(seq.id); }}
                 quickActionIcon={Plus}
-                onDelete={(e) => { e.stopPropagation(); handleDeleteTask(ex.id); }}
+                onDelete={(e) => { e.stopPropagation(); handleDeleteTask(seq.id); }}
               />
             ))
           ) : (
