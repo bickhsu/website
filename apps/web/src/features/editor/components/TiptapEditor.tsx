@@ -32,63 +32,65 @@ const COLORS = [
 
 const LANGUAGES = ['javascript', 'typescript', 'python', 'html', 'css', 'sql', 'bash', 'yaml', 'json', 'markdown', 'plaintext']
 
+// --- Define Extensions Outside Component for Stability ---
+const CustomLink = Link.extend({
+  addInputRules() {
+    return [
+      new InputRule({
+        find: /\[([^\]]+)\]\(([^)]+)\)\s$/,
+        handler: ({ state, range, match }) => {
+          const { tr } = state;
+          const start = range.from;
+          const end = range.to;
+          const label = match[1];
+          const href = match[2];
+
+          if (label && href) {
+            tr.replaceWith(start, end, state.schema.text(label, [
+              state.schema.marks.link.create({ href }),
+            ]));
+            tr.insert(start + label.length, state.schema.text(' '));
+          }
+        },
+      }),
+    ];
+  },
+}).configure({
+  openOnClick: false,
+  autolink: false,
+  defaultProtocol: 'https',
+  HTMLAttributes: {
+    class: 'text-brand-400 no-underline border-b border-brand-500/30 hover:border-brand-500 transition-all cursor-pointer',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+  },
+});
+
+const EXTENSIONS = [
+  StarterKit.configure({
+    codeBlock: false,
+  }),
+  TextStyle,
+  Color,
+  BubbleMenuExtension,
+  TableKit.configure({
+    table: {
+      resizable: true,
+    },
+  }),
+  CodeBlockLowlight.configure({
+    lowlight,
+  }),
+  CustomLink,
+  Image.configure({
+    inline: true,
+    allowBase64: true,
+  }),
+];
+
 const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        codeBlock: false, // 關閉基礎 CodeBlock，改用帶有語法高亮的版本
-      }),
-      TextStyle,
-      Color,
-      BubbleMenuExtension,
-      TableKit.configure({
-        table: {
-          resizable: true,
-        },
-      }),
-      CodeBlockLowlight.configure({
-        lowlight,
-      }),
-      Link.configure({
-        openOnClick: false,
-        autolink: false, // 關閉自動偵測，避免干擾 Markdown 轉換規則
-        defaultProtocol: 'https',
-        HTMLAttributes: {
-          class: 'text-brand-400 no-underline border-b border-brand-500/30 hover:border-brand-500 transition-all cursor-pointer',
-          target: '_blank',
-          rel: 'noopener noreferrer',
-        },
-      }).extend({
-        addInputRules() {
-          return [
-            new InputRule({
-              find: /\[([^\]]+)\]\(([^)]+)\)\s$/,
-              handler: ({ state, range, match }) => {
-                const { tr } = state
-                const start = range.from
-                const end = range.to
-                const label = match[1]
-                const href = match[2]
-
-                if (label && href) {
-                  // 1. 替換整串 [label](url) 為 label 並加上 link mark
-                  tr.replaceWith(start, end, state.schema.text(label, [
-                    state.schema.marks.link.create({ href }),
-                  ]))
-                  
-                  // 2. 在後面補一個沒有連結的空格，方便使用者繼續打字
-                  tr.insert(start + label.length, state.schema.text(' '))
-                }
-              },
-            }),
-          ]
-        },
-      }),
-      Image.configure({
-        inline: true,
-        allowBase64: true, 
-      }),
-    ],
+    extensions: EXTENSIONS,
     content: content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
