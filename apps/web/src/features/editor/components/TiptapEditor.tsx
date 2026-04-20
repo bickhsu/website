@@ -34,6 +34,7 @@ const LANGUAGES = ['javascript', 'typescript', 'python', 'html', 'css', 'sql', '
 
 // --- Define Extensions Outside Component for Stability ---
 const CustomLink = Link.extend({
+  name: 'customLink',
   addInputRules() {
     return [
       new InputRule({
@@ -106,12 +107,13 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   useEffect(() => {
     if (!editor) return;
     
+    const safeContent = content || "";
     const currentHTML = editor.getHTML();
-    if (content !== currentHTML) {
+    if (safeContent !== currentHTML) {
       // 只有在內容真的不同時才更新，且避免在正在輸入時強制更新
-      const isSame = currentHTML.replace(/\s/g, '') === content.replace(/\s/g, '');
+      const isSame = currentHTML.replace(/\s/g, '') === safeContent.replace(/\s/g, '');
       if (!isSame) {
-        editor.commands.setContent(content, false);
+        editor.commands.setContent(safeContent, false);
       }
     }
   }, [content, editor]);
