@@ -13,6 +13,20 @@ export class KeyframeService {
     });
   }
 
+  async addFrame(keyframeId: string, content: string) {
+    return this.prisma.keyframeFrame.create({
+      data: {
+        keyframeId,
+        frame: {
+          create: { content },
+        },
+      },
+      include: {
+        frame: true,
+      },
+    });
+  }
+
   async findAll() {
     return this.prisma.keyframe.findMany({
       orderBy: { createdAt: 'desc' },

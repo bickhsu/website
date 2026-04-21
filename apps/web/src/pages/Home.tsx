@@ -38,6 +38,7 @@ interface Keyframe {
   hook?: string
   domain: string
   createdAt: string
+  keyframeFrames?: { addedAt: string, frame: Frame }[]
 }
 
 interface SequenceKeyframe {
@@ -242,6 +243,7 @@ const Home = () => {
   const [newFrameContent, setNewFrameContent] = useState("")
   const [editingFrameId, setEditingFrameId] = useState<string | null>(null)
   const [editingFrameContent, setEditingFrameContent] = useState("")
+  const [newKeyframeFrameContent, setNewKeyframeFrameContent] = useState("")
 
   // --- State Management (Keyframes) ---
   const [isSaving, setIsSaving] = useState(false)
@@ -321,6 +323,16 @@ const Home = () => {
       const res = await fetch(ENDPOINTS.KEYFRAMES)
       if (res.ok) setAllKeyframes(await res.json())
     } catch (err) { console.error("Failed to fetch all keyframes", err) }
+  }
+
+  const fetchKeyframeDetail = async (id: string) => {
+    try {
+      const res = await fetch(`${ENDPOINTS.KEYFRAMES}/${id}`)
+      if (res.ok) {
+        const fullData = await res.json()
+        setActiveKeyframe(fullData)
+      }
+    } catch (err) { console.error("Failed to fetch keyframe details", err) }
   }
 
   // --- Function Logic : Sequences ---
@@ -414,6 +426,26 @@ const Home = () => {
     }
   }
 
+  const handleAddKeyframeFrame = async () => {
+    if (!activeKeyframe || !newKeyframeFrameContent.trim()) return
+    try {
+      setIsSaving(true)
+      const res = await fetch(`${ENDPOINTS.KEYFRAMES}/${activeKeyframe.id}/frames`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newKeyframeFrameContent })
+      })
+      if (res.ok) {
+        setNewKeyframeFrameContent("")
+        fetchKeyframeDetail(activeKeyframe.id)
+      }
+    } catch (err) {
+      console.error("Failed to add keyframe frame", err)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   const handleUpdateFrame = async (frameId: string) => {
     if (!activeTask) return
     try {
@@ -455,6 +487,55 @@ const Home = () => {
       console.error("Failed to delete frame", err)
     } finally { 
       setIsSaving(false) 
+    }
+  }
+
+  const handlePromoteToKeyframe = async (frame: Frame) => {
+    if (!activeTask) return
+    if (!confirm("確定要把這則留言複製並提煉成核心知識 (Keyframe) 嗎？\n(原始留言將會繼續保留)")) return
+    
+    try {
+      setIsSaving(true)
+      // 1. 建立新的 Keyframe
+      const createRes = await fetch(ENDPOINTS.KEYFRAMES, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: "Extracted Keyframe",
+          content: "<p></p>", // Keyframe 本身不用塞入舊 frame 內容
+          domain: "GENERAL"
+        })
+      })
+      
+      if (!createRes.ok) throw new Error("Failed to create keyframe")
+      const newKeyframe = await createRes.json()
+
+      // 2. 複製原始的 Frame 作為新 Keyframe 底下關聯的第一個 Frame
+      await fetch(`${ENDPOINTS.KEYFRAMES}/${newKeyframe.id}/frames`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: frame.content })
+      })
+
+      // 3. 確保畫面拿到最新完整的 keyframe (包含剛加進去的 frames)
+      const detailRes = await fetch(`${ENDPOINTS.KEYFRAMES}/${newKeyframe.id}`)
+      const fullKeyframe = await detailRes.json()
+
+      // 4. 更新畫面
+      fetchSequenceDetail(activeTask.id)
+      fetchAllKeyframes()
+      setLastSaved(`Frame extracted to Keyframe @ ${new Date().toLocaleTimeString()}`)
+      
+      // 自動切換到新建立的 Keyframe 視角，讓使用者能接續編輯 Title/Hook
+      setActiveTask(null)
+      setActiveKeyframe(fullKeyframe)
+      setSidebarTab('keyframes')
+
+    } catch (err) {
+      console.error("Failed to promote frame", err)
+      alert("轉換失敗，請稍後再試")
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -510,12 +591,22 @@ const Home = () => {
   }
 
   // 當開啟 Keyframe 編輯時同步狀態
+  const currentKeyframeIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    console.log("Active Keyframe Changed:", activeKeyframe);
     if (activeKeyframe) {
-      setFragmentEditTitle(activeKeyframe.title || "Untitled Keyframe")
-      setFragmentEditHook(activeKeyframe.hook || "")
-      setFragmentEditContent(activeKeyframe.content || "")
+      if (currentKeyframeIdRef.current !== activeKeyframe.id) {
+        currentKeyframeIdRef.current = activeKeyframe.id;
+        setFragmentEditTitle(activeKeyframe.title || "Untitled Keyframe")
+        setFragmentEditHook(activeKeyframe.hook || "")
+        setFragmentEditContent(activeKeyframe.content || "")
+        
+        if (!activeKeyframe.keyframeFrames) {
+          fetchKeyframeDetail(activeKeyframe.id);
+        }
+      }
+    } else {
+      currentKeyframeIdRef.current = null;
     }
   }, [activeKeyframe])
 
@@ -715,6 +806,7 @@ const Home = () => {
                                 </>
                               ) : (
                                 <>
+                                  <button onClick={() => handlePromoteToKeyframe(sf.frame)} disabled={isSaving} className="text-[9px] font-black uppercase text-knowledge-500/70 hover:text-knowledge-500 transition-colors mr-2">Promote</button>
                                   <button onClick={() => { setEditingFrameId(sf.frame.id); setEditingFrameContent(sf.frame.content); }} className="text-[9px] font-black uppercase text-gray-500 hover:text-knowledge-500 transition-colors">Edit</button>
                                   <button onClick={() => handleDeleteFrame(sf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-red-500/70 hover:text-red-500 transition-colors">Delete</button>
                                 </>
@@ -828,6 +920,52 @@ const Home = () => {
             <div className="space-y-3">
               <MissionField icon={Compass} label="Epistemic Hook" content={fragmentEditHook} onChange={setFragmentEditHook} />
               <MissionField icon={FileText} label="Insight Depth" content={fragmentEditContent} onChange={setFragmentEditContent} />
+              
+              {/* Keyframe's Frames (Read-only view) */}
+              <div className="pt-8">
+                <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
+                  <History size={14} className="text-knowledge-500/50" />
+                  Keyframe Logs (Frames)
+                </div>
+
+                <div className="space-y-4 mb-6">
+                  {(!activeKeyframe.keyframeFrames || activeKeyframe.keyframeFrames.length === 0) ? (
+                    <div className="py-6 text-center border border-dashed border-gray-800/40 rounded-3xl text-[10px] text-gray-700 italic">
+                      No specific frames attached to this key insight yet.
+                    </div>
+                  ) : (
+                    activeKeyframe.keyframeFrames.map((kf, idx) => (
+                      <div key={kf.frame.id || idx} className="group relative flex gap-4 p-4 bg-gray-900/10 border border-gray-800/20 rounded-2xl">
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <span className="text-[9px] font-mono text-gray-600 uppercase tracking-tighter block mb-2">
+                            Frame #{idx + 1} — {new Date(kf.addedAt).toLocaleString()}
+                          </span>
+                          <TiptapEditor content={kf.frame.content} editable={false} />
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* 新增 Keyframe 留言區域 */}
+                <div className="mt-4">
+                  <div className="bg-gray-800/30 rounded-2xl border border-gray-800 p-2 focus-within:border-knowledge-500/40 transition-all shadow-inner">
+                    <TiptapEditor
+                      content={newKeyframeFrameContent}
+                      onChange={setNewKeyframeFrameContent}
+                    />
+                    <div className="flex justify-end p-2 border-t border-gray-800/50 mt-2">
+                      <button
+                        onClick={handleAddKeyframeFrame}
+                        disabled={isSaving || !newKeyframeFrameContent.trim()}
+                        className="flex items-center gap-2 px-4 py-2 bg-knowledge-600 hover:bg-knowledge-500 disabled:opacity-30 disabled:hover:bg-knowledge-600 text-white text-[10px] font-black rounded-xl transition-all shadow-lg shadow-knowledge-600/10 uppercase tracking-widest"
+                      >
+                        <Plus size={14} /> Commit Frame
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ) : (

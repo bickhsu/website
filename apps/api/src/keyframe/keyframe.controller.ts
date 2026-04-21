@@ -12,6 +12,11 @@ export class KeyframeController {
     return this.keyframeService.create(createKeyframeDto);
   }
 
+  @Post(':id/frames')
+  async addFrame(@Param('id') id: string, @Body('content') content: string) {
+    return this.keyframeService.addFrame(id, content);
+  }
+
   @Get()
   findAll() {
     return this.keyframeService.findAll();
