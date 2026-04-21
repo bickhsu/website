@@ -759,23 +759,26 @@ const Home = () => {
               <button onClick={handleSaveTask} disabled={isSaving} className="px-8 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-brand-600/10 uppercase tracking-widest">SYNC</button>
             </ViewHeader>
 
-            <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="w-full text-2xl font-black bg-transparent border-none p-0 focus:outline-none mb-8 caret-brand-500 text-gray-100 placeholder:text-gray-800" placeholder="Sequence Title..." />
-
-            <div className="space-y-3">
-              {showExtendedFields ? (
-                <>
-                  <MissionField icon={Flag} label="Problem Statement" content={problemStatement} onChange={setProblemStatement} />
-                  <MissionField icon={Activity} label="Value Delivered" content={valueDelivered} onChange={setValueDelivered} />
-                </>
-              ) : (
+            <div className="flex md:items-center items-start flex-col md:flex-row gap-4 mb-8 justify-between">
+              <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="flex-1 min-w-0 text-2xl font-black bg-transparent border-none p-0 focus:outline-none caret-brand-500 text-gray-100 placeholder:text-gray-800" placeholder="Sequence Title..." />
+              
+              {!showExtendedFields && (
                 <button 
                   onClick={() => setShowExtendedFields(true)}
-                  className="w-fit py-1.5 px-3 border border-dashed border-gray-800/60 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-600 hover:border-brand-500/40 hover:text-brand-500/80 transition-all flex items-center gap-1.5 group"
+                  className="shrink-0 w-fit py-1.5 px-3 border border-dashed border-gray-800/60 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-600 hover:border-brand-500/40 hover:text-brand-500/80 transition-all flex items-center gap-1.5 group"
                 >
                   <Plus size={12} className="opacity-50 group-hover:opacity-100" />
                   Set Scene Context
                 </button>
               )}
+            </div>
+
+            {showExtendedFields && (
+              <div className="space-y-3 mb-8">
+                <MissionField icon={Flag} label="Problem Statement" content={problemStatement} onChange={setProblemStatement} />
+                <MissionField icon={Activity} label="Value Delivered" content={valueDelivered} onChange={setValueDelivered} />
+              </div>
+            )}
 
               {/* --- 留言板 (Message Board) --- */}
               <div className="pt-8 animate-in fade-in slide-in-from-bottom duration-700">
