@@ -26,7 +26,7 @@
 }
 
 html {
-  font-size: 12px;
+  font-size: 15px;
   scrollbar-gutter: stable;
 }
 
@@ -246,14 +246,14 @@ body {
   margin-bottom: 0.25rem;
 }
 
-.prose ul[data-type="taskList"] li > label {
+.prose ul[data-type="taskList"] li>label {
   flex: 0 0 auto;
   user-select: none;
   margin-right: 0.75rem;
   margin-top: 0.2rem;
 }
 
-.prose ul[data-type="taskList"] li > div {
+.prose ul[data-type="taskList"] li>div {
   flex: 1 1 auto;
 }
 
@@ -292,7 +292,7 @@ body {
   background-color: rgba(217, 113, 127, 0.1);
 }
 
-.prose ul[data-type="taskList"] li[data-checked="true"] > div {
+.prose ul[data-type="taskList"] li[data-checked="true"]>div {
   text-decoration: line-through;
   color: #6b7280;
 }

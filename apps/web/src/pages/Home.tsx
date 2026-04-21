@@ -447,7 +447,7 @@ const Home = () => {
   }
 
   const handleUpdateFrame = async (frameId: string) => {
-    if (!activeTask) return
+    if (!activeTask && !activeKeyframe) return;
     try {
       setIsSaving(true)
       const syncedContent = await syncContentImages(editingFrameContent)
@@ -461,7 +461,8 @@ const Home = () => {
       if (res.ok) {
         setEditingFrameId(null)
         setEditingFrameContent("")
-        fetchSequenceDetail(activeTask.id)
+        if (activeTask) fetchSequenceDetail(activeTask.id)
+        if (activeKeyframe) fetchKeyframeDetail(activeKeyframe.id)
         setLastSaved(`Frame updated @ ${new Date().toLocaleTimeString()}`)
       }
     } catch (err) {
@@ -472,7 +473,7 @@ const Home = () => {
   }
 
   const handleDeleteFrame = async (frameId: string) => {
-    if (!activeTask) return
+    if (!activeTask && !activeKeyframe) return;
     if (!confirm("確定要刪除此留言 (Frame) 嗎?")) return
     try {
       setIsSaving(true)
@@ -480,7 +481,8 @@ const Home = () => {
         method: 'DELETE',
       })
       if (res.ok) {
-        fetchSequenceDetail(activeTask.id)
+        if (activeTask) fetchSequenceDetail(activeTask.id)
+        if (activeKeyframe) fetchKeyframeDetail(activeKeyframe.id)
         setLastSaved(`Frame deleted @ ${new Date().toLocaleTimeString()}`)
       }
     } catch (err) {
@@ -935,12 +937,36 @@ const Home = () => {
                     </div>
                   ) : (
                     activeKeyframe.keyframeFrames.map((kf, idx) => (
-                      <div key={kf.frame.id || idx} className="group relative flex gap-4 p-4 bg-gray-900/10 border border-gray-800/20 rounded-2xl">
+                      <div key={kf.frame.id || idx} className="group relative flex gap-4 p-4 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-knowledge-500/20 transition-all overflow-hidden">
                         <div className="flex-1 min-w-0 overflow-hidden">
-                          <span className="text-[9px] font-mono text-gray-600 uppercase tracking-tighter block mb-2">
-                            Frame #{idx + 1} — {new Date(kf.addedAt).toLocaleString()}
-                          </span>
-                          <TiptapEditor content={kf.frame.content} editable={false} />
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[9px] font-mono text-gray-600 uppercase tracking-tighter block mb-2">
+                              Frame #{idx + 1} — {new Date(kf.addedAt).toLocaleString()}
+                            </span>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                              {editingFrameId === kf.frame.id ? (
+                                <>
+                                  <button onClick={() => setEditingFrameId(null)} className="text-[9px] font-black uppercase text-gray-500 hover:text-gray-300">Cancel</button>
+                                  <button onClick={() => handleUpdateFrame(kf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-knowledge-500 hover:text-knowledge-400">Save</button>
+                                </>
+                              ) : (
+                                <>
+                                  <button onClick={() => { setEditingFrameId(kf.frame.id); setEditingFrameContent(kf.frame.content); }} className="text-[9px] font-black uppercase text-gray-500 hover:text-knowledge-500 transition-colors">Edit</button>
+                                  <button onClick={() => handleDeleteFrame(kf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-red-500/70 hover:text-red-500 transition-colors">Delete</button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {editingFrameId === kf.frame.id ? (
+                            <div className="mt-2 bg-gray-900 border border-knowledge-500/30 rounded-xl p-2 min-w-0">
+                              <TiptapEditor content={editingFrameContent} onChange={setEditingFrameContent} />
+                            </div>
+                          ) : (
+                            <div className="flex-1 min-w-0">
+                              <TiptapEditor content={kf.frame.content} editable={false} />
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))
