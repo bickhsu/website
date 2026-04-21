@@ -70,6 +70,7 @@ const getExtensions = () => [
   TaskList,
   TaskItem.configure({
     nested: true,
+    onReadOnly: false,
   }),
   BubbleMenuExtension,
   TableKit.configure({
