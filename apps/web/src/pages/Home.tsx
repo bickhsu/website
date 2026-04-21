@@ -797,8 +797,8 @@ const Home = () => {
                         </div>
                         <div className="flex-1 min-w-0 overflow-hidden">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-[9px] font-mono text-gray-600 uppercase tracking-tighter">
-                              Frame #{idx + 1} — {new Date(sf.addedAt).toLocaleString()}
+                            <span className="text-xs font-mono text-gray-500 uppercase tracking-tighter">
+                              {new Date(sf.addedAt).toLocaleTimeString('zh-TW', { hour: 'numeric', minute: '2-digit', hour12: true })}
                             </span>
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
                               {editingFrameId === sf.frame.id ? (
@@ -940,8 +940,8 @@ const Home = () => {
                       <div key={kf.frame.id || idx} className="group relative flex gap-4 p-4 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-knowledge-500/20 transition-all overflow-hidden">
                         <div className="flex-1 min-w-0 overflow-hidden">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-[9px] font-mono text-gray-600 uppercase tracking-tighter block mb-2">
-                              Frame #{idx + 1} — {new Date(kf.addedAt).toLocaleString()}
+                            <span className="text-xs font-mono text-gray-500 uppercase tracking-tighter block mb-2">
+                              {new Date(kf.addedAt).toLocaleTimeString('zh-TW', { hour: 'numeric', minute: '2-digit', hour12: true })}
                             </span>
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
                               {editingFrameId === kf.frame.id ? (
