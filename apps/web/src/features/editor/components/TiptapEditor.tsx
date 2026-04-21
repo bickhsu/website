@@ -6,12 +6,14 @@ import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
+import { TaskList } from '@tiptap/extension-task-list'
+import { TaskItem } from '@tiptap/extension-task-item'
 import { Link } from '@tiptap/extension-link'
 import { TableKit } from '@tiptap/extension-table'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import { all, createLowlight } from 'lowlight'
 import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu'
-import { Palette, Link2, Table2, Code2 } from 'lucide-react'
+import { Palette, Link2, Table2, Code2, CheckSquare } from 'lucide-react'
 
 const lowlight = createLowlight(all)
 
@@ -65,6 +67,10 @@ const getExtensions = () => [
   }),
   TextStyle,
   Color,
+  TaskList,
+  TaskItem.configure({
+    nested: true,
+  }),
   BubbleMenuExtension,
   TableKit.configure({
     table: {
@@ -167,6 +173,13 @@ const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps)
                 title="程式碼區塊"
               >
                 <Code2 size={12} />
+              </button>
+              <button 
+                onClick={() => editor.chain().focus().toggleTaskList().run()}
+                className={`p-1.5 rounded-lg hover:bg-gray-800 transition-colors ${editor.isActive('taskList') ? 'text-brand-500 bg-brand-500/10' : 'text-gray-400'}`}
+                title="待辦事項"
+              >
+                <CheckSquare size={12} />
               </button>
 
               {editor.isActive('codeBlock') && (
