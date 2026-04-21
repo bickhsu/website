@@ -794,7 +794,7 @@ const Home = () => {
                     </div>
                   ) : (
                     activeTask.sequenceFrames?.map((sf, idx) => (
-                      <div key={sf.frame.id || idx} className="group relative flex gap-4 p-4 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-brand-500/20 transition-all overflow-hidden">
+                      <div key={sf.frame.id || idx} className="group relative flex gap-4 pt-3 px-4 pb-1.5 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-brand-500/20 transition-all overflow-hidden">
                         <div className="flex flex-col items-center flex-shrink-0">
                           <div className="w-1 h-full bg-gray-800 rounded-full group-last:bg-transparent" />
                         </div>
@@ -939,7 +939,7 @@ const Home = () => {
                     </div>
                   ) : (
                     activeKeyframe.keyframeFrames.map((kf, idx) => (
-                      <div key={kf.frame.id || idx} className="group relative flex gap-4 p-4 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-knowledge-500/20 transition-all overflow-hidden">
+                      <div key={kf.frame.id || idx} className="group relative flex gap-4 pt-3 px-4 pb-1.5 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-knowledge-500/20 transition-all overflow-hidden">
                         <div className="flex-1 min-w-0 overflow-hidden">
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-xs font-mono text-gray-500 uppercase tracking-tighter block mb-2">
