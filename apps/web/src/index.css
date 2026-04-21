@@ -234,29 +234,30 @@ body {
 }
 
 /* Task List Styles */
-ul[data-type="taskList"] {
+.prose ul[data-type="taskList"] {
   list-style: none;
   padding: 0;
+  margin: 0.5rem 0;
 }
 
-ul[data-type="taskList"] li {
+.prose ul[data-type="taskList"] li {
   display: flex;
   align-items: flex-start;
   margin-bottom: 0.25rem;
 }
 
-ul[data-type="taskList"] li > label {
+.prose ul[data-type="taskList"] li > label {
   flex: 0 0 auto;
   user-select: none;
   margin-right: 0.75rem;
-  margin-top: 0.1rem;
+  margin-top: 0.2rem;
 }
 
-ul[data-type="taskList"] li > div {
+.prose ul[data-type="taskList"] li > div {
   flex: 1 1 auto;
 }
 
-ul[data-type="taskList"] input[type="checkbox"] {
+.prose ul[data-type="taskList"] input[type="checkbox"] {
   cursor: pointer;
   appearance: none;
   background-color: transparent;
@@ -270,7 +271,7 @@ ul[data-type="taskList"] input[type="checkbox"] {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-ul[data-type="taskList"] input[type="checkbox"]::before {
+.prose ul[data-type="taskList"] input[type="checkbox"]::before {
   content: "";
   width: 0.65rem;
   height: 0.65rem;
@@ -281,15 +282,15 @@ ul[data-type="taskList"] input[type="checkbox"]::before {
   clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
 }
 
-ul[data-type="taskList"] input[type="checkbox"]:checked::before {
+.prose ul[data-type="taskList"] input[type="checkbox"]:checked::before {
   transform: scale(1);
 }
 
-ul[data-type="taskList"] input[type="checkbox"]:checked {
+.prose ul[data-type="taskList"] input[type="checkbox"]:checked {
   background-color: rgba(217, 113, 127, 0.1);
 }
 
-ul[data-type="taskList"] li[data-checked="true"] > div {
+.prose ul[data-type="taskList"] li[data-checked="true"] > div {
   text-decoration: line-through;
   color: #6b7280;
 }
