@@ -129,6 +129,13 @@ const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps)
     }
   }, [content, editor]);
 
+  // 同步 editable 狀態
+  useEffect(() => {
+    if (editor && editor.isEditable !== editable) {
+      editor.setEditable(editable);
+    }
+  }, [editor, editable]);
+
   return (
     <div className={`w-full bg-transparent ${editable ? 'hover:bg-white/[0.02] border border-transparent hover:border-white/[0.05] rounded-2xl px-4 py-0.5' : ''} transition-all group relative`}>
       {editor && editable && (
