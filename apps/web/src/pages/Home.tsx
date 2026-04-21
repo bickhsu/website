@@ -784,7 +784,7 @@ const Home = () => {
               <div className="pt-4 animate-in fade-in slide-in-from-bottom duration-700">
                 <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
                   <History size={14} className="text-brand-500/50" />
-                  Mission Timeline (Frames)
+                  TIMELINE
                 </div>
 
                 <div className="space-y-4 mb-6">
