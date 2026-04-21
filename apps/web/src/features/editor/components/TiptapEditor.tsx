@@ -137,7 +137,7 @@ const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps)
   }, [editor, editable]);
 
   return (
-    <div className={`w-full bg-transparent ${editable ? 'hover:bg-white/[0.02] border border-transparent hover:border-white/[0.05] rounded-2xl px-4 py-0.5' : ''} transition-all group relative`}>
+    <div className="w-full relative">
       {editor && editable && (
         <BubbleMenu editor={editor} options={{ duration: 100 } as any}>
           <div className="flex items-center gap-1.5 p-1.5 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl animate-in fade-in zoom-in-95 duration-200">
