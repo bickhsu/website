@@ -759,7 +759,7 @@ const Home = () => {
               <button onClick={handleSaveTask} disabled={isSaving} className="px-8 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-brand-600/10 uppercase tracking-widest">SYNC</button>
             </ViewHeader>
 
-            <div className="flex md:items-center items-start flex-col md:flex-row gap-4 mb-8 justify-between">
+            <div className="flex md:items-center items-start flex-col md:flex-row gap-4 mb-4 justify-between">
               <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="flex-1 min-w-0 text-2xl font-black bg-transparent border-none p-0 focus:outline-none caret-brand-500 text-gray-100 placeholder:text-gray-800" placeholder="Sequence Title..." />
               
               {!showExtendedFields && (
@@ -774,14 +774,14 @@ const Home = () => {
             </div>
 
             {showExtendedFields && (
-              <div className="space-y-3 mb-8">
+              <div className="space-y-3 mb-4">
                 <MissionField icon={Flag} label="Problem Statement" content={problemStatement} onChange={setProblemStatement} />
                 <MissionField icon={Activity} label="Value Delivered" content={valueDelivered} onChange={setValueDelivered} />
               </div>
             )}
 
               {/* --- 留言板 (Message Board) --- */}
-              <div className="pt-8 animate-in fade-in slide-in-from-bottom duration-700">
+              <div className="pt-4 animate-in fade-in slide-in-from-bottom duration-700">
                 <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
                   <History size={14} className="text-brand-500/50" />
                   Mission Timeline (Frames)
@@ -880,7 +880,6 @@ const Home = () => {
                 </div>
               </div>
             </div>
-          </div>
         ) : activeKeyframe && sidebarTab === 'keyframes' ? (
           <div className="animate-in fade-in slide-in-from-right duration-500">
             <ViewHeader
