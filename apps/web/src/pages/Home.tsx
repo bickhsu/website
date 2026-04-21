@@ -439,6 +439,25 @@ const Home = () => {
     }
   }
 
+  const handleDeleteFrame = async (frameId: string) => {
+    if (!activeTask) return
+    if (!confirm("確定要刪除此留言 (Frame) 嗎?")) return
+    try {
+      setIsSaving(true)
+      const res = await fetch(`${API_BASE_URL}/frame/${frameId}`, {
+        method: 'DELETE',
+      })
+      if (res.ok) {
+        fetchSequenceDetail(activeTask.id)
+        setLastSaved(`Frame deleted @ ${new Date().toLocaleTimeString()}`)
+      }
+    } catch (err) {
+      console.error("Failed to delete frame", err)
+    } finally { 
+      setIsSaving(false) 
+    }
+  }
+
   const handleAddNewKeyframe = async () => {
     const title = prompt("請輸入新片段標題:")
     if (!title) return
@@ -695,7 +714,10 @@ const Home = () => {
                                   <button onClick={() => handleUpdateFrame(sf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-brand-500 hover:text-brand-400">Save</button>
                                 </>
                               ) : (
-                                <button onClick={() => { setEditingFrameId(sf.frame.id); setEditingFrameContent(sf.frame.content); }} className="text-[9px] font-black uppercase text-gray-500 hover:text-knowledge-500 transition-colors">Edit</button>
+                                <>
+                                  <button onClick={() => { setEditingFrameId(sf.frame.id); setEditingFrameContent(sf.frame.content); }} className="text-[9px] font-black uppercase text-gray-500 hover:text-knowledge-500 transition-colors">Edit</button>
+                                  <button onClick={() => handleDeleteFrame(sf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-red-500/70 hover:text-red-500 transition-colors">Delete</button>
+                                </>
                               )}
                             </div>
                           </div>
