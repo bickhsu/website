@@ -78,6 +78,10 @@ body {
   @apply leading-relaxed;
 }
 
+.prose :where(p):last-child:not(:where([class~="not-prose"] *)) {
+  margin-bottom: 0 !important;
+}
+
 .prose :where(h1):not(:where([class~="not-prose"] *)) {
   @apply text-3xl font-bold mb-6 mt-8;
 }
