@@ -770,10 +770,10 @@ const Home = () => {
               ) : (
                 <button 
                   onClick={() => setShowExtendedFields(true)}
-                  className="w-full py-4 border border-dashed border-gray-800 rounded-3xl text-[10px] font-black uppercase tracking-widest text-gray-700 hover:border-brand-500/30 hover:text-brand-500/60 transition-all flex items-center justify-center gap-2 group"
+                  className="w-fit py-1.5 px-3 border border-dashed border-gray-800/60 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-600 hover:border-brand-500/40 hover:text-brand-500/80 transition-all flex items-center gap-1.5 group"
                 >
-                  <Plus size={14} className="opacity-40 group-hover:opacity-100" />
-                  Add Strategic Context
+                  <Plus size={12} className="opacity-50 group-hover:opacity-100" />
+                  Set Scene Context
                 </button>
               )}
 
