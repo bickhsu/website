@@ -245,6 +245,12 @@ const Home = () => {
   const [editingFrameContent, setEditingFrameContent] = useState("")
   const [newKeyframeFrameContent, setNewKeyframeFrameContent] = useState("")
 
+  const trimContent = (html: string) => {
+    if (!html) return "";
+    // 移除結尾的空段落或只有換行的段落，這能解決 Tiptap 容易多出最後一行空行的問題
+    return html.replace(/(<p>\s*(<br\/?>|&nbsp;)*\s*<\/p>|\s)+$/, '');
+  };
+
   // --- State Management (Keyframes) ---
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
@@ -278,17 +284,17 @@ const Home = () => {
       // 只有在「切換了不同的任務」或是「第一次點進來時的詳細資料回傳」時才覆寫內容
       if (currentTaskIdRef.current !== activeTask.id) {
         currentTaskIdRef.current = activeTask.id;
-        
+
         setTaskTitle(activeTask.title || "Untitled Mission")
         setProblemStatement(activeTask.problemStatement || "")
         setValueDelivered(activeTask.valueDelivered || "")
         setTaskStatus(activeTask.status || "Inprocessing")
-        
+
         // 自動偵測：如果有內容則展開，沒內容則隱藏
-        const hasContent = !!(activeTask.problemStatement?.trim() && activeTask.problemStatement !== '<p></p>') || 
-                          !!(activeTask.valueDelivered?.trim() && activeTask.valueDelivered !== '<p></p>');
+        const hasContent = !!(activeTask.problemStatement?.trim() && activeTask.problemStatement !== '<p></p>') ||
+          !!(activeTask.valueDelivered?.trim() && activeTask.valueDelivered !== '<p></p>');
         setShowExtendedFields(hasContent);
-        
+
         fetchSequenceDetail(activeTask.id);
       } else if (activeTask.sequenceFrames) {
         // 當抓取詳情 (或更新) 帶有 sequenceFrames 回來時，如果這是不含 frames 的最初版任務更新
@@ -392,8 +398,8 @@ const Home = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: taskTitle,
-          problemStatement: syncedProblem,
-          valueDelivered: syncedValue,
+          problemStatement: trimContent(syncedProblem),
+          valueDelivered: trimContent(syncedValue),
           status: taskStatus
         })
       })
@@ -412,7 +418,7 @@ const Home = () => {
       const res = await fetch(`${ENDPOINTS.SEQUENCES}/${activeTask.id}/frames`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newFrameContent })
+        body: JSON.stringify({ content: trimContent(newFrameContent) })
       })
       if (res.ok) {
         setNewFrameContent("")
@@ -433,7 +439,7 @@ const Home = () => {
       const res = await fetch(`${ENDPOINTS.KEYFRAMES}/${activeKeyframe.id}/frames`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newKeyframeFrameContent })
+        body: JSON.stringify({ content: trimContent(newKeyframeFrameContent) })
       })
       if (res.ok) {
         setNewKeyframeFrameContent("")
@@ -451,13 +457,13 @@ const Home = () => {
     try {
       setIsSaving(true)
       const syncedContent = await syncContentImages(editingFrameContent)
-      
+
       const res = await fetch(`${API_BASE_URL}/frame/${frameId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: syncedContent })
+        body: JSON.stringify({ content: trimContent(syncedContent) })
       })
-      
+
       if (res.ok) {
         setEditingFrameId(null)
         setEditingFrameContent("")
@@ -467,8 +473,8 @@ const Home = () => {
       }
     } catch (err) {
       console.error("Failed to update frame", err)
-    } finally { 
-      setIsSaving(false) 
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -487,15 +493,15 @@ const Home = () => {
       }
     } catch (err) {
       console.error("Failed to delete frame", err)
-    } finally { 
-      setIsSaving(false) 
+    } finally {
+      setIsSaving(false)
     }
   }
 
   const handlePromoteToKeyframe = async (frame: Frame) => {
     if (!activeTask) return
     if (!confirm("確定要把這則留言複製並提煉成核心知識 (Keyframe) 嗎？\n(原始留言將會繼續保留)")) return
-    
+
     try {
       setIsSaving(true)
       // 1. 建立新的 Keyframe
@@ -508,7 +514,7 @@ const Home = () => {
           domain: "GENERAL"
         })
       })
-      
+
       if (!createRes.ok) throw new Error("Failed to create keyframe")
       const newKeyframe = await createRes.json()
 
@@ -516,7 +522,7 @@ const Home = () => {
       await fetch(`${ENDPOINTS.KEYFRAMES}/${newKeyframe.id}/frames`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: frame.content })
+        body: JSON.stringify({ content: trimContent(frame.content) })
       })
 
       // 3. 確保畫面拿到最新完整的 keyframe (包含剛加進去的 frames)
@@ -527,7 +533,7 @@ const Home = () => {
       fetchSequenceDetail(activeTask.id)
       fetchAllKeyframes()
       setLastSaved(`Frame extracted to Keyframe @ ${new Date().toLocaleTimeString()}`)
-      
+
       // 自動切換到新建立的 Keyframe 視角，讓使用者能接續編輯 Title/Hook
       setActiveTask(null)
       setActiveKeyframe(fullKeyframe)
@@ -602,7 +608,7 @@ const Home = () => {
         setFragmentEditTitle(activeKeyframe.title || "Untitled Keyframe")
         setFragmentEditHook(activeKeyframe.hook || "")
         setFragmentEditContent(activeKeyframe.content || "")
-        
+
         if (!activeKeyframe.keyframeFrames) {
           fetchKeyframeDetail(activeKeyframe.id);
         }
@@ -638,7 +644,7 @@ const Home = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: fragmentEditTitle,
-          content: syncedContent,
+          content: trimContent(syncedContent),
           hook: fragmentEditHook,
           domain: newDomain || activeKeyframe.domain
         })
@@ -672,21 +678,21 @@ const Home = () => {
       >
         <div className="px-6 mb-4 flex items-center justify-between font-black uppercase tracking-widest text-gray-500 text-[10px] min-w-[280px]">
           <div className="flex items-center gap-4 border-b border-gray-800 flex-1 pb-2">
-            <SidebarTabButton 
-              active={sidebarTab === 'sequences'} 
+            <SidebarTabButton
+              active={sidebarTab === 'sequences'}
               onClick={() => {
                 setSidebarTab('sequences');
                 setActiveKeyframe(null); // 切換到序列時，清空碎片選取
-              }} 
-              icon={Target} label="Sequences" colorClass="text-brand-500" 
+              }}
+              icon={Target} label="Sequences" colorClass="text-brand-500"
             />
-            <SidebarTabButton 
-              active={sidebarTab === 'keyframes'} 
+            <SidebarTabButton
+              active={sidebarTab === 'keyframes'}
               onClick={() => {
                 setSidebarTab('keyframes');
                 setActiveTask(null); // 切換到碎片時，清空任務選取
-              }} 
-              icon={FileText} label="Keyframes" colorClass="text-knowledge-500" 
+              }}
+              icon={FileText} label="Keyframes" colorClass="text-knowledge-500"
             />
           </div>
           <div className="flex items-center gap-1 ml-4 pb-2">
@@ -761,9 +767,9 @@ const Home = () => {
 
             <div className="flex md:items-center items-start flex-col md:flex-row gap-4 mb-4 justify-between">
               <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="flex-1 min-w-0 text-2xl font-black bg-transparent border-none p-0 focus:outline-none caret-brand-500 text-gray-100 placeholder:text-gray-800" placeholder="Sequence Title..." />
-              
+
               {!showExtendedFields && (
-                <button 
+                <button
                   onClick={() => setShowExtendedFields(true)}
                   className="shrink-0 w-fit py-1.5 px-3 border border-dashed border-gray-800/60 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-600 hover:border-brand-500/40 hover:text-brand-500/80 transition-all flex items-center gap-1.5 group"
                 >
@@ -780,106 +786,106 @@ const Home = () => {
               </div>
             )}
 
-              {/* --- 留言板 (Message Board) --- */}
-              <div className="pt-4 animate-in fade-in slide-in-from-bottom duration-700">
-                <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
-                  <History size={14} className="text-brand-500/50" />
-                  TIMELINE
-                </div>
+            {/* --- 留言板 (Message Board) --- */}
+            <div className="pt-4 animate-in fade-in slide-in-from-bottom duration-700">
+              <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
+                <History size={14} className="text-brand-500/50" />
+                TIMELINE
+              </div>
 
-                <div className="space-y-4 mb-6">
-                  {activeTask.sequenceFrames?.length === 0 ? (
-                    <div className="py-6 text-center border border-dashed border-gray-800/40 rounded-3xl text-[10px] text-gray-700 italic">
-                      No logs recorded for this mission yet.
-                    </div>
-                  ) : (
-                    activeTask.sequenceFrames?.map((sf, idx) => (
-                      <div key={sf.frame.id || idx} className="group relative flex gap-4 pt-3 px-4 pb-1.5 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-brand-500/20 transition-all overflow-hidden">
-                        <div className="flex flex-col items-center flex-shrink-0">
-                          <div className="w-1 h-full bg-gray-800 rounded-full group-last:bg-transparent" />
-                        </div>
-                        <div className="flex-1 min-w-0 overflow-hidden">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs font-mono text-gray-500 uppercase tracking-tighter">
-                              {new Date(sf.addedAt).toLocaleTimeString('zh-TW', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                            </span>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
-                              {editingFrameId === sf.frame.id ? (
-                                <>
-                                  <button onClick={() => setEditingFrameId(null)} className="text-[9px] font-black uppercase text-gray-500 hover:text-gray-300">Cancel</button>
-                                  <button onClick={() => handleUpdateFrame(sf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-brand-500 hover:text-brand-400">Save</button>
-                                </>
-                              ) : (
-                                <>
-                                  <button onClick={() => handlePromoteToKeyframe(sf.frame)} disabled={isSaving} className="text-[9px] font-black uppercase text-knowledge-500/70 hover:text-knowledge-500 transition-colors mr-2">Promote</button>
-                                  <button onClick={() => { setEditingFrameId(sf.frame.id); setEditingFrameContent(sf.frame.content); }} className="text-[9px] font-black uppercase text-gray-500 hover:text-knowledge-500 transition-colors">Edit</button>
-                                  <button onClick={() => handleDeleteFrame(sf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-red-500/70 hover:text-red-500 transition-colors">Delete</button>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                          
-                          {editingFrameId === sf.frame.id ? (
-                            <div className="mt-2 bg-gray-900 border border-brand-500/30 rounded-xl p-2 min-w-0">
-                              <TiptapEditor content={editingFrameContent} onChange={setEditingFrameContent} />
-                            </div>
-                          ) : (
-                            <div className="flex-1 min-w-0">
-                              <TiptapEditor content={sf.frame.content} editable={false} />
-                            </div>
-                          )}
-                        </div>
+              <div className="space-y-4 mb-6">
+                {activeTask.sequenceFrames?.length === 0 ? (
+                  <div className="py-6 text-center border border-dashed border-gray-800/40 rounded-3xl text-[10px] text-gray-700 italic">
+                    No logs recorded for this mission yet.
+                  </div>
+                ) : (
+                  activeTask.sequenceFrames?.map((sf, idx) => (
+                    <div key={sf.frame.id || idx} className="group relative flex gap-4 pt-3 px-3 pb-1 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-brand-500/20 transition-all overflow-hidden">
+                      <div className="flex flex-col items-center flex-shrink-0">
+                        <div className="w-1 h-full bg-gray-800 rounded-full group-last:bg-transparent" />
                       </div>
-                    ))
-                  )}
-                </div>
+                      <div className="flex-1 min-w-0 overflow-hidden">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-mono text-gray-500 uppercase tracking-tighter">
+                            {new Date(sf.addedAt).toLocaleTimeString('zh-TW', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                          </span>
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                            {editingFrameId === sf.frame.id ? (
+                              <>
+                                <button onClick={() => setEditingFrameId(null)} className="text-[9px] font-black uppercase text-gray-500 hover:text-gray-300">Cancel</button>
+                                <button onClick={() => handleUpdateFrame(sf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-brand-500 hover:text-brand-400">Save</button>
+                              </>
+                            ) : (
+                              <>
+                                <button onClick={() => handlePromoteToKeyframe(sf.frame)} disabled={isSaving} className="text-[9px] font-black uppercase text-knowledge-500/70 hover:text-knowledge-500 transition-colors mr-2">Promote</button>
+                                <button onClick={() => { setEditingFrameId(sf.frame.id); setEditingFrameContent(sf.frame.content); }} className="text-[9px] font-black uppercase text-gray-500 hover:text-knowledge-500 transition-colors">Edit</button>
+                                <button onClick={() => handleDeleteFrame(sf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-red-500/70 hover:text-red-500 transition-colors">Delete</button>
+                              </>
+                            )}
+                          </div>
+                        </div>
 
-                {/* 新增留言區域 */}
-                <div className="mt-4">
-                  <div className="bg-gray-800/30 rounded-2xl border border-gray-800 p-2 focus-within:border-brand-500/40 transition-all shadow-inner">
-                    <TiptapEditor
-                      content={newFrameContent}
-                      onChange={setNewFrameContent}
-                    />
-                    <div className="flex justify-end p-2 border-t border-gray-800/50 mt-2">
-                      <button
-                        onClick={handleAddFrame}
-                        disabled={isSaving || !newFrameContent.trim()}
-                        className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-30 disabled:hover:bg-brand-600 text-white text-[10px] font-black rounded-xl transition-all shadow-lg shadow-brand-600/10 uppercase tracking-widest"
-                      >
-                        <Plus size={14} /> Commit Frame
-                      </button>
+                        {editingFrameId === sf.frame.id ? (
+                          <div className="mt-3 bg-gray-900 border border-brand-500/30 rounded-xl p-2 min-w-0">
+                            <TiptapEditor content={editingFrameContent} onChange={setEditingFrameContent} />
+                          </div>
+                        ) : (
+                          <div className="flex-1 min-w-0">
+                            <TiptapEditor content={sf.frame.content} editable={false} />
+                          </div>
+                        )}
+                      </div>
                     </div>
+                  ))
+                )}
+              </div>
+
+              {/* 新增留言區域 */}
+              <div className="mt-4">
+                <div className="bg-gray-800/30 rounded-2xl border border-gray-800 p-2 focus-within:border-brand-500/40 transition-all shadow-inner">
+                  <TiptapEditor
+                    content={newFrameContent}
+                    onChange={setNewFrameContent}
+                  />
+                  <div className="flex justify-end p-2 border-t border-gray-800/50 mt-2">
+                    <button
+                      onClick={handleAddFrame}
+                      disabled={isSaving || !newFrameContent.trim()}
+                      className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-30 disabled:hover:bg-brand-600 text-white text-[10px] font-black rounded-xl transition-all shadow-lg shadow-brand-600/10 uppercase tracking-widest"
+                    >
+                      <Plus size={14} /> Commit Frame
+                    </button>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="pt-8">
-                <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
-                  <History size={14} className="text-brand-500/50" />
-                  Linked Knowledge Graph
-                </div>
+            <div className="pt-8">
+              <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
+                <History size={14} className="text-brand-500/50" />
+                Linked Knowledge Graph
+              </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  {linkedKeyframes.length === 0 ? (
-                    <div className="col-span-2 py-8 text-center border border-dashed border-gray-800/40 rounded-3xl text-[10px] text-gray-700 italic">
-                      No evidence captured or linked for this mission segment.
+              <div className="grid grid-cols-2 gap-4">
+                {linkedKeyframes.length === 0 ? (
+                  <div className="col-span-2 py-8 text-center border border-dashed border-gray-800/40 rounded-3xl text-[10px] text-gray-700 italic">
+                    No evidence captured or linked for this mission segment.
+                  </div>
+                ) : (
+                  linkedKeyframes.map(sk => (
+                    <div
+                      key={sk.keyframe.id}
+                      onClick={() => { setActiveKeyframe(sk.keyframe); setActiveTask(null); setSidebarTab('keyframes'); }}
+                      className="p-4 bg-gray-900/20 border border-gray-800/40 rounded-2xl cursor-pointer hover:border-brand-500/40 transition-all truncate text-xs text-gray-600 italic"
+                    >
+                      <span className="font-black text-brand-500 mr-2 not-italic uppercase tracking-tighter text-[12px]">{sk.keyframe.title || 'untitled'}</span>
+                      {sk.keyframe.content.replace(/<[^>]+>/g, '') || "No content summary"}
                     </div>
-                  ) : (
-                    linkedKeyframes.map(sk => (
-                      <div
-                        key={sk.keyframe.id}
-                        onClick={() => { setActiveKeyframe(sk.keyframe); setActiveTask(null); setSidebarTab('keyframes'); }}
-                        className="p-4 bg-gray-900/20 border border-gray-800/40 rounded-2xl cursor-pointer hover:border-brand-500/40 transition-all truncate text-xs text-gray-600 italic"
-                      >
-                        <span className="font-black text-brand-500 mr-2 not-italic uppercase tracking-tighter text-[12px]">{sk.keyframe.title || 'untitled'}</span>
-                        {sk.keyframe.content.replace(/<[^>]+>/g, '') || "No content summary"}
-                      </div>
-                    ))
-                  )}
-                </div>
+                  ))
+                )}
               </div>
             </div>
+          </div>
         ) : activeKeyframe && sidebarTab === 'keyframes' ? (
           <div className="animate-in fade-in slide-in-from-right duration-500">
             <ViewHeader
@@ -924,7 +930,7 @@ const Home = () => {
             <div className="space-y-3">
               <MissionField icon={Compass} label="Epistemic Hook" content={fragmentEditHook} onChange={setFragmentEditHook} />
               <MissionField icon={FileText} label="Insight Depth" content={fragmentEditContent} onChange={setFragmentEditContent} />
-              
+
               {/* Keyframe's Frames (Read-only view) */}
               <div className="pt-8">
                 <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
