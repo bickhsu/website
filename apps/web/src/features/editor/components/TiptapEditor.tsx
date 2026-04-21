@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect } from 'react'
 import { InputRule } from '@tiptap/core'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
@@ -123,7 +123,7 @@ const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps)
       // 只有在內容真的不同時才更新，且避免在正在輸入時強制更新
       const isSame = currentHTML.replace(/\s/g, '') === safeContent.replace(/\s/g, '');
       if (!isSame) {
-        editor.commands.setContent(safeContent, false);
+        editor.commands.setContent(safeContent, { emitUpdate: false });
       }
     }
   }, [content, editor]);
