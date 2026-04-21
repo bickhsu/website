@@ -17,6 +17,7 @@ export class KeyframeService {
     return this.prisma.keyframeFrame.create({
       data: {
         keyframeId,
+        // @ts-ignore: Prisma client needs regeneration to recognize nested create for frame
         frame: {
           create: { content },
         },
