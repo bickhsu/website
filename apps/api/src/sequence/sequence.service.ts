@@ -53,21 +53,23 @@ export class SequenceService {
   }
 
   async addFrame(id: string, content: string) {
-    return this.prisma.sequenceFrame.create({
+    // 建立 Frame 的同時建立 SequenceFrame 關聯
+    const frame = await this.prisma.frame.create({
       data: {
-        sequence: {
-          connect: { id },
-        },
-        frame: {
+        content,
+        sequenceFrames: {
           create: {
-            content,
+            sequenceId: id,
           },
         },
       },
-      include: {
-        frame: true,
-      },
     });
+
+    return {
+      sequenceId: id,
+      frameId: frame.id,
+      frame,
+    };
   }
 
   async remove(id: string) {

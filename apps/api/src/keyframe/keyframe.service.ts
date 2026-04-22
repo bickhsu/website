@@ -14,18 +14,23 @@ export class KeyframeService {
   }
 
   async addFrame(keyframeId: string, content: string) {
-    return this.prisma.keyframeFrame.create({
+    // 建立 Frame 的同時建立 KeyframeFrame 關聯
+    const frame = await this.prisma.frame.create({
       data: {
-        keyframeId,
-        // @ts-ignore: Prisma client needs regeneration to recognize nested create for frame
-        frame: {
-          create: { content },
+        content,
+        keyframeFrames: {
+          create: {
+            keyframeId,
+          },
         },
       },
-      include: {
-        frame: true,
-      },
     });
+
+    return {
+      keyframeId,
+      frameId: frame.id,
+      frame,
+    };
   }
 
   async findAll() {
