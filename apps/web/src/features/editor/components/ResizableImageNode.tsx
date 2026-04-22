@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { NodeViewWrapper, NodeViewProps } from '@tiptap/react'
+import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react'
 
 const ResizableImageNode = (props: NodeViewProps) => {
   const { node, updateAttributes, selected } = props
