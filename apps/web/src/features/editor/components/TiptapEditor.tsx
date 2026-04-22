@@ -3,6 +3,7 @@ import { InputRule } from '@tiptap/core'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
 import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import { TaskList } from '@tiptap/extension-task-list'
@@ -10,7 +11,8 @@ import { TaskItem } from '@tiptap/extension-task-item'
 import { Link } from '@tiptap/extension-link'
 import { TableKit } from '@tiptap/extension-table'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
-import ImageResize from 'tiptap-extension-resize-image'
+import { ReactNodeViewRenderer } from '@tiptap/react'
+import ResizableImageNode from './ResizableImageNode'
 import { all, createLowlight } from 'lowlight'
 import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu'
 import { Palette, Link2, Table2, Code2, CheckSquare } from 'lucide-react'
@@ -36,6 +38,26 @@ const COLORS = [
 const LANGUAGES = ['javascript', 'typescript', 'python', 'html', 'css', 'sql', 'bash', 'yaml', 'json', 'markdown', 'plaintext']
 
 // --- Define Extensions Outside Component for Stability ---
+const ResizableImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: '100%',
+        renderHTML: attributes => {
+          return {
+            width: attributes.width,
+            style: `width: ${attributes.width}; max-width: 100%; height: auto; cursor: pointer;`,
+          };
+        },
+      },
+    };
+  },
+  addNodeView() {
+    return ReactNodeViewRenderer(ResizableImageNode);
+  },
+});
+
 const CustomLink = Link.extend({
   name: 'customLink',
   addInputRules() {
@@ -91,17 +113,15 @@ const getExtensions = () => [
       rel: 'noopener noreferrer',
     },
   }),
-  ImageResize.configure({
+  ResizableImage.configure({
+    inline: true,
     allowBase64: true,
-    HTMLAttributes: {
-      class: 'max-w-full h-auto rounded-lg shadow-sm',
-    },
   }),
 ];
 
 const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps) => {
   const extensions = React.useMemo(() => getExtensions(), []);
-  
+
   const editor = useEditor({
     editable,
     extensions,
@@ -119,7 +139,7 @@ const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps)
   // 使用一個稍微寬鬆的條件來檢查 HTML 是否真的改變，避免無限迴圈
   useEffect(() => {
     if (!editor) return;
-    
+
     const safeContent = content || "";
     const currentHTML = editor.getHTML();
     if (safeContent !== currentHTML) {
@@ -144,19 +164,19 @@ const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps)
         <BubbleMenu editor={editor} options={{ duration: 100 } as any}>
           <div className="flex items-center gap-1.5 p-1.5 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center gap-1 border-r border-gray-800 pr-1.5 mr-1 pt-0.5 pb-0.5">
-              <button 
+              <button
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 className={`p-1.5 rounded-lg hover:bg-gray-800 transition-colors text-[10px] font-black uppercase ${editor.isActive('bold') ? 'text-brand-500 bg-brand-500/10' : 'text-gray-400'}`}
               >
                 B
               </button>
-              <button 
+              <button
                 onClick={() => editor.chain().focus().toggleItalic().run()}
                 className={`p-1.5 rounded-lg hover:bg-gray-800 transition-colors text-[10px] font-black uppercase italic ${editor.isActive('italic') ? 'text-brand-500 bg-brand-500/10' : 'text-gray-400'}`}
               >
                 I
               </button>
-              <button 
+              <button
                 onClick={() => {
                   if (editor.isActive('link')) {
                     editor.chain().focus().unsetLink().run()
@@ -170,21 +190,21 @@ const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps)
               >
                 <Link2 size={12} />
               </button>
-              <button 
+              <button
                 onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
                 className="p-1.5 rounded-lg hover:bg-gray-800 transition-colors text-gray-400"
                 title="插入表格 (3x3)"
               >
                 <Table2 size={12} />
               </button>
-              <button 
+              <button
                 onClick={() => editor.chain().focus().toggleCodeBlock().run()}
                 className={`p-1.5 rounded-lg hover:bg-gray-800 transition-colors ${editor.isActive('codeBlock') ? 'text-brand-500 bg-brand-500/10' : 'text-gray-400'}`}
                 title="程式碼區塊"
               >
                 <Code2 size={12} />
               </button>
-              <button 
+              <button
                 onClick={() => editor.chain().focus().toggleTaskList().run()}
                 className={`p-1.5 rounded-lg hover:bg-gray-800 transition-colors ${editor.isActive('taskList') ? 'text-brand-500 bg-brand-500/10' : 'text-gray-400'}`}
                 title="待辦事項"
@@ -204,7 +224,7 @@ const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps)
                 </select>
               )}
             </div>
-            
+
             <div className="flex items-center gap-1">
               <Palette size={12} className="text-gray-600 ml-1 mr-0.5" />
               {COLORS.map((c) => (
@@ -223,6 +243,24 @@ const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps)
                 />
               ))}
             </div>
+
+            {editor.isActive('image') && (
+              <div className="flex items-center gap-1 border-l border-gray-800 pl-1.5 ml-1">
+                {[
+                  { label: '25%', val: '25%' },
+                  { label: '50%', val: '50%' },
+                  { label: '100%', val: '100%' }
+                ].map(size => (
+                  <button
+                    key={size.val}
+                    onClick={() => editor.chain().focus().updateAttributes('image', { width: size.val }).run()}
+                    className={`px-1.5 py-0.5 rounded text-[9px] font-bold hover:bg-gray-800 transition-colors ${editor.getAttributes('image').width === size.val ? 'text-brand-500 bg-brand-500/10' : 'text-gray-400'}`}
+                  >
+                    {size.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </BubbleMenu>
       )}
