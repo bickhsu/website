@@ -78,6 +78,11 @@ body {
   @apply leading-relaxed;
 }
 
+.prose :where(ul, ol):not(:where([class~="not-prose"] *)) {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
 .prose :where(p):last-child:not(:where([class~="not-prose"] *)) {
   margin-bottom: 0 !important;
 }
@@ -149,7 +154,7 @@ body {
 
 /* Code Block & Syntax Highlighting */
 .prose pre {
-  @apply bg-gray-900/80 border border-gray-800 rounded-2xl p-3 my-2 font-mono overflow-x-auto;
+  @apply bg-gray-900/80 border border-gray-800 rounded-2xl p-2.5 my-1 font-mono overflow-x-auto;
   line-height: 1.2 !important;
 }
 
