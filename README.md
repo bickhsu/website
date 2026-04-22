@@ -1,35 +1,56 @@
-# Context-Aware 任務與知識提煉系統 (Sequence & Frames)
+# Context-Aware Mission & Knowledge Extraction System (Sequence & Frames)
 
-## 專案緣起與核心痛點 (Background)
+一個專案開發者的「雙軌制」思考追蹤與知識提煉工具。
 
-這是一個結合「任務管理」、「像聊天室一樣的碎片紀錄」與「永久知識庫」的雙軌制筆記工具。
+## 核心設計哲學 (Core Philosophy)
 
-研發這個專案是為了解決工程師與研究員長久以來的痛點：**「我們寫的筆記通常只有結果，卻遺失了思考過程。」**
+> **「捕捉當下發散的 Frame，提煉伴隨一生的 Keyframe。」**
 
-一般的筆記軟體通常要求我們開一個空白文件，把所有推演過程寫在一起，最後容易變得又長又亂；而任務系統（如 Jira）則通常只在乎結果。這套系統打破了這個做法，讓「思考過程」與「知識結果」雙軌並行，卻又互相連結。
-
-## 設計概念：Sequence & Frames (Original Concept)
-
-這個專案的資料模型借鏡了影片剪輯裡的「時間軸（Timeline）」概念，用來重新詮釋人們處理任務、思考脈絡與記憶留存的過程：
-
-- **Sequence（序列 / 主題脈絡）**：一個任務、一場深度的思考、一次 Brainstorming 甚至是一段學習某個概念的過程，都可以被視為一段 Sequence。它記載了我們為了解決某個特定問題的頭尾連貫過程。
-- **Frame（影格 / 碎片筆記與留言）**：一個 Sequence 的過程是由許多的 Frame 所堆疊而成的。它可能是過程中產生的細碎想法、即時的留言、或者是稍縱即逝的靈感碎片。
-- **Keyframe（關鍵影格 / 核心知識與精華）**：當一個 Sequence 結束並被封存（Archived）後，最具價值、最核心的洞見與里程碑，會被淬煉並標記為 Keyframe。即使時間流逝，這些 Keyframe 依舊會被堅固地留存下來，成為你的外部知識庫（Second Brain）。
-
-## 實際運作情境 (Workflow)
-
-這個專案的資料模型借鏡了影片剪輯裡的「時間軸（Timeline）」概念，用來重新詮釋人們處理任務、思考脈絡與記憶留存的過程：
-
-1. **開坑 / 任務主題 (Sequence)**
-   當面對一個困難的 Bug 或研究陌生的新技術時，開啟一個任務。這記載了我們為解決特定問題的頭尾連貫過程。
-2. **碎碎念時間線 (Frames)**
-   進入任務後，介面呈現類似 LINE 或 Discord 聊天室的風格。在查資料、寫 Code、排除報錯的當下，將思緒、髒 Code 或是 Log，一條一條地像「留言」般送出。這些 **Frames** 完美還原了案發現場與嘗試的過程。
-3. **提煉永久知識 (Keyframes)**
-   當任務終於解開，可以在落落長的紀錄裡找到最關鍵、解法最漂亮的那「一則留言」，點擊 **提煉 (Promote)**。這則留言會被抽出來，升級淬煉成一篇精華文章 (**Keyframe**)，並加上記憶鉤子 (Hook)，存進大腦的外部知識庫（Second Brain）。
-
-**💡 知識的溯源能力**：
-這套系統會自動保持 Keyframe 與 Sequence 之間的關聯。未來遇到類似問題時，不僅能直接搜尋到那篇「精華文章」，如果對結論感到困惑，還能一鍵點擊跳回當年那次任務中，反查當時到底是經歷了哪些挫折的「案發現場全紀錄」。
+本專案解決「筆記只有結論，沒有過程」的痛點。它讓開發者在執行任務時透過「影格 (Frame)」紀錄思考日誌，並在任務結束後透過「提煉 (Promote)」機制產生結構化的知識。
 
 ---
 
-> 核心哲學：「捕捉當下發散的 Frame，提煉會伴隨你一生的 Keyframe。」
+## 領域實體定義 (Domain Entities)
+
+為了讓 AI 更好理解本專案的邏輯，以下是核心實體的技術定義：
+
+### 1. Sequence (序列 / 任務主體)
+- **定義**：代表一個完整的任務循環或專案開發過程。
+- **核心欄位**：`title`, `problemStatement`, `valueDelivered`, `status` (ACTIVE/ARCHIVED)。
+- **關係**：一對多關聯 Frames。
+
+### 2. Frame (影格 / 過程日誌)
+- **定義**：任務執行過程中的最小資訊單位。呈現方式類似聊天室的 Timeline。
+- **核心欄位**：`content` (Rich Text/Code Blocks), `addedAt`。
+- **行為**：每一則 Frame 都可以被「提煉 (Promote)」為 Keyframe。
+
+### 3. Keyframe (關鍵影格 / 精華知識)
+- **定義**：從日誌中淬煉出的核心結論，屬於永久知識庫（Second Brain）。
+- **核心欄位**：`title`, `hook` (喚醒記憶的短語), `content`, `domain` (GENERAL/WORK/PERSONAL)。
+- **關係**：透過 `SequenceKeyframe` 多對多關聯表，達成知識與原始任務的溯源追蹤。
+
+---
+
+## 系統工作流 (Workflow for Developers)
+
+1. **Capture (捕捉)**：在 `Sequence` 下新增 `Frame` 記錄即時想法或 Debug 過程。
+2. **Refine (精煉)**：任務結束後，選擇關鍵 Frame 進行 **Promote**。
+3. **Trace (溯源)**：在查看 `Keyframe` 時，可一鍵點擊跳回當初產出該知識的 `Sequence` 案發現場。
+
+---
+
+## 技術架構 (Technical Stack)
+
+- **Monorepo 管理**：`apps/api` (後端), `apps/web` (前端)。
+- **Backend**：NestJS + PostgreSQL + Prisma ORM。
+- **Frontend**：React (Vite) + Tailwind CSS。
+- **Rich Text**：Tiptap Editor (高度客製化，支援 Markdown 與 Code Snippets)。
+
+## 如何啟動 (Getting Started)
+
+1. **環境變數**：複製 `.env.example` 到 `.env` 並配置資料庫。
+2. **依賴安裝**：於根目錄執行 `npm install`。
+3. **啟動開發視窗**：
+   - 後端：`cd apps/api && npm run start:dev`
+   - 前端：`cd apps/web && npm run dev`
+
