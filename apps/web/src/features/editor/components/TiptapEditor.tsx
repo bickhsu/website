@@ -3,7 +3,6 @@ import { InputRule } from '@tiptap/core'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
 import StarterKit from '@tiptap/starter-kit'
-import Image from '@tiptap/extension-image'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import { TaskList } from '@tiptap/extension-task-list'
@@ -11,6 +10,7 @@ import { TaskItem } from '@tiptap/extension-task-item'
 import { Link } from '@tiptap/extension-link'
 import { TableKit } from '@tiptap/extension-table'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
+import ImageResize from 'tiptap-extension-resize-image'
 import { all, createLowlight } from 'lowlight'
 import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu'
 import { Palette, Link2, Table2, Code2, CheckSquare } from 'lucide-react'
@@ -36,23 +36,6 @@ const COLORS = [
 const LANGUAGES = ['javascript', 'typescript', 'python', 'html', 'css', 'sql', 'bash', 'yaml', 'json', 'markdown', 'plaintext']
 
 // --- Define Extensions Outside Component for Stability ---
-const ResizableImage = Image.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      width: {
-        default: '100%',
-        renderHTML: attributes => {
-          return {
-            width: attributes.width,
-            style: `width: ${attributes.width}; max-width: 100%; height: auto; cursor: pointer;`,
-          };
-        },
-      },
-    };
-  },
-});
-
 const CustomLink = Link.extend({
   name: 'customLink',
   addInputRules() {
@@ -108,9 +91,11 @@ const getExtensions = () => [
       rel: 'noopener noreferrer',
     },
   }),
-  ResizableImage.configure({
-    inline: true,
+  ImageResize.configure({
     allowBase64: true,
+    HTMLAttributes: {
+      class: 'max-w-full h-auto rounded-lg shadow-sm',
+    },
   }),
 ];
 
@@ -238,24 +223,6 @@ const TiptapEditor = ({ content, onChange, editable = true }: TiptapEditorProps)
                 />
               ))}
             </div>
-
-            {editor.isActive('image') && (
-              <div className="flex items-center gap-1 border-l border-gray-800 pl-1.5 ml-1">
-                {[
-                  { label: '25%', val: '25%' },
-                  { label: '50%', val: '50%' },
-                  { label: '100%', val: '100%' }
-                ].map(size => (
-                  <button
-                    key={size.val}
-                    onClick={() => editor.chain().focus().updateAttributes('image', { width: size.val }).run()}
-                    className={`px-1.5 py-0.5 rounded text-[9px] font-bold hover:bg-gray-800 transition-colors ${editor.getAttributes('image').width === size.val ? 'text-brand-500 bg-brand-500/10' : 'text-gray-400'}`}
-                  >
-                    {size.label}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </BubbleMenu>
       )}
