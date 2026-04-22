@@ -286,8 +286,8 @@ const Home = () => {
         currentTaskIdRef.current = activeTask.id;
 
         setTaskTitle(activeTask.title || "Untitled Mission")
-        setProblemStatement(activeTask.problemStatement || "")
-        setValueDelivered(activeTask.valueDelivered || "")
+        setProblemStatement(trimContent(activeTask.problemStatement || ""))
+        setValueDelivered(trimContent(activeTask.valueDelivered || ""))
         setTaskStatus(activeTask.status || "Inprocessing")
 
         // 自動偵測：如果有內容則展開，沒內容則隱藏
@@ -607,7 +607,7 @@ const Home = () => {
         currentKeyframeIdRef.current = activeKeyframe.id;
         setFragmentEditTitle(activeKeyframe.title || "Untitled Keyframe")
         setFragmentEditHook(activeKeyframe.hook || "")
-        setFragmentEditContent(activeKeyframe.content || "")
+        setFragmentEditContent(trimContent(activeKeyframe.content || ""))
 
         if (!activeKeyframe.keyframeFrames) {
           fetchKeyframeDetail(activeKeyframe.id);
@@ -818,7 +818,7 @@ const Home = () => {
                             ) : (
                               <>
                                 <button onClick={() => handlePromoteToKeyframe(sf.frame)} disabled={isSaving} className="text-[9px] font-black uppercase text-knowledge-500/70 hover:text-knowledge-500 transition-colors mr-2">Promote</button>
-                                <button onClick={() => { setEditingFrameId(sf.frame.id); setEditingFrameContent(sf.frame.content); }} className="text-[9px] font-black uppercase text-gray-500 hover:text-knowledge-500 transition-colors">Edit</button>
+                                <button onClick={() => { setEditingFrameId(sf.frame.id); setEditingFrameContent(trimContent(sf.frame.content)); }} className="text-[9px] font-black uppercase text-gray-500 hover:text-knowledge-500 transition-colors">Edit</button>
                                 <button onClick={() => handleDeleteFrame(sf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-red-500/70 hover:text-red-500 transition-colors">Delete</button>
                               </>
                             )}
@@ -959,7 +959,7 @@ const Home = () => {
                                 </>
                               ) : (
                                 <>
-                                  <button onClick={() => { setEditingFrameId(kf.frame.id); setEditingFrameContent(kf.frame.content); }} className="text-[9px] font-black uppercase text-gray-500 hover:text-knowledge-500 transition-colors">Edit</button>
+                                  <button onClick={() => { setEditingFrameId(kf.frame.id); setEditingFrameContent(trimContent(kf.frame.content)); }} className="text-[9px] font-black uppercase text-gray-500 hover:text-knowledge-500 transition-colors">Edit</button>
                                   <button onClick={() => handleDeleteFrame(kf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-red-500/70 hover:text-red-500 transition-colors">Delete</button>
                                 </>
                               )}
