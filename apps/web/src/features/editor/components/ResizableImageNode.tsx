@@ -49,7 +49,7 @@ const ResizableImageNode = (props: NodeViewProps) => {
 
   return (
     <NodeViewWrapper 
-      className={`inline-block relative group ${selected ? 'outline outline-2 outline-brand-500 rounded-lg' : ''} leading-[0] m-0`}
+      className={`inline-block relative group ${selected && props.editor.isEditable ? 'ring-2 ring-brand-500 rounded-lg' : ''} leading-[0] p-0 m-1`}
       style={{ width, maxWidth: '100%' }}
     >
       <img
@@ -58,7 +58,7 @@ const ResizableImageNode = (props: NodeViewProps) => {
         alt={node.attrs.alt}
         title={node.attrs.title}
         style={{ transition: resizing ? 'none' : 'width 0.2s' }}
-        className="w-full h-auto block rounded-lg cursor-default shadow-sm m-0"
+        className="w-full h-auto block rounded-lg cursor-default shadow-lg m-0 p-0"
       />
       
       {/* Resize Handle - Right Edge Area */}
