@@ -415,10 +415,11 @@ const Home = () => {
     if (!activeTask || !newFrameContent.trim()) return
     try {
       setIsSaving(true)
+      const syncedContent = await syncContentImages(newFrameContent)
       const res = await fetch(`${ENDPOINTS.SEQUENCES}/${activeTask.id}/frames`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: trimContent(newFrameContent) })
+        body: JSON.stringify({ content: trimContent(syncedContent) })
       })
       if (res.ok) {
         setNewFrameContent("")
@@ -436,10 +437,11 @@ const Home = () => {
     if (!activeKeyframe || !newKeyframeFrameContent.trim()) return
     try {
       setIsSaving(true)
+      const syncedContent = await syncContentImages(newKeyframeFrameContent)
       const res = await fetch(`${ENDPOINTS.KEYFRAMES}/${activeKeyframe.id}/frames`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: trimContent(newKeyframeFrameContent) })
+        body: JSON.stringify({ content: trimContent(syncedContent) })
       })
       if (res.ok) {
         setNewKeyframeFrameContent("")
