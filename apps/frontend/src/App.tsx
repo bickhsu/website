@@ -1,11 +1,81 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+
+function CounterButton({
+  name,
+  count,
+  onIncrement,
+  isLoading
+}: {
+  name: string,
+  count: number,
+  onIncrement: () => void,
+  isLoading: boolean
+}) {
+  if (isLoading) {
+    return (
+      <button
+        type="button"
+        className="counter"
+        disabled={true}
+      >
+        Loading ...
+      </button>
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      className="counter"
+      onClick={onIncrement}
+    >
+      {name} is {count}
+    </button>
+  )
+}
+
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [fruits, setFruits] = useState([
+    { id: 1, name: "Apple", count: 0 },
+    { id: 2, name: "Banana", count: 0 },
+    { id: 3, name: "Orange", count: 0 },
+    { id: 4, name: "Strawberry", count: 0 },
+    { id: 5, name: "Mango", count: 0 },
+    { id: 6, name: "Grapes", count: 0 },
+    { id: 7, name: "Pineapple", count: 0 },
+    { id: 8, name: "Watermelon", count: 0 },
+    { id: 9, name: "Cherry", count: 0 },
+    { id: 10, name: "Blueberry", count: 0 },
+    { id: 11, name: "Raspberry", count: 0 },
+    { id: 12, name: "Blackberry", count: 0 },
+    { id: 13, name: "Cranberry", count: 0 },
+    { id: 14, name: "Lemon", count: 0 },
+    { id: 15, name: "Lime", count: 0 },
+    { id: 16, name: "Grapefruit", count: 0 },
+    { id: 17, name: "Peach", count: 0 },
+    { id: 18, name: "Pear", count: 0 },
+    { id: 19, name: "Plum", count: 0 },
+    { id: 20, name: "Kiwi", count: 0 },
+  ])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const onIncrement = (id: number) => {
+    setFruits(fruits.map(fruit => fruit.id === id ? { ...fruit, count: fruit.count + 1 } : fruit))
+  }
+
+  useEffect(() => {
+    const init = async () => {
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      setIsLoading(false)
+    }
+    init()
+  }, [])
 
   return (
     <>
@@ -21,13 +91,15 @@ function App() {
             Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+        {fruits.map(fruit => (
+          <CounterButton
+            key={fruit.id}
+            name={fruit.name}
+            count={fruit.count}
+            onIncrement={() => onIncrement(fruit.id)}
+            isLoading={isLoading} />
+        ))}
+        <div>Total Fruit: {fruits.reduce((acc, fruit) => acc + fruit.count, 0)}</div>
       </section>
 
       <div className="ticks"></div>
