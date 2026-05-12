@@ -112,6 +112,11 @@ const SidebarTabButton = ({ active, onClick, icon: Icon, label, colorClass }: { 
   </button>
 )
 
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr)
+  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
 // --- 抽離複用組件 : SidebarItem ---
 const SidebarItem = ({
   active,
@@ -867,7 +872,7 @@ const Home = () => {
                       <div className="flex-1 min-w-0 overflow-hidden">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs font-mono text-gray-500 uppercase tracking-tighter">
-                            {new Date(sf.addedAt).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
+                            {formatDate(sf.addedAt)}
                           </span>
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
                             {editingFrameId === sf.frame.id ? (
@@ -1013,7 +1018,7 @@ const Home = () => {
                         <div className="flex-1 min-w-0 overflow-hidden">
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-xs font-mono text-gray-500 uppercase tracking-tighter block mb-2">
-                              {new Date(kf.addedAt).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
+                              {formatDate(kf.addedAt)}
                             </span>
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
                               {editingFrameId === kf.frame.id ? (
