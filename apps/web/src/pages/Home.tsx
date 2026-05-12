@@ -867,7 +867,7 @@ const Home = () => {
                       <div className="flex-1 min-w-0 overflow-hidden">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs font-mono text-gray-500 uppercase tracking-tighter">
-                            {new Date(sf.addedAt).toLocaleTimeString('zh-TW', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                            {new Date(sf.addedAt).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
                           </span>
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
                             {editingFrameId === sf.frame.id ? (
@@ -1013,7 +1013,7 @@ const Home = () => {
                         <div className="flex-1 min-w-0 overflow-hidden">
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-xs font-mono text-gray-500 uppercase tracking-tighter block mb-2">
-                              {new Date(kf.addedAt).toLocaleTimeString('zh-TW', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                              {new Date(kf.addedAt).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
                             </span>
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
                               {editingFrameId === kf.frame.id ? (
