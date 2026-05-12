@@ -121,7 +121,8 @@ const SidebarItem = ({
   activeColorClass,
   onDelete,
   onQuickAction,
-  quickActionIcon: QuickActionIcon
+  quickActionIcon: QuickActionIcon,
+  isArchived = false
 }: {
   active: boolean,
   onClick: () => void,
@@ -130,14 +131,29 @@ const SidebarItem = ({
   activeColorClass: string,
   onDelete?: (e: React.MouseEvent) => void,
   onQuickAction?: (e: React.MouseEvent) => void,
-  quickActionIcon?: any
+  quickActionIcon?: any,
+  isArchived?: boolean
 }) => (
   <div
     onClick={onClick}
-    className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${active ? `bg-gray-800/60 ${activeColorClass.replace('text-', 'border-').replace('500', '400')}/40` : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'}`}
+    className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${
+      isArchived 
+        ? 'opacity-40 hover:opacity-80 bg-gray-950/20' 
+        : ''
+    } ${
+      active 
+        ? `bg-gray-800/60 ${activeColorClass.replace('text-', 'border-').replace('500', '400')}/40` 
+        : 'border-transparent hover:bg-gray-800/40 hover:border-gray-800'
+    }`}
   >
     <div className="flex-1 min-w-0">
-      <div className={`text-xs font-black truncate ${active ? activeColorClass : 'text-gray-400 group-hover:text-gray-200'}`}>{title}</div>
+      <div className={`text-xs font-black truncate ${
+        active 
+          ? activeColorClass 
+          : isArchived 
+            ? 'text-gray-500 group-hover:text-gray-400' 
+            : 'text-gray-400 group-hover:text-gray-200'
+      }`}>{title}</div>
       <div className="mt-2 text-[8px] uppercase tracking-tighter opacity-40">{subtitle}</div>
     </div>
     <div className="flex items-center gap-1">
@@ -160,6 +176,7 @@ const SidebarItem = ({
     </div>
   </div>
 )
+
 
 // --- 抽離複用組件 : ViewHeader ---
 const ViewHeader = ({
@@ -717,6 +734,7 @@ const Home = () => {
                 onClick={() => { setActiveTask(seq); setActiveKeyframe(null); }}
                 title={seq.title}
                 subtitle={seq.status}
+                isArchived={seq.status === 'ARCHIVED'}
                 activeColorClass="text-brand-500"
                 onQuickAction={(e) => { e.stopPropagation(); setQuickLinkTaskId(seq.id); }}
                 quickActionIcon={Plus}
@@ -747,14 +765,14 @@ const Home = () => {
 
       <main className={`flex-1 min-w-0 max-w-5xl mx-auto px-16 pt-8 pb-24 ${isResizing ? '' : 'transition-all duration-300'} relative`}>
         {activeTask && sidebarTab === 'sequences' ? (
-          <div className="animate-in fade-in slide-in-from-bottom duration-500">
+          <div className={`animate-in fade-in slide-in-from-bottom duration-500 ${taskStatus === 'ARCHIVED' ? 'opacity-75' : ''}`}>
             <ViewHeader
               icon={KirbyIcon}
-              title="Active Sequence"
+              title={taskStatus === 'ARCHIVED' ? "Archived Sequence" : "Active Sequence"}
               id={activeTask.id}
-              colorClass="text-brand-500"
+              colorClass={taskStatus === 'ARCHIVED' ? "text-gray-500" : "text-brand-500"}
             >
-              <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} className="bg-gray-900 border border-gray-800 text-[10px] font-black uppercase text-brand-400 px-4 py-2 rounded-xl focus:outline-none">
+              <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} className={`bg-gray-900 border border-gray-800 text-[10px] font-black uppercase px-4 py-2 rounded-xl focus:outline-none transition-colors ${taskStatus === 'ARCHIVED' ? 'text-gray-500' : 'text-brand-400'}`}>
                 <option value="ACTIVE">Active</option>
                 <option value="ARCHIVED">Archived</option>
               </select>
@@ -764,16 +782,39 @@ const Home = () => {
               >
                 <Trash2 size={16} />
               </button>
-              <button onClick={handleSaveTask} disabled={isSaving} className="px-8 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-black rounded-2xl transition-all shadow-xl shadow-brand-600/10 uppercase tracking-widest">SYNC</button>
+              <button 
+                onClick={handleSaveTask} 
+                disabled={isSaving} 
+                className={`px-8 py-2.5 text-white text-xs font-black rounded-2xl transition-all shadow-xl uppercase tracking-widest ${
+                  taskStatus === 'ARCHIVED' 
+                    ? 'bg-gray-700 hover:bg-gray-600 shadow-gray-700/10' 
+                    : 'bg-brand-600 hover:bg-brand-500 shadow-brand-600/10'
+                }`}
+              >
+                SYNC
+              </button>
             </ViewHeader>
 
             <div className="flex md:items-center items-start flex-col md:flex-row gap-4 mb-4 justify-between">
-              <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="flex-1 min-w-0 text-2xl font-black bg-transparent border-none p-0 focus:outline-none caret-brand-500 text-gray-100 placeholder:text-gray-800" placeholder="Sequence Title..." />
+              <input 
+                value={taskTitle} 
+                onChange={(e) => setTaskTitle(e.target.value)} 
+                className={`flex-1 min-w-0 text-2xl font-black bg-transparent border-none p-0 focus:outline-none transition-all ${
+                  taskStatus === 'ARCHIVED' 
+                    ? 'caret-gray-500 text-gray-400' 
+                    : 'caret-brand-500 text-gray-100'
+                } placeholder:text-gray-800`} 
+                placeholder="Sequence Title..." 
+              />
 
               {!showExtendedFields && (
                 <button
                   onClick={() => setShowExtendedFields(true)}
-                  className="shrink-0 w-fit py-1.5 px-3 border border-dashed border-gray-800/60 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-600 hover:border-brand-500/40 hover:text-brand-500/80 transition-all flex items-center gap-1.5 group"
+                  className={`shrink-0 w-fit py-1.5 px-3 border border-dashed rounded-full text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 group ${
+                    taskStatus === 'ARCHIVED'
+                      ? 'border-gray-800/40 text-gray-700 hover:border-gray-600 hover:text-gray-500'
+                      : 'border-gray-800/60 text-gray-600 hover:border-brand-500/40 hover:text-brand-500/80'
+                  }`}
                 >
                   <Plus size={12} className="opacity-50 group-hover:opacity-100" />
                   Set Scene Context
@@ -783,15 +824,27 @@ const Home = () => {
 
             {showExtendedFields && (
               <div className="space-y-3 mb-4">
-                <MissionField icon={Flag} label="Problem Statement" content={problemStatement} onChange={setProblemStatement} />
-                <MissionField icon={Activity} label="Value Delivered" content={valueDelivered} onChange={setValueDelivered} />
+                <MissionField 
+                  icon={Flag} 
+                  label="Problem Statement" 
+                  content={problemStatement} 
+                  onChange={setProblemStatement} 
+                  activeColorClass={taskStatus === 'ARCHIVED' ? 'text-gray-500' : 'text-brand-500'} 
+                />
+                <MissionField 
+                  icon={Activity} 
+                  label="Value Delivered" 
+                  content={valueDelivered} 
+                  onChange={setValueDelivered} 
+                  activeColorClass={taskStatus === 'ARCHIVED' ? 'text-gray-500' : 'text-brand-500'} 
+                />
               </div>
             )}
 
             {/* --- 留言板 (Message Board) --- */}
             <div className="pt-4 animate-in fade-in slide-in-from-bottom duration-700">
               <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
-                <History size={14} className="text-brand-500/50" />
+                <History size={14} className={taskStatus === 'ARCHIVED' ? "text-gray-500/40" : "text-brand-500/50"} />
                 TIMELINE
               </div>
 
@@ -802,7 +855,12 @@ const Home = () => {
                   </div>
                 ) : (
                   activeTask.sequenceFrames?.map((sf, idx) => (
-                    <div key={sf.frame.id || idx} className="group relative flex gap-4 pt-3 px-3 pb-1 bg-gray-900/10 border border-gray-800/20 rounded-2xl hover:border-brand-500/20 transition-all overflow-hidden">
+                    <div 
+                      key={sf.frame.id || idx} 
+                      className={`group relative flex gap-4 pt-3 px-3 pb-1 bg-gray-900/10 border border-gray-800/20 rounded-2xl transition-all overflow-hidden ${
+                        taskStatus === 'ARCHIVED' ? 'hover:border-gray-700' : 'hover:border-brand-500/20'
+                      }`}
+                    >
                       <div className="flex flex-col items-center flex-shrink-0">
                         <div className="w-1 h-full bg-gray-800 rounded-full group-last:bg-transparent" />
                       </div>
@@ -815,7 +873,7 @@ const Home = () => {
                             {editingFrameId === sf.frame.id ? (
                               <>
                                 <button onClick={() => setEditingFrameId(null)} className="text-[9px] font-black uppercase text-gray-500 hover:text-gray-300">Cancel</button>
-                                <button onClick={() => handleUpdateFrame(sf.frame.id)} disabled={isSaving} className="text-[9px] font-black uppercase text-brand-500 hover:text-brand-400">Save</button>
+                                <button onClick={() => handleUpdateFrame(sf.frame.id)} disabled={isSaving} className={`text-[9px] font-black uppercase ${taskStatus === 'ARCHIVED' ? 'text-gray-400 hover:text-gray-300' : 'text-brand-500 hover:text-brand-400'}`}>Save</button>
                               </>
                             ) : (
                               <>
@@ -828,7 +886,7 @@ const Home = () => {
                         </div>
 
                         {editingFrameId === sf.frame.id ? (
-                          <div className="mt-3 bg-gray-900 border border-brand-500/30 rounded-xl p-2 min-w-0">
+                          <div className={`mt-3 bg-gray-900 border rounded-xl p-2 min-w-0 ${taskStatus === 'ARCHIVED' ? 'border-gray-800' : 'border-brand-500/30'}`}>
                             <TiptapEditor content={editingFrameContent} onChange={setEditingFrameContent} />
                           </div>
                         ) : (
@@ -844,7 +902,7 @@ const Home = () => {
 
               {/* 新增留言區域 */}
               <div className="mt-4">
-                <div className="bg-gray-800/30 rounded-2xl border border-gray-800 p-2 focus-within:border-brand-500/40 transition-all shadow-inner">
+                <div className={`bg-gray-800/30 rounded-2xl border p-2 transition-all shadow-inner ${taskStatus === 'ARCHIVED' ? 'border-gray-800 focus-within:border-gray-700' : 'border-gray-800 focus-within:border-brand-500/40'}`}>
                   <TiptapEditor
                     content={newFrameContent}
                     onChange={setNewFrameContent}
@@ -853,7 +911,11 @@ const Home = () => {
                     <button
                       onClick={handleAddFrame}
                       disabled={isSaving || !newFrameContent.trim()}
-                      className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-30 disabled:hover:bg-brand-600 text-white text-[10px] font-black rounded-xl transition-all shadow-lg shadow-brand-600/10 uppercase tracking-widest"
+                      className={`flex items-center gap-2 px-4 py-2 disabled:opacity-30 text-white text-[10px] font-black rounded-xl transition-all shadow-lg uppercase tracking-widest ${
+                        taskStatus === 'ARCHIVED'
+                          ? 'bg-gray-700 hover:bg-gray-600 disabled:hover:bg-gray-700 shadow-gray-700/10'
+                          : 'bg-brand-600 hover:bg-brand-500 disabled:hover:bg-brand-600 shadow-brand-600/10'
+                      }`}
                     >
                       <Plus size={14} /> Commit Frame
                     </button>
@@ -864,7 +926,7 @@ const Home = () => {
 
             <div className="pt-8">
               <div className="flex items-center gap-2 mb-4 text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] border-b border-gray-800/40 pb-1">
-                <History size={14} className="text-brand-500/50" />
+                <History size={14} className={taskStatus === 'ARCHIVED' ? "text-gray-500/40" : "text-brand-500/50"} />
                 Linked Knowledge Graph
               </div>
 
